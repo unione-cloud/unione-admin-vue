@@ -1,13 +1,13 @@
 <template>
   <a-dropdown
-    v-if="currentUser && currentUser.nickname"
+    v-if="principal && principal.aliasName"
     class="unione-avatar-dropdown"
     placement="bottomRight"
     overlayClassName="avatar-dropdown-container"
   >
     <span>
-      <a-avatar size="small" :src="currentUser.avatar" class="unione-avatar" />
-      <span class="unione-avatar-name anticon">{{ currentUser.nickname }}</span>
+      <a-avatar size="small" :src="principal.avatar" class="unione-avatar" />
+      <span class="unione-avatar-name anticon">{{ principal.aliasName }}</span>
     </span>
     <template v-slot:overlay>
       <a-menu class="unione-dropdown-menu" :selected-keys="[]">
@@ -42,7 +42,7 @@ import { useI18n } from 'vue-i18n'
 export default defineComponent({
   name: 'AvatarDropdown',
   props: {
-    currentUser: {
+    principal: {
       type: Object,
       default: () => null
     },

@@ -13,11 +13,11 @@ import 'ant-design-vue/dist/reset.css'
 import locale from './locales'
 
 const app = createApp(App)
-
-app.use(createPinia())
-app.use(router)
-app.use(Antd)
-app.use(locale as any)
+app
+  .use(createPinia())
+  .use(router)
+  .use(Antd)
+  .use(locale as any)
 
 Object.keys(Icons).forEach((key: any) => {
   app.component(key, Icons[key])

@@ -35,13 +35,14 @@
 
         <div class="unione-header-right">
           <notice-icon class="item" />
-          <avatar-dropdown :current-user="currentUser" class="item" />
+          <avatar-dropdown :principal="principal" class="item" />
         </div>
       </a-layout-header>
       <a-layout-content
         :style="{ margin: '10px', padding: '10px', background: '#fff', minHeight: '280px' }"
       >
-        Content
+        Content-currentUser
+        {{ principal }}
       </a-layout-content>
     </a-layout>
   </a-layout>
@@ -59,12 +60,9 @@ import {
 } from '@ant-design/icons-vue'
 import { default as AvatarDropdown } from '@/components/avatar-dropdown.vue'
 import { default as NoticeIcon } from '@/components/notice-icon/index.vue'
-
-const currentUser = ref({
-  nickname: 'jeking',
-  avatar: '/logo.png'
-})
-
+import { useSessionStore } from '@/stores/session'
+const principal = useSessionStore().principal
+console.log('useSessionStore', useSessionStore)
 const state = ref({
   collapsed: false,
   selectedKeys: ['1'],

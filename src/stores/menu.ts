@@ -1,12 +1,14 @@
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { defineStore } from 'pinia'
 
-export const useMenuStore = defineStore('menu', () => {
-  const count = ref(0)
-  const doubleCount = computed(() => count.value * 2)
-  function increment() {
-    count.value++
-  }
+/**
+ * Admin Menu Store
+ */
+export const useAdminMenuStore = defineStore('unione-admin-menu', () => {
+  const menus = ref([])
 
-  return { count, doubleCount, increment }
+  // 加载Admin 菜单
+  function loadMenu() {}
+
+  return { menus, loadMenu }
 })
