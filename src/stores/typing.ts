@@ -1,3 +1,4 @@
+import type { V } from 'vitest/dist/reporters-yx5ZTtEV'
 import type { VNodeChild } from 'vue'
 
 export interface MenuBtn {
@@ -53,4 +54,18 @@ export interface LoginData {
   tel?: string
   password: string
   captcha?: string
+}
+
+export interface ViewSetting {
+  primaryColor?: string
+  navTheme?: string
+  hideFooter?: boolean
+  layout?: string
+  contentWidth?: string
+  fixedHeader?: boolean
+  fixSiderbar?: boolean
+  autoHideHeader?: boolean
+  showsetting?: boolean
+  colorWeak?: boolean
+  multiTab?: boolean
 }

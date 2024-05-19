@@ -61,8 +61,9 @@ import {
 import { default as AvatarDropdown } from '@/components/avatar-dropdown.vue'
 import { default as NoticeIcon } from '@/components/notice-icon/index.vue'
 import { useSessionStore } from '@/stores/session'
-const principal = useSessionStore().principal
-console.log('useSessionStore', useSessionStore)
+const session = useSessionStore()
+const principal = session.principal
+
 const state = ref({
   collapsed: false,
   selectedKeys: ['1'],

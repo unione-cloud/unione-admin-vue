@@ -41,9 +41,11 @@ export const useSessionStore = defineStore('unione-admin-session', () => {
     if (storage[key]) {
       return storage[key]
     }
-    return sessionStorage.getItem(key)
+    storage[key] = sessionStorage.getItem(key)
+    return storage[key]
   }
 
+  // 删除会话存储
   function delStorage(key: string) {
     delete storage[key]
     return sessionStorage.removeItem(key)
