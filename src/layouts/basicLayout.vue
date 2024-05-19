@@ -2,7 +2,6 @@
   <a-layout class="unione-basic-layout">
     <a-layout-sider
       v-model:collapsed="state.collapsed"
-      :trigger="null"
       :collapsedWidth="50"
       collapsible
       class="unione-layout-sider"
@@ -20,16 +19,24 @@
     </a-layout-sider>
     <a-layout>
       <a-layout-header style="background: #fff; padding: 0" class="unione-layout-header">
-        <menu-unfold-outlined
-          v-if="state.collapsed"
-          class="trigger"
-          @click="() => (state.collapsed = !state.collapsed)"
-        />
-        <menu-fold-outlined
-          v-else
-          class="trigger"
-          @click="() => (state.collapsed = !state.collapsed)"
-        />
+        <div class="unione-header-left">
+          <menu-unfold-outlined
+            v-if="state.collapsed"
+            class="trigger"
+            @click="() => (state.collapsed = !state.collapsed)"
+          />
+          <menu-fold-outlined
+            v-else
+            class="trigger"
+            @click="() => (state.collapsed = !state.collapsed)"
+          />
+          <a-menu class="unione-header-menu" mode="horizontal" :items="items" />
+        </div>
+
+        <div class="unione-header-right">
+          <notice-icon class="item" />
+          <avatar-dropdown :current-user="currentUser" class="item" />
+        </div>
       </a-layout-header>
       <a-layout-content
         :style="{ margin: '10px', padding: '10px', background: '#fff', minHeight: '280px' }"
@@ -50,6 +57,13 @@ import {
   InboxOutlined,
   AppstoreOutlined
 } from '@ant-design/icons-vue'
+import { default as AvatarDropdown } from '@/components/avatar-dropdown.vue'
+import { default as NoticeIcon } from '@/components/notice-icon/index.vue'
+
+const currentUser = ref({
+  nickname: 'jeking',
+  avatar: '/logo.png'
+})
 
 const state = ref({
   collapsed: false,
@@ -173,15 +187,36 @@ watch(
   }
 
   .unione-layout-header {
-    .trigger {
-      font-size: 18px;
-      line-height: 64px;
-      padding: 0 15px;
-      cursor: pointer;
-      transition: color 0.3s;
+    .unione-header-left {
+      float: left;
+      width: calc(100% - 140px);
+
+      .trigger {
+        font-size: 18px;
+        line-height: 64px;
+        padding: 0 15px;
+        cursor: pointer;
+        transition: color 0.3s;
+      }
+      .trigger:hover {
+        color: #1890ff;
+      }
+
+      .unione-header-menu {
+        display: inline-block;
+
+        /deep/.ant-menu-item {
+          top: -3px;
+        }
+      }
     }
-    .trigger:hover {
-      color: #1890ff;
+
+    .unione-header-right {
+      float: right;
+
+      /deep/.item {
+        margin: 0 10px;
+      }
     }
   }
 }
