@@ -17,7 +17,7 @@ export interface MenuMeta {
   keepAlive?: boolean
   lock?: boolean
   mergeTab?: boolean
-  btns: Array<MenuBtn>
+  btns?: Array<MenuBtn>
 }
 
 export interface MenuItem {

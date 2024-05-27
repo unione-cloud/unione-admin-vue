@@ -22,7 +22,6 @@ export default {
   },
   // web setting
   web: {
-    // eslint-disable-next-line no-undef
-    loginUrl: process.env.VUE_APP_LOGIN_URL || '/login'
+    loginUrl: import.meta.env.VUE_APP_LOGIN_URL || '/login'
   }
 }
