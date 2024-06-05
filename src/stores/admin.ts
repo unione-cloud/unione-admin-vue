@@ -20,17 +20,18 @@ export const useAdminStore = defineStore('unione-admin', () => {
   // 菜单数据集合
   const menuData = ref<Array<MenuItem>>([])
 
-  const menuTree = ref<any>([])
+  const topMenu = ref<any>([])
+  const sideMenu = ref<any>([])
   // view配置
   const view = ref<ViewSetting>({ ...config.view })
 
   // 构建菜单树
   function buildMenu(item?: MenuItem) {
     if (!item) {
-      menuTree.value = []
+      sideMenu.value = []
       menuData.value.forEach((item) => {
         const menu = buildMenu(item)
-        menuTree.value.push(menu)
+        sideMenu.value.push(menu)
       })
     } else {
       const menu: any = {
@@ -171,5 +172,5 @@ export const useAdminStore = defineStore('unione-admin', () => {
     view.value = { ...view.value, ...setting }
   }
 
-  return { menuData, menuTree, loadMenu, view, setView }
+  return { menuData, sideMenu, topMenu, loadMenu, view, setView }
 })

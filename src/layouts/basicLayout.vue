@@ -5,6 +5,7 @@
       :collapsedWidth="50"
       collapsible
       class="unione-layout-sider"
+      v-if="sideMenu && sideMenu.length"
     >
       <div class="logo" />
       <a-menu
@@ -14,23 +15,30 @@
         mode="inline"
         theme="dark"
         :inline-collapsed="state.collapsed"
-        :items="menuTree"
+        :items="sideMenu"
       ></a-menu>
     </a-layout-sider>
     <a-layout>
-      <a-layout-header style="background: #fff; padding: 0" class="unione-layout-header">
+      <a-layout-header
+        style="background: #fff; padding: 0"
+        class="unione-layout-header"
+        v-if="(sideMenu && sideMenu.length) || (topMenu && topMenu.length)"
+      >
         <div class="unione-header-left">
-          <menu-unfold-outlined
-            v-if="state.collapsed"
-            class="trigger"
-            @click="() => (state.collapsed = !state.collapsed)"
-          />
-          <menu-fold-outlined
-            v-else
-            class="trigger"
-            @click="() => (state.collapsed = !state.collapsed)"
-          />
-          <a-menu class="unione-header-menu" mode="horizontal" :items="menuTree" />
+          <div class="logo" v-if="!sideMenu || !sideMenu.length" />
+          <template v-if="sideMenu && sideMenu.length">
+            <menu-unfold-outlined
+              v-if="state.collapsed"
+              class="trigger"
+              @click="() => (state.collapsed = !state.collapsed)"
+            />
+            <menu-fold-outlined
+              v-else
+              class="trigger"
+              @click="() => (state.collapsed = !state.collapsed)"
+            />
+          </template>
+          <a-menu class="unione-header-menu" mode="horizontal" :items="topMenu" />
         </div>
 
         <div class="unione-header-right">
@@ -42,7 +50,7 @@
         :style="{ margin: '10px', padding: '10px', background: '#fff', minHeight: '280px' }"
       >
         Content-view
-        {{ view }}
+        <RouterView></RouterView>
       </a-layout-content>
     </a-layout>
   </a-layout>
@@ -50,6 +58,7 @@
 
 <script lang="ts" setup>
 import { ref, watch } from 'vue'
+import { RouterView } from 'vue-router'
 import { default as AvatarDropdown } from '@/components/avatar-dropdown.vue'
 import { default as NoticeIcon } from '@/components/notice-icon/index.vue'
 import { useSessionStore } from '@/stores/session'
@@ -62,7 +71,8 @@ const principal = session.principal
 // Admin对象
 const admin = useAdminStore()
 admin.loadMenu()
-const menuTree = admin.menuTree
+const sideMenu = admin.sideMenu
+const topMenu = admin.topMenu
 const view = admin.view
 
 const state = ref({
@@ -106,8 +116,15 @@ watch(
   .unione-layout-header {
     .unione-header-left {
       float: left;
+      height: 100%;
       width: calc(100% - 140px);
 
+      .logo {
+        height: 100%;
+        width: 140px;
+        background: #00000040;
+        display: inline-block;
+      }
       .trigger {
         font-size: 18px;
         line-height: 64px;
@@ -120,7 +137,7 @@ watch(
       }
 
       .unione-header-menu {
-        display: inline-block;
+        display: inline-flex;
 
         /deep/.ant-menu-item {
           top: -3px;
