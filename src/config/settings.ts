@@ -7,7 +7,7 @@ export default {
     primaryColor: '#1890FF', // primary color of ant design
     navTheme: 'light', // theme for nav menu
     hideFooter: false, //  auto hide footer
-    layout: 'topmenu', // sidemenu | topmenu | topmixtrue | sidemixtrue
+    layout: 'topmenu', // sidemenu | topmenu | topmixtrue
     contentWidth: 'fixed', // layout of content: Fluid or Fixed, only works when layout is topmenu
     fixedHeader: false, // sticky header
     fixSiderbar: false, // sticky siderbar
