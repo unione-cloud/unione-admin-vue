@@ -28,7 +28,8 @@ export const useAdminStore = defineStore('unione-admin', () => {
           path: item.path
         }
         if (item.url && item.url.startsWith('@')) {
-          route.component = () => import(item.url)
+          route.component = () => import('' + item.url)
+          // route.component = () => import('@/views/HomeView.vue')
         }
         if (item.children && item.children.length) {
           route.children = buildRoute(item.children)
