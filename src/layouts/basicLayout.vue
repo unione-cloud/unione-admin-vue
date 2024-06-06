@@ -25,20 +25,13 @@
         v-if="(sideMenu && sideMenu.length) || (topMenu && topMenu.length)"
       >
         <div class="unione-header-left">
-          <div class="logo" v-if="!sideMenu || !sideMenu.length" />
-          <template v-if="sideMenu && sideMenu.length">
-            <menu-unfold-outlined
-              v-if="state.collapsed"
-              class="trigger"
-              @click="() => (state.collapsed = !state.collapsed)"
-            />
-            <menu-fold-outlined
-              v-else
-              class="trigger"
-              @click="() => (state.collapsed = !state.collapsed)"
-            />
-          </template>
-          <a-menu class="unione-header-menu" mode="horizontal" :items="topMenu" />
+          <div class="logo-box" v-if="!sideMenu || !sideMenu.length" />
+          <a-menu
+            class="unione-header-menu"
+            mode="horizontal"
+            :items="topMenu"
+            @click="({ key }) => admin.topMenuClick(key)"
+          />
         </div>
 
         <div class="unione-header-right">
@@ -57,7 +50,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { RouterView } from 'vue-router'
 import { default as AvatarDropdown } from '@/components/avatar-dropdown.vue'
 import { default as NoticeIcon } from '@/components/notice-icon/index.vue'
@@ -71,9 +64,17 @@ const principal = session.principal
 // Admin对象
 const admin = useAdminStore()
 admin.loadMenu()
-const sideMenu = admin.sideMenu
-const topMenu = admin.topMenu
-const view = admin.view
+const sideMenu = computed(() => {
+  return admin.sideMenu
+})
+const topMenu = computed(() => {
+  return admin.topMenu
+})
+const view = computed(() => {
+  return admin.view
+})
+
+console.log('=============', sideMenu)
 
 const state = ref({
   collapsed: false,
@@ -119,10 +120,10 @@ watch(
       height: 100%;
       width: calc(100% - 140px);
 
-      .logo {
+      .logo-box {
         height: 100%;
-        width: 140px;
-        background: #00000040;
+        width: 200px;
+        background: rgba(0, 0, 0, 0.88);
         display: inline-block;
       }
       .trigger {
