@@ -1,35 +1,38 @@
 <template>
   <a-layout class="unione-basic-layout">
     <a-layout-sider
-      v-model:collapsed="state.collapsed"
+      v-model:collapsed="sideMenu.collapsed"
       :collapsedWidth="50"
       collapsible
       class="unione-layout-sider"
-      v-if="sideMenu && sideMenu.length"
+      v-if="sideMenu.list && sideMenu.list.length"
     >
       <div class="logo" />
       <a-menu
         class="unione-sider-menu"
-        v-model:openKeys="state.openKeys"
-        v-model:selectedKeys="state.selectedKeys"
+        v-model:openKeys="sideMenu.openKeys"
+        v-model:selectedKeys="sideMenu.selectedKeys"
         mode="inline"
         theme="dark"
-        :inline-collapsed="state.collapsed"
-        :items="sideMenu"
+        :inline-collapsed="sideMenu.collapsed"
+        :items="sideMenu.list"
+        @click="({ key }) => admin.sideMenuClick(key)"
       ></a-menu>
     </a-layout-sider>
     <a-layout>
       <a-layout-header
         style="background: #fff; padding: 0"
         class="unione-layout-header"
-        v-if="(sideMenu && sideMenu.length) || (topMenu && topMenu.length)"
+        v-if="(sideMenu.list && sideMenu.list.length) || (topMenu.list && topMenu.list.length)"
       >
         <div class="unione-header-left">
-          <div class="logo-box" v-if="!sideMenu || !sideMenu.length" />
+          <div class="logo-box" v-if="!sideMenu.list || !sideMenu.list.length" />
           <a-menu
             class="unione-header-menu"
             mode="horizontal"
-            :items="topMenu"
+            v-model:openKeys="topMenu.openKeys"
+            v-model:selectedKeys="topMenu.selectedKeys"
+            :items="topMenu.list"
             @click="({ key }) => admin.topMenuClick(key)"
           />
         </div>
@@ -42,7 +45,6 @@
       <a-layout-content
         :style="{ margin: '10px', padding: '10px', background: '#fff', minHeight: '280px' }"
       >
-        Content-view
         <RouterView></RouterView>
       </a-layout-content>
     </a-layout>
@@ -63,7 +65,6 @@ const principal = session.principal
 
 // Admin对象
 const admin = useAdminStore()
-admin.loadMenu()
 const sideMenu = computed(() => {
   return admin.sideMenu
 })
@@ -73,22 +74,6 @@ const topMenu = computed(() => {
 const view = computed(() => {
   return admin.view
 })
-
-console.log('=============', sideMenu)
-
-const state = ref({
-  collapsed: false,
-  selectedKeys: ['1'],
-  openKeys: ['sub1'],
-  preOpenKeys: ['sub1']
-})
-
-watch(
-  () => state.value.openKeys,
-  (_val, oldVal) => {
-    state.value.preOpenKeys = oldVal
-  }
-)
 </script>
 
 <style scoped lang="less">

@@ -12,8 +12,17 @@ export const useAdminStore = defineStore('unione-admin', () => {
   const menuData = ref<Array<MenuItem>>([])
 
   const menuMap = ref<any>({})
-  const topMenu = ref<any>([])
-  const sideMenu = ref<any>([])
+  const topMenu = ref<any>({
+    selectedKeys: [],
+    openKeys: [],
+    list: []
+  })
+  const sideMenu = ref<any>({
+    collapsed: false,
+    selectedKeys: [],
+    openKeys: [],
+    list: []
+  })
   // view配置
   const view = ref<ViewSetting>({ ...config.view })
 
@@ -25,12 +34,13 @@ export const useAdminStore = defineStore('unione-admin', () => {
         const route: any = {
           name: item.name,
           title: item.title,
-          path: item.path
+          path: item.path,
+          component: item.component
         }
-        if (item.url && item.url.startsWith('@')) {
-          route.component = () => import('' + item.url)
-          // route.component = () => import('@/views/HomeView.vue')
-        }
+        // if (item.url && item.url.startsWith('@')) {
+        //   route.component = () => import('' + item.url)
+        //   // route.component = () => import('@/views/HomeView.vue')
+        // }
         if (item.children && item.children.length) {
           route.children = buildRoute(item.children)
         }
@@ -76,21 +86,38 @@ export const useAdminStore = defineStore('unione-admin', () => {
     // 构建菜单
     const menus = buildMenu(menuData.value)
     if (view.value.layout == 'topmenu') {
-      topMenu.value = menus
+      topMenu.value.list = menus
     } else if (view.value.layout == 'sidemenu') {
-      sideMenu.value = menus
+      sideMenu.value.list = menus
     } else if (view.value.layout == 'topside') {
-      topMenu.value = []
+      topMenu.value.list = []
       menus.forEach((menu: any) => {
-        topMenu.value.push({
+        topMenu.value.list.push({
           key: menu.key,
           label: menu.label,
           title: menu.title,
-          icon: menu.icon
+          icon: menu.icon,
+          path: menu.path
         })
       })
     }
+    // 构建菜单 END
+
+    //自动打开第一个页面
+    const firstTopMenu = topMenu.value.list[0]
+    if (firstTopMenu) {
+      topMenu.value.selectedKeys.push(firstTopMenu.key)
+      topMenuClick(firstTopMenu.key)
+    } else {
+      const firstSideMenu = sideMenu.value.list[0]
+      if (firstSideMenu) {
+        sideMenu.value.selectedKeys.push(firstSideMenu.key)
+        sideMenuClick(firstSideMenu.key)
+      }
+    }
+    //自动打开第一个页面 END
   }
+  // 加载Admin 菜单END
 
   /**
    * top菜单点击事件
@@ -104,11 +131,38 @@ export const useAdminStore = defineStore('unione-admin', () => {
       return
     }
     if (view.value.layout == 'topside') {
-      sideMenu.value = menu.children
+      sideMenu.value.selectedKeys = []
+      sideMenu.value.openKeys = []
+      sideMenu.value.list = menu.children
       if (!menu.children || !menu.children.length) {
         router.push(menu.path)
+      } else {
+        const openSubMenu = (m: any) => {
+          if (!m.children || !m.children.length) {
+            router.push(m.path)
+            sideMenu.value.selectedKeys.push(m.key)
+          } else {
+            sideMenu.value.openKeys.push(m.key)
+            openSubMenu(m.children[0])
+          }
+        }
+        openSubMenu(menu.children[0])
       }
     }
+  }
+
+  /**
+   * side菜单点击事件
+   * @param key
+   * @returns
+   */
+  function sideMenuClick(key: string) {
+    const menu = menuMap.value[key]
+    console.log('sideMenuClick', menu)
+    if (!menu) {
+      return
+    }
+    router.push(menu.path)
   }
 
   // 设置view
@@ -116,5 +170,5 @@ export const useAdminStore = defineStore('unione-admin', () => {
     view.value = { ...view.value, ...setting }
   }
 
-  return { menuData, sideMenu, topMenu, loadMenu, topMenuClick, view, setView }
+  return { menuData, sideMenu, topMenu, loadMenu, topMenuClick, sideMenuClick, view, setView }
 })

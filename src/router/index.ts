@@ -16,14 +16,14 @@ export const local: Array<MenuItem> = [
     title: '首页',
     path: '/home',
     name: 'home',
-    url: '@/views/HomeView.vue'
+    component: () => import('@/views/HomeView.vue')
   },
   {
     sid: 'about',
     title: '关于',
     path: '/about',
     name: 'about',
-    url: '@/views/AboutView.vue'
+    component: () => import('@/views/AboutView.vue')
   },
   {
     sid: '1',
@@ -65,13 +65,15 @@ export const local: Array<MenuItem> = [
         sid: '5',
         name: 'Option 5',
         title: 'Option 5',
-        path: '/sub1.1'
+        path: '/sub1.1',
+        component: () => import('@/views/HomeView.vue')
       },
       {
         sid: '6',
         name: 'Option 6',
         title: 'Option 6',
-        path: '/sub1.2'
+        path: '/sub1.2',
+        component: () => import('@/views/HomeView.vue')
       },
       {
         sid: '7',
@@ -97,18 +99,6 @@ export const local: Array<MenuItem> = [
     },
     children: [
       {
-        sid: '9',
-        name: 'Option 9',
-        title: 'Option 9',
-        path: '/sub2.1'
-      },
-      {
-        sid: '10',
-        name: 'Option 10',
-        title: 'Option 10',
-        path: '/sub2.2'
-      },
-      {
         sid: 'sub3',
         name: 'Submenu',
         title: 'Submenu',
@@ -118,7 +108,8 @@ export const local: Array<MenuItem> = [
             sid: '11',
             name: 'Option 11',
             title: 'Option 11',
-            path: '/sub3.1'
+            path: '/sub3.1',
+            component: () => import('@/views/HomeView.vue')
           },
           {
             sid: '12',
@@ -127,6 +118,19 @@ export const local: Array<MenuItem> = [
             path: '/sub3.2'
           }
         ]
+      },
+      {
+        sid: '9',
+        name: 'Option 9',
+        title: 'Option 9',
+        path: '/sub2.1',
+        component: () => import('@/views/HomeView.vue')
+      },
+      {
+        sid: '10',
+        name: 'Option 10',
+        title: 'Option 10',
+        path: '/sub2.2'
       }
     ]
   }
@@ -141,6 +145,15 @@ export const router = createRouter({
       component: () => import('@/layouts/basicLayout.vue')
     }
   ]
+})
+
+router.beforeEach((to, from, next) => {
+  // ...
+  // 返回 false 以取消导航
+  console.log('from', from)
+  console.log('to', to)
+
+  next()
 })
 
 export default router

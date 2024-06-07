@@ -28,6 +28,7 @@ export interface MenuItem {
   name?: string
   children?: MenuItem[]
   meta?: MenuMeta
+  component?: any
 }
 
 export interface UserPrincipal {
