@@ -30,6 +30,14 @@ export const useSessionStore = defineStore('unione-admin-session', () => {
     delStorage(constant.ACCESS_USER_INFO)
   }
 
+  /**
+   * 获取会话令牌
+   * @returns
+   */
+  function getToken() {
+    return getStorage(constant.ACCESS_TOKEN)
+  }
+
   // 保存会话存储
   function setStorage(key: string, value: string) {
     storage[key] = value
@@ -51,5 +59,5 @@ export const useSessionStore = defineStore('unione-admin-session', () => {
     return sessionStorage.removeItem(key)
   }
 
-  return { principal, doLogin, doLogout, isLogin, setStorage, getStorage, delStorage }
+  return { principal, doLogin, doLogout, isLogin, getToken, setStorage, getStorage, delStorage }
 })
