@@ -135,27 +135,27 @@ export const router = createRouter({
     {
       path: '/:pathMatch(.*)*',
       name: 'NotFound',
-      component: () => import('@/views/404.vue')
+      component: () => import('@/views/error/404.vue')
     }
   ]
 })
 
-const withRoutes = ['/']
+const whiteRouteName = ['NotFound']
 router.beforeEach((to, from, next) => {
   // ...
   // 返回 false 以取消导航
   console.log('from', from)
   console.log('to', to)
 
-  let redirect = null
-  if (!withRoutes.includes(to.path)) {
-    redirect = { key: to.name, path: to.path }
+  // 白名单，直接方行
+  if (whiteRouteName.includes(to.name)) {
+    next()
   }
 
   if (!admin) {
     admin = useAdminStore()
   }
-  admin.initRoute(redirect).then(() => {
+  admin.initRoute({ key: to.name, path: to.path }).then(() => {
     next()
   })
 })

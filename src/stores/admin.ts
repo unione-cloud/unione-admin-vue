@@ -141,10 +141,8 @@ export const useAdminStore = defineStore('unione-admin', () => {
               sideMenu.value.list = menu.children || []
             }
           }
-          router.push(to.path)
-        } else {
-          reject('路由信息未找到,path:' + to.path + ',name:' + to.key)
         }
+        router.push(to.path)
       }
 
       resolve(menuData.value)
