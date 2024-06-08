@@ -4,6 +4,12 @@
 export default {
   // view setting
   view: {
+    logo: {
+      title: {
+        text: 'Unione Cloud Admin',
+        css: 'font-size:20px;padding-left:3px;'
+      }
+    },
     primaryColor: '#1890FF', // primary color of ant design
     navTheme: 'light', // theme for nav menu
     hideFooter: false, //  auto hide footer

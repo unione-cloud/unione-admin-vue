@@ -36,9 +36,9 @@ export const local: Array<MenuItem> = [
   },
   {
     sid: '200',
-    title: 'JSON',
-    path: '/json',
-    url: 'http://www.bejson.com/',
+    title: '台风',
+    path: '/taif',
+    url: 'https://wxc.gd121.cn/html/qxfw/typhoon/typhoon2/dist/#/main',
     meta: {
       icon: () => h(DesktopOutlined)
     }

@@ -7,7 +7,9 @@
       class="unione-layout-sider"
       v-if="sideMenu.list && sideMenu.list.length"
     >
-      <div class="logo" />
+      <div class="logo-box">
+        <div class="logo-title" :style="view.logo.title.css">{{ view.logo.title.text }}</div>
+      </div>
       <a-menu
         class="unione-sider-menu"
         v-model:openKeys="sideMenu.openKeys"
@@ -26,7 +28,9 @@
         v-if="(sideMenu.list && sideMenu.list.length) || (topMenu.list && topMenu.list.length)"
       >
         <div class="unione-header-left">
-          <div class="logo-box" v-if="!sideMenu.list || !sideMenu.list.length" />
+          <div class="logo-box" v-if="!sideMenu.list || !sideMenu.list.length">
+            <div class="logo-title" :style="view.logo.title.css">{{ view.logo.title.text }}</div>
+          </div>
           <a-menu
             class="unione-header-menu"
             mode="horizontal"
@@ -74,7 +78,7 @@ const sideMenu = computed(() => {
 const topMenu = computed(() => {
   return admin.topMenu
 })
-const view = computed(() => {
+const view: any = computed(() => {
   return admin.view
 })
 </script>
@@ -84,10 +88,13 @@ const view = computed(() => {
   height: 100vh;
 
   .unione-layout-sider {
-    .logo {
-      height: 32px;
-      background: rgba(255, 255, 255, 0.3);
-      margin: 16px;
+    .logo-box {
+      height: 64px;
+      line-height: 64px;
+      .logo-title {
+        color: #ffffff;
+        position: absolute;
+      }
     }
 
     &.ant-layout-sider-collapsed {
@@ -113,6 +120,11 @@ const view = computed(() => {
         width: 200px;
         background: rgba(0, 0, 0, 0.88);
         display: inline-block;
+
+        .logo-title {
+          color: #ffffff;
+          position: absolute;
+        }
       }
       .trigger {
         font-size: 18px;
