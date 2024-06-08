@@ -42,10 +42,13 @@
           <avatar-dropdown :principal="principal" class="item" />
         </div>
       </a-layout-header>
-      <a-layout-content
-        :style="{ margin: '10px', padding: '10px', background: '#fff', minHeight: '280px' }"
-      >
-        <RouterView></RouterView>
+      <a-layout-content class="unione-layout-content">
+        <iframe
+          class="unione-iframe-content"
+          v-if="$route.meta.url"
+          :src="$route.meta.url"
+        ></iframe>
+        <RouterView v-else></RouterView>
       </a-layout-content>
     </a-layout>
   </a-layout>
@@ -137,6 +140,20 @@ const view = computed(() => {
       /deep/.item {
         margin: 0 10px;
       }
+    }
+  }
+
+  .unione-layout-content {
+    margin: 10px;
+    // padding: 10px;
+    background: #ffffff;
+    height: 100%;
+    overflow: hidden;
+
+    .unione-iframe-content {
+      width: 100%;
+      height: 100%;
+      border: none;
     }
   }
 }

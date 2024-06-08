@@ -26,17 +26,19 @@ export const local: Array<MenuItem> = [
     component: () => import('@/views/AboutView.vue')
   },
   {
-    sid: 'r1',
-    title: 'Option 1',
-    path: '/opt1',
+    sid: '100',
+    title: '天气网',
+    path: '/weather',
+    url: 'http://www.weather.com.cn/',
     meta: {
       icon: () => h(PieChartOutlined)
     }
   },
   {
-    sid: 'r2',
-    title: 'Option 2',
-    path: '/opt2',
+    sid: '200',
+    title: 'JSON',
+    path: '/json',
+    url: 'http://www.bejson.com/',
     meta: {
       icon: () => h(DesktopOutlined)
     }

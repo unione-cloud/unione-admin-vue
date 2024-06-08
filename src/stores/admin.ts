@@ -35,6 +35,9 @@ export const useAdminStore = defineStore('unione-admin', () => {
           name: item.sid,
           title: item.title,
           path: item.path,
+          meta: {
+            url: item.url
+          },
           component: item.component
         }
         // if (item.url && item.url.startsWith('@')) {
@@ -133,10 +136,9 @@ export const useAdminStore = defineStore('unione-admin', () => {
                 sideMenu.value.openKeys.push(parent.key)
                 parent = menuMap.value[parent.parent]
               }
-              sideMenu.value.list = parent.children
-              console.log('sideMenu.value', JSON.stringify(sideMenu.value))
+              sideMenu.value.list = parent.children || []
             } else {
-              sideMenu.value = menu.children
+              sideMenu.value.list = menu.children || []
             }
           }
           router.push(to.path)
