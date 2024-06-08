@@ -1,6 +1,8 @@
 import { h } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import type { MenuItem } from '../stores/typing'
+import { useAdminStore } from '@/stores/admin'
+let admin: any = null
 
 import {
   PieChartOutlined,
@@ -15,19 +17,16 @@ export const local: Array<MenuItem> = [
     sid: 'home',
     title: '首页',
     path: '/home',
-    name: 'home',
     component: () => import('@/views/HomeView.vue')
   },
   {
     sid: 'about',
     title: '关于',
     path: '/about',
-    name: 'about',
     component: () => import('@/views/AboutView.vue')
   },
   {
-    sid: '1',
-    name: 'Option 1',
+    sid: 'r1',
     title: 'Option 1',
     path: '/opt1',
     meta: {
@@ -35,8 +34,7 @@ export const local: Array<MenuItem> = [
     }
   },
   {
-    sid: '2',
-    name: 'Option 2',
+    sid: 'r2',
     title: 'Option 2',
     path: '/opt2',
     meta: {
@@ -44,8 +42,7 @@ export const local: Array<MenuItem> = [
     }
   },
   {
-    sid: '3',
-    name: 'Option 3',
+    sid: 'r3',
     title: 'Option 3',
     path: '/opt3',
     meta: {
@@ -54,7 +51,6 @@ export const local: Array<MenuItem> = [
   },
   {
     sid: 'sub1',
-    name: 'Navigation One',
     title: 'Navigation One',
     path: '/sub1',
     meta: {
@@ -62,28 +58,24 @@ export const local: Array<MenuItem> = [
     },
     children: [
       {
-        sid: '5',
-        name: 'Option 5',
+        sid: 'r5',
         title: 'Option 5',
         path: '/sub1.1',
         component: () => import('@/views/HomeView.vue')
       },
       {
-        sid: '6',
-        name: 'Option 6',
+        sid: 'r6',
         title: 'Option 6',
         path: '/sub1.2',
         component: () => import('@/views/HomeView.vue')
       },
       {
-        sid: '7',
-        name: 'Option 7',
+        sid: 'r7',
         title: 'Option 7',
         path: '/sub1.3'
       },
       {
-        sid: '8',
-        name: 'Option 8',
+        sid: 'r8',
         title: 'Option 8',
         path: '/sub1.4'
       }
@@ -91,7 +83,6 @@ export const local: Array<MenuItem> = [
   },
   {
     sid: 'sub2',
-    name: 'Navigation Two',
     title: 'Navigation Two',
     path: '/sub2',
     meta: {
@@ -100,35 +91,30 @@ export const local: Array<MenuItem> = [
     children: [
       {
         sid: 'sub3',
-        name: 'Submenu',
         title: 'Submenu',
         path: '/sub3',
         children: [
           {
-            sid: '11',
-            name: 'Option 11',
+            sid: 'r11',
             title: 'Option 11',
             path: '/sub3.1',
             component: () => import('@/views/HomeView.vue')
           },
           {
-            sid: '12',
-            name: 'Option 12',
+            sid: 'r12',
             title: 'Option 12',
             path: '/sub3.2'
           }
         ]
       },
       {
-        sid: '9',
-        name: 'Option 9',
+        sid: 'r9',
         title: 'Option 9',
         path: '/sub2.1',
         component: () => import('@/views/HomeView.vue')
       },
       {
-        sid: '10',
-        name: 'Option 10',
+        sid: 'r10',
         title: 'Option 10',
         path: '/sub2.2'
       }
@@ -143,17 +129,33 @@ export const router = createRouter({
       path: '/',
       name: 'root',
       component: () => import('@/layouts/basicLayout.vue')
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'NotFound',
+      component: () => import('@/views/404.vue')
     }
   ]
 })
 
+const withRoutes = ['/']
 router.beforeEach((to, from, next) => {
   // ...
   // 返回 false 以取消导航
   console.log('from', from)
   console.log('to', to)
 
-  next()
+  let redirect = null
+  if (!withRoutes.includes(to.path)) {
+    redirect = { key: to.name, path: to.path }
+  }
+
+  if (!admin) {
+    admin = useAdminStore()
+  }
+  admin.initRoute(redirect).then(() => {
+    next()
+  })
 })
 
 export default router

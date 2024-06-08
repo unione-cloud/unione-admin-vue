@@ -32,7 +32,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
     if (items && items.length > 0) {
       items.forEach((item) => {
         const route: any = {
-          name: item.name,
+          name: item.sid,
           title: item.title,
           path: item.path,
           component: item.component
@@ -57,12 +57,12 @@ export const useAdminStore = defineStore('unione-admin', () => {
       items.forEach((item) => {
         const menu: any = {
           key: item.sid,
-          label: item.name,
-          title: item.title,
+          label: item.title,
           icon: item.meta?.icon,
           path: item.path
         }
         menuMap.value[menu.key] = menu
+        menuMap.value[menu.path] = menu
         if (item.children && item.children.length) {
           menu.children = buildMenu(item.children)
         }
@@ -73,51 +73,77 @@ export const useAdminStore = defineStore('unione-admin', () => {
   }
 
   // 加载Admin 菜单
-  function loadMenu() {
-    // 加载菜单
-    menuData.value = local
+  function loadMenu(to?: any) {
+    return new Promise((resolve, reject) => {
+      // 加载菜单
+      menuData.value = local
 
-    // 构建路由
-    const routes = buildRoute(menuData.value)
-    routes.forEach((route: any) => {
-      router.addRoute('root', route)
-    })
-
-    // 构建菜单
-    const menus = buildMenu(menuData.value)
-    if (view.value.layout == 'topmenu') {
-      topMenu.value.list = menus
-    } else if (view.value.layout == 'sidemenu') {
-      sideMenu.value.list = menus
-    } else if (view.value.layout == 'topside') {
-      topMenu.value.list = []
-      menus.forEach((menu: any) => {
-        topMenu.value.list.push({
-          key: menu.key,
-          label: menu.label,
-          title: menu.title,
-          icon: menu.icon,
-          path: menu.path
-        })
+      // 构建路由
+      const routes = buildRoute(menuData.value)
+      routes.forEach((route: any) => {
+        router.addRoute('root', route)
       })
-    }
-    // 构建菜单 END
 
-    //自动打开第一个页面
-    const firstTopMenu = topMenu.value.list[0]
-    if (firstTopMenu) {
-      topMenu.value.selectedKeys.push(firstTopMenu.key)
-      topMenuClick(firstTopMenu.key)
-    } else {
-      const firstSideMenu = sideMenu.value.list[0]
-      if (firstSideMenu) {
-        sideMenu.value.selectedKeys.push(firstSideMenu.key)
-        sideMenuClick(firstSideMenu.key)
+      // 构建菜单
+      const menus = buildMenu(menuData.value)
+      if (view.value.layout == 'topmenu') {
+        topMenu.value.list = menus
+      } else if (view.value.layout == 'sidemenu') {
+        sideMenu.value.list = menus
+      } else if (view.value.layout == 'topside') {
+        topMenu.value.list = []
+        menus.forEach((menu: any) => {
+          topMenu.value.list.push({
+            key: menu.key,
+            label: menu.label,
+            title: menu.title,
+            icon: menu.icon,
+            path: menu.path
+          })
+        })
       }
-    }
-    //自动打开第一个页面 END
+      // 构建菜单 END
+
+      if (!to) {
+        //自动打开第一个页面
+        const firstTopMenu = topMenu.value.list[0]
+        if (firstTopMenu) {
+          topMenu.value.selectedKeys.push(firstTopMenu.key)
+          topMenuClick(firstTopMenu.key)
+        } else {
+          const firstSideMenu = sideMenu.value.list[0]
+          if (firstSideMenu) {
+            sideMenu.value.selectedKeys.push(firstSideMenu.key)
+            sideMenuClick(firstSideMenu.key)
+          }
+        }
+        //自动打开第一个页面 END
+      } else {
+        const menu = menuMap.value[to.path]
+        if (menu) {
+          router.push(to.path)
+        } else {
+          reject('路由信息未找到,path:' + to.path + ',name:' + to.key)
+        }
+      }
+
+      resolve(menuData.value)
+    })
   }
   // 加载Admin 菜单END
+
+  function initRoute(to?: any) {
+    return new Promise((resolve, reject) => {
+      if (!menuMap.value || !Object.keys(menuMap.value).length) {
+        // 如果菜单信息为空，则加载菜单
+        loadMenu(to).then(() => {
+          reject(true)
+        })
+      } else {
+        resolve(true)
+      }
+    })
+  }
 
   /**
    * top菜单点击事件
@@ -170,5 +196,15 @@ export const useAdminStore = defineStore('unione-admin', () => {
     view.value = { ...view.value, ...setting }
   }
 
-  return { menuData, sideMenu, topMenu, loadMenu, topMenuClick, sideMenuClick, view, setView }
+  return {
+    menuData,
+    sideMenu,
+    topMenu,
+    initRoute,
+    loadMenu,
+    topMenuClick,
+    sideMenuClick,
+    view,
+    setView
+  }
 })
