@@ -65,6 +65,9 @@ export const useAdminStore = defineStore('unione-admin', () => {
         menuMap.value[menu.path] = menu
         if (item.children && item.children.length) {
           menu.children = buildMenu(item.children)
+          menu.children.forEach((child: any) => {
+            child.parent = menu.key
+          })
         }
         menus.push(menu)
       })
@@ -121,6 +124,21 @@ export const useAdminStore = defineStore('unione-admin', () => {
       } else {
         const menu = menuMap.value[to.path]
         if (menu) {
+          if (view.value.layout == 'topside') {
+            let parent = menuMap.value[menu.parent]
+            if (parent) {
+              sideMenu.value.selectedKeys = [menu.key]
+              sideMenu.value.openKeys = []
+              while (menuMap.value[parent.parent]) {
+                sideMenu.value.openKeys.push(parent.key)
+                parent = menuMap.value[parent.parent]
+              }
+              sideMenu.value.list = parent.children
+              console.log('sideMenu.value', JSON.stringify(sideMenu.value))
+            } else {
+              sideMenu.value = menu.children
+            }
+          }
           router.push(to.path)
         } else {
           reject('路由信息未找到,path:' + to.path + ',name:' + to.key)
