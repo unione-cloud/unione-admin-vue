@@ -20,21 +20,6 @@ export const local: Array<MenuItem> = [
     component: () => import('@/views/HomeView.vue')
   },
   {
-    sid: 'about',
-    title: '关于',
-    path: '/about',
-    component: () => import('@/views/AboutView.vue')
-  },
-  {
-    sid: '100',
-    title: '天气网',
-    path: '/weather',
-    url: 'http://www.weather.com.cn/',
-    meta: {
-      icon: () => h(PieChartOutlined)
-    }
-  },
-  {
     sid: '200',
     title: '台风',
     path: '/taif',
@@ -44,42 +29,28 @@ export const local: Array<MenuItem> = [
     }
   },
   {
-    sid: 'r3',
-    title: 'Option 3',
-    path: '/opt3',
-    meta: {
-      icon: () => h(InboxOutlined)
-    }
-  },
-  {
-    sid: 'sub1',
-    title: 'Navigation One',
-    path: '/sub1',
+    sid: '10000',
+    title: '系统管理',
+    path: '/system',
     meta: {
       icon: () => h(MailOutlined)
     },
     children: [
       {
-        sid: 'r5',
-        title: 'Option 5',
-        path: '/sub1.1',
-        component: () => import('@/views/HomeView.vue')
-      },
-      {
-        sid: 'r6',
-        title: 'Option 6',
-        path: '/sub1.2',
-        component: () => import('@/views/HomeView.vue')
-      },
-      {
-        sid: 'r7',
-        title: 'Option 7',
-        path: '/sub1.3'
-      },
-      {
-        sid: 'r8',
-        title: 'Option 8',
-        path: '/sub1.4'
+        sid: '10000100',
+        title: '组织管理',
+        path: '/system/organ',
+        meta: {
+          icon: () => h(MailOutlined)
+        },
+        children: [
+          {
+            sid: '10000100100',
+            title: '用户管理',
+            path: '/system/organ/user',
+            component: () => import('@/views/system/user/list.vue')
+          }
+        ]
       }
     ]
   },
