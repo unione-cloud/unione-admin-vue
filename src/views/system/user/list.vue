@@ -59,7 +59,25 @@
     </div>
 
     <!-- 页面数据 -->
-    <div class="unione-data data-list"></div>
+    <div class="unione-data data-list">
+      <a-table
+        :columns="columns"
+        :data-source="dataSource"
+        :scroll="{ x: 1500, y: 300 }"
+        :pagination="{
+          showTotal: (total) => '共' + total + '记录',
+          total: 1000,
+          position: ['bottomCenter']
+        }"
+        size="small"
+      >
+        <template #bodyCell="{ column }">
+          <template v-if="column.key === 'operation'">
+            <a>action</a>
+          </template>
+        </template>
+      </a-table>
+    </div>
   </div>
 </template>
 
@@ -83,12 +101,14 @@ const columns = [
     title: 'Full Name',
     dataIndex: 'name',
     fixed: 'left',
+    sorter: true,
     width: 150
   },
   {
     title: 'Age',
     dataIndex: 'age',
     fixed: 'left',
+    sorter: true,
     width: 100
   },
   {
@@ -155,6 +175,7 @@ for (let i = 0; i < 1000; i++) {
   }
 
   .unione-tools {
+    padding-bottom: 10px;
     .btn {
       margin: auto 5px;
       &.right {

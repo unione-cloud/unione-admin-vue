@@ -7,8 +7,8 @@ import dayjs from 'dayjs/locale/zh-cn'
 const locales = {
   localeName: 'zhCN',
   dayjsLocaleName: 'zh-cn',
-  antd,
-  dayjs,
+  ...antd,
+  ...dayjs,
 
   ...globals,
   ...routes,
