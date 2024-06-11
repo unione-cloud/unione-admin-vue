@@ -20,37 +20,36 @@
             <DownOutlined />
           </a-button>
         </a-dropdown>
-        <a-button class="btn save-search" type="dashed">保存搜索</a-button>
       </div>
     </div>
 
     <!-- 页面工具 -->
     <div class="unione-tools">
-      <a-button class="btn add" type="primary">
+      <a-button class="btn add" type="primary" size="small">
         <template #icon>
           <PlusOutlined />
         </template>
         新增</a-button
       >
-      <a-button class="btn delete" type="primary" danger>
+      <a-button class="btn delete" type="primary" danger size="small">
         <template #icon>
           <DeleteOutlined />
         </template>
         批量删除</a-button
       >
-      <a-button class="btn right tmpl">
+      <a-button class="btn right tmpl" size="small">
         <template #icon>
           <CloudDownloadOutlined />
         </template>
         模版</a-button
       >
-      <a-button class="btn right import">
+      <a-button class="btn right import" size="small">
         <template #icon>
           <CloudUploadOutlined />
         </template>
         导入</a-button
       >
-      <a-button class="btn right export">
+      <a-button class="btn right export" size="small">
         <template #icon>
           <CloudDownloadOutlined />
         </template>
@@ -63,12 +62,13 @@
       <a-table
         :columns="columns"
         :data-source="dataSource"
-        :scroll="{ x: 1500, y: 300 }"
+        :scroll="{ x: 1500 }"
         :pagination="{
           showTotal: (total) => '共' + total + '记录',
           total: 1000,
           position: ['bottomCenter']
         }"
+        bordered
         size="small"
       >
         <template #bodyCell="{ column }">
@@ -147,10 +147,13 @@ for (let i = 0; i < 1000; i++) {
 </script>
 
 <style scoped lang="less">
-.user-manage {
+.unione-page {
+  padding: 10px;
+
   .unione-query {
-    padding: 10px 20px;
     display: flex;
+    padding-bottom: 10px;
+    padding-left: 5px;
 
     .query-field {
       display: inline-block;
