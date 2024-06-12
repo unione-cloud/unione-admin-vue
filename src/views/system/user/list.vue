@@ -185,6 +185,44 @@ for (let i = 0; i < 1000; i++) {
         float: right;
       }
     }
+    /deep/.ant-btn-sm {
+      height: 27px;
+    }
+  }
+
+  .data-list {
+    /deep/.ant-table-content {
+      border-inline-start: 1px solid #cfcfcf;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+      overflow: hidden;
+
+      table {
+        border-top: 1px solid #cfcfcf !important;
+      }
+      .ant-table-thead {
+        .ant-table-cell {
+          background-color: #f0f0f0;
+          border-inline-end: 1px solid #cfcfcf !important;
+          border-bottom: 1px solid #cfcfcf !important;
+        }
+      }
+      .ant-table-tbody {
+        .ant-table-cell {
+          border-inline-end: 1px solid #cfcfcf !important;
+          border-bottom: 1px solid #cfcfcf !important;
+        }
+        .ant-table-row:hover {
+          background-color: #e6f7ff;
+          color: #2795f9;
+
+          .ant-table-cell {
+            background-color: #e6f7ff;
+            color: #2795f9;
+          }
+        }
+      }
+    }
   }
 }
 </style>
