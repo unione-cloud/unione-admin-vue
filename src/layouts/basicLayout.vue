@@ -91,9 +91,9 @@ const view: any = computed(() => {
     .logo-box {
       height: 64px;
       line-height: 64px;
+      overflow: hidden;
       .logo-title {
         color: #ffffff;
-        position: absolute;
       }
     }
 
