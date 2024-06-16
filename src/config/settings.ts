@@ -24,7 +24,7 @@ export default {
   },
   // axios setting
   axios: {
-    admin: ''
+    admin: '/portal'
   },
   // web setting
   web: {

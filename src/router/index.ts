@@ -104,6 +104,11 @@ export const router = createRouter({
       component: () => import('@/layouts/basicLayout.vue')
     },
     {
+      path: '/login',
+      name: 'login',
+      component: () => import('@/views/login.vue')
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'NotFound',
       component: () => import('@/views/error/404.vue')
