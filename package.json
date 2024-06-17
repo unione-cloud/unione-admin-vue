@@ -23,7 +23,8 @@
     "pinia": "^2.1.7",
     "vue": "^3.4.21",
     "vue-i18n": "^9.13.1",
-    "vue-router": "^4.3.0"
+    "vue-router": "^4.3.0",
+    "vue3-captcha": "^0.3.4"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.8.0",
