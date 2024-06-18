@@ -3,8 +3,8 @@
     <div class="login-box">
       <div class="box-head">
         <div class="app-info">
-          <div class="app-title">值班系统</div>
-          <div class="sub-title">欢迎使用智能值班系统</div>
+          <div class="app-title">{{ view.login.appTitle }}</div>
+          <div class="sub-title">{{ view.login.subTitle }}</div>
         </div>
         <div class="app-qr"><img :src="ImageQr" /></div>
       </div>
@@ -35,8 +35,8 @@
                   <a-input v-model:value="formData.userphone" />
                 </a-form-item>
 
-                <a-form-item label="验证码" name="smscode">
-                  <a-input v-model:value="formData.smscode" />
+                <a-form-item label="验证码" name="captcha">
+                  <a-input v-model:value="formData.captcha" />
                 </a-form-item>
               </a-tab-pane>
             </a-tabs>
@@ -49,7 +49,9 @@
             </a-form-item>
 
             <a-form-item>
-              <a-button type="primary" class="btn-login" @click="toLogin">登录</a-button>
+              <a-button type="primary" class="btn-login" @click="toLogin" :loading="submiting"
+                >登录</a-button
+              >
             </a-form-item>
             <a-form-item class="service-opts">
               <a-checkbox
@@ -66,13 +68,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import type { Rule } from 'ant-design-vue/es/form'
-import axios from '@/utils/axios'
+import { sm2Encrypt } from '@/utils/sm2'
+import { useAdminStore } from '@/stores/admin'
+import { useSessionStore } from '@/stores/session'
 
 import ImageBg from '@/assets/login/bg.jpg'
 import ImageAd from '@/assets/login/ad1.png'
 import ImageQr from '@/assets/login/qr.png'
+
+import router from '@/router'
+import { Modal } from 'ant-design-vue'
+
+// Admin对象
+const admin = useAdminStore()
+const view: any = computed(() => {
+  return admin.view
+})
+
+const session = useSessionStore()
 
 const loginType = ref('username')
 watch(loginType, () => {
@@ -84,7 +99,7 @@ watch(loginType, () => {
   } else {
     formRules.value = {
       userphone: [{ required: true, message: '请输入用户密码', trigger: 'change' }],
-      smscode: [{ required: true, message: '请输入用户密码', trigger: 'change' }]
+      captcha: [{ required: true, message: '请输入用户密码', trigger: 'change' }]
     }
   }
 })
@@ -97,11 +112,42 @@ const formRules = ref<Record<string, Rule[]>>({
 })
 
 // 登录表单提交方法
+const submiting = ref(false)
 const toLogin = () => {
   loginForm.value.validate().then((data: any) => {
-    console.log('form data', data)
-
     // 密码加密
+    if (loginType.value == 'username') {
+      data.password = sm2Encrypt(data.password)
+    } else {
+      data.smscode = sm2Encrypt(data.smscode)
+    }
+
+    submiting.value = true
+    // 提交登录请求
+    session
+      .doLogin(data)
+      .then((res: any) => {
+        console.log('login result', res)
+        if (res.success) {
+          // 登录成功，页面跳转
+          Modal.success({
+            title: '提示信息',
+            content: '登录成功',
+            onOk: () => {
+              router.push('/home')
+            }
+          })
+        } else {
+          Modal.error({
+            title: '登录失败',
+            content: res.message
+          })
+        }
+      })
+      .catch((err: any) => {})
+      .finally(() => {
+        submiting.value = false
+      })
   })
 }
 </script>
@@ -118,7 +164,7 @@ const toLogin = () => {
 
   .login-box {
     width: 70%;
-    height: 60%;
+    height: 55%;
     background-color: #ffffff;
     border-radius: 10px;
 

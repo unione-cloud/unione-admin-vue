@@ -68,7 +68,9 @@ import { useAdminStore } from '@/stores/admin'
 
 // 会话对象
 const session = useSessionStore()
-const principal = session.principal
+const principal = computed(() => {
+  return session.getPrincipal()
+})
 
 // Admin对象
 const admin = useAdminStore()

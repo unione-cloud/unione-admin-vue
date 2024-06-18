@@ -2,7 +2,9 @@ import { h } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import type { MenuItem } from '../stores/typing'
 import { useAdminStore } from '@/stores/admin'
+import { useSessionStore } from '@/stores/session'
 let admin: any = null
+let session: any = null
 
 import {
   PieChartOutlined,
@@ -116,7 +118,7 @@ export const router = createRouter({
   ]
 })
 
-const whiteRouteName = ['NotFound']
+const whiteRouteName = ['NotFound', 'login']
 router.beforeEach((to, from, next) => {
   // ...
   // 返回 false 以取消导航
@@ -130,6 +132,12 @@ router.beforeEach((to, from, next) => {
 
   if (!admin) {
     admin = useAdminStore()
+  }
+  if (!session) {
+    session = useSessionStore()
+  }
+  if (!session.isLogin()) {
+    next('/login')
   }
   admin.initRoute({ key: to.name, path: to.path }).then(() => {
     next()

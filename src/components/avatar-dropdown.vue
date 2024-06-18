@@ -1,13 +1,15 @@
 <template>
   <a-dropdown
-    v-if="principal && principal.aliasName"
+    v-if="principal && principal.id"
     class="unione-avatar-dropdown"
     placement="bottomRight"
     overlayClassName="avatar-dropdown-container"
   >
     <span>
-      <a-avatar size="small" :src="principal.avatar" class="unione-avatar" />
-      <span class="unione-avatar-name anticon">{{ principal.aliasName }}</span>
+      <a-avatar size="small" :src="principal.avatar || '/avatar.png'" class="unione-avatar" />
+      <span class="unione-avatar-name anticon">{{
+        principal.aliasName || principal.realName
+      }}</span>
     </span>
     <template v-slot:overlay>
       <a-menu class="unione-dropdown-menu" :selected-keys="[]">
@@ -37,7 +39,7 @@ import { defineComponent } from 'vue'
 import { UserOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-// import { LOGOUT } from '@/store/modules/user/actions';
+import { useSessionStore } from '@/stores/session'
 
 export default defineComponent({
   name: 'AvatarDropdown',
@@ -53,6 +55,7 @@ export default defineComponent({
   },
   setup() {
     const router = useRouter()
+    const session = useSessionStore()
     // const store = useStore();
     const { t } = useI18n()
     const handleToCenter = () => {
@@ -62,9 +65,7 @@ export default defineComponent({
       router.push({ path: '/account/settings' })
     }
     const handleLogout = () => {
-      // store.dispatch(`user/${LOGOUT}`).then(() => {
-      //   router.push({ path: '/user/login' });
-      // });
+      session.doLogout()
     }
 
     return {

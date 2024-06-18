@@ -32,13 +32,13 @@ export interface MenuItem {
 }
 
 export interface UserPrincipal {
-  id: string
+  id?: string
   tenantId?: string
   orgId?: string
   orgName?: string
   orgLvsn?: string
   areaCode?: string
-  username: string
+  username?: string
   tel?: string
   realName?: string
   aliasName?: string
@@ -51,9 +51,9 @@ export interface UserPrincipal {
 }
 
 export interface LoginData {
-  username: string
-  tel?: string
-  password: string
+  username?: string
+  userphone?: string
+  password?: string
   captcha?: string
 }
 
