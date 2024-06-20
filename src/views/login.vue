@@ -127,7 +127,7 @@ const toLogin = () => {
     session
       .doLogin(data)
       .then((res: any) => {
-        Modal.success({
+        const modal = Modal.success({
           title: '提示信息',
           content: '登录成功',
           centered: true,
@@ -135,6 +135,23 @@ const toLogin = () => {
             router.push('/home')
           }
         })
+        let count = 10
+        const timer = () => {
+          setTimeout(() => {
+            modal.update({
+              content: '登录成功,' + count + '秒后自动进入系统!'
+            })
+            count = count - 1
+            if (count >= 0) {
+              timer()
+            }
+            if (count < 0) {
+              modal.destroy()
+              router.push('/home')
+            }
+          }, 1000)
+        }
+        timer()
       })
       .catch((err: any) => {
         if (err && err.message) {

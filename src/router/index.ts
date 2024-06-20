@@ -6,13 +6,7 @@ import { useSessionStore } from '@/stores/session'
 let admin: any = null
 let session: any = null
 
-import {
-  PieChartOutlined,
-  MailOutlined,
-  DesktopOutlined,
-  InboxOutlined,
-  AppstoreOutlined
-} from '@ant-design/icons-vue'
+import { MailOutlined, DesktopOutlined, AppstoreOutlined } from '@ant-design/icons-vue'
 
 export const local: Array<MenuItem> = [
   {
@@ -125,7 +119,7 @@ router.beforeEach((to, from, next) => {
   console.log('from', from)
   console.log('to', to)
 
-  // 白名单，直接方行
+  // 白名单，直接放行
   if (whiteRouteName.includes(to.name)) {
     next()
   }
