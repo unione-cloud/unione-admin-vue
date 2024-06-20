@@ -127,24 +127,30 @@ const toLogin = () => {
     session
       .doLogin(data)
       .then((res: any) => {
-        console.log('login result', res)
-        if (res.success) {
-          // 登录成功，页面跳转
-          Modal.success({
-            title: '提示信息',
-            content: '登录成功',
-            onOk: () => {
-              router.push('/home')
-            }
+        Modal.success({
+          title: '提示信息',
+          content: '登录成功',
+          centered: true,
+          onOk: () => {
+            router.push('/home')
+          }
+        })
+      })
+      .catch((err: any) => {
+        if (err && err.message) {
+          Modal.error({
+            title: '登录失败',
+            centered: true,
+            content: err.message
           })
         } else {
           Modal.error({
             title: '登录失败',
-            content: res.message
+            centered: true,
+            content: '系统异常'
           })
         }
       })
-      .catch((err: any) => {})
       .finally(() => {
         submiting.value = false
       })
