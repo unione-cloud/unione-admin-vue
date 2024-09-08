@@ -1,18 +1,18 @@
-import type { V } from 'vitest/dist/reporters-yx5ZTtEV'
 import type { VNodeChild } from 'vue'
 
 export interface MenuBtn {
   sid: string
   title: string
   name?: string
-  icon?: string | VNodeChild | JSX.Element
+  icon?: string | VNodeChild 
   type?: string
 }
 
 export interface MenuMeta {
+  psn?: string
   hideChildrenInMenu?: boolean
   hideInMenu?: boolean
-  icon?: string | VNodeChild | JSX.Element
+  icon?: string | VNodeChild
   target?: '_blank' | '_self' | '_parent' | '_top'
   keepAlive?: boolean
   lock?: boolean
@@ -28,6 +28,7 @@ export interface MenuItem {
   name?: string
   children?: MenuItem[]
   meta?: MenuMeta
+  props?: boolean | object
   component?: any
 }
 

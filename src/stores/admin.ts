@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref,h } from 'vue'
 import { defineStore } from 'pinia'
 import type { MenuItem, ViewSetting } from './typing'
 import config from '@/config/settings'
@@ -36,8 +36,10 @@ export const useAdminStore = defineStore('unione-admin', () => {
           title: item.title,
           path: item.path,
           meta: {
+            ...(item.meta || {}),
             url: item.url
           },
+          props: item.props,
           component: item.component
         }
         // if (item.url && item.url.startsWith('@')) {
@@ -61,8 +63,11 @@ export const useAdminStore = defineStore('unione-admin', () => {
         const menu: any = {
           key: item.sid,
           label: item.title,
-          icon: item.meta?.icon,
+          // icon: item.meta?.icon,
           path: item.path
+        }
+        if(typeof menu.icon ==='string'){
+          menu.icon=()=>h(menu.icon)
         }
         menuMap.value[menu.key] = menu
         menuMap.value[menu.path] = menu
@@ -82,16 +87,17 @@ export const useAdminStore = defineStore('unione-admin', () => {
   function loadMenu(to?: any) {
     return new Promise((resolve, reject) => {
       // 加载菜单
-      menuData.value = local
+      //menuData.value = local
+      const menuList:Array<MenuItem>=local
 
       // 构建路由
-      const routes = buildRoute(menuData.value)
+      const routes = buildRoute(menuList)
       routes.forEach((route: any) => {
         router.addRoute('root', route)
       })
 
       // 构建菜单
-      const menus = buildMenu(menuData.value)
+      const menus = buildMenu(menuList)
       if (view.value.layout == 'topmenu') {
         topMenu.value.list = menus
       } else if (view.value.layout == 'sidemenu') {
@@ -142,10 +148,10 @@ export const useAdminStore = defineStore('unione-admin', () => {
             }
           }
         }
-        router.push(to.path)
+        router.push(to)
       }
 
-      resolve(menuData.value)
+      resolve(menuList)
     })
   }
   // 加载Admin 菜单END
@@ -154,7 +160,8 @@ export const useAdminStore = defineStore('unione-admin', () => {
     return new Promise((resolve, reject) => {
       if (!menuMap.value || !Object.keys(menuMap.value).length) {
         // 如果菜单信息为空，则加载菜单
-        loadMenu(to).then(() => {
+        loadMenu(to).then((menuList:any) => {
+          menuData.value=menuList
           reject(true)
         })
       } else {
@@ -219,7 +226,6 @@ export const useAdminStore = defineStore('unione-admin', () => {
     sideMenu,
     topMenu,
     initRoute,
-    loadMenu,
     topMenuClick,
     sideMenuClick,
     view,

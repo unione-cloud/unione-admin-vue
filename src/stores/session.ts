@@ -6,7 +6,7 @@ import axios from '@/utils/axios'
 import router from '@/router'
 import { Modal } from 'ant-design-vue'
 
-export const useSessionStore = defineStore('unione-admin-session', () => {
+export const useSessionStore = defineStore('unione-session', () => {
   // store entry
   const principal = ref<UserPrincipal>({})
   const storage: any = ref({})

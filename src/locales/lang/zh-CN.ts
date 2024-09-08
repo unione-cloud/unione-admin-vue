@@ -8,7 +8,7 @@ const locales = {
   localeName: 'zhCN',
   dayjsLocaleName: 'zh-cn',
   ...antd,
-  ...dayjs,
+  dayjs,
 
   ...globals,
   ...routes,

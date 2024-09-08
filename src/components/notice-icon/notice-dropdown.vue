@@ -31,7 +31,6 @@ export default defineComponent({
     count: Number,
     loading: Boolean
   },
-  slots: ['bell'],
   components: {
     BellOutlined
   },

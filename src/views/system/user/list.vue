@@ -64,7 +64,7 @@
         :data-source="dataSource"
         :scroll="{ x: 1500 }"
         :pagination="{
-          showTotal: (total) => '共' + total + '记录',
+          showTotal: (total:any) => '共' + total + '记录',
           total: 1000,
           position: ['bottomCenter']
         }"

@@ -9,14 +9,14 @@ import type {
 type Lazy<T> = () => Promise<T>;
 
 export interface MenuRouteMeta {
-  hideChildrenInMenu?: boolean;
-  hideInMenu?: boolean;
-  icon?: string | VNodeChild | JSX.Element;
+  hideChildrenInMenu?: boolean
+  hideInMenu?: boolean
+  icon?: string | VNodeChild 
   authority?: string | string[];
-  target?: '_blank' | '_self' | '_parent' | '_top';
-  keepAlive?: boolean;
-  lock?: boolean;
-  mergeTab?: boolean;
+  target?: '_blank' | '_self' | '_parent' | '_top'
+  keepAlive?: boolean
+  lock?: boolean
+  mergeTab?: boolean
 }
 
 export type MenuDataItem = {

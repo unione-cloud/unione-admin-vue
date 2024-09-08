@@ -9,10 +9,10 @@ export type TargetType = '_blank' | '_self' | unknown;
 export type ContentWidth = 'Fluid' | 'Fixed';
 
 export interface MetaRecord {
-  icon?: string | VNodeChild | JSX.Element;
+  icon?: string | VNodeChild 
   title?: string;
-  authority?: string | string[];
-  [key: string]: any;
+  authority?: string | string[]
+  [key: string]: any
 }
 
 export interface RouteProps {

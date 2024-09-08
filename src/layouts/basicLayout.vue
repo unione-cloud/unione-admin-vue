@@ -18,7 +18,7 @@
         theme="dark"
         :inline-collapsed="sideMenu.collapsed"
         :items="sideMenu.list"
-        @click="({ key }) => admin.sideMenuClick(key)"
+        @click="({ key }:any) => admin.sideMenuClick(key)"
       ></a-menu>
     </a-layout-sider>
     <a-layout>
@@ -37,8 +37,13 @@
             v-model:openKeys="topMenu.openKeys"
             v-model:selectedKeys="topMenu.selectedKeys"
             :items="topMenu.list"
-            @click="({ key }) => admin.topMenuClick(key)"
-          />
+            @click="({ key }:any) => admin.topMenuClick(key)"
+          >
+            <!-- <a-menu-item v-for="menu in topMenu.list" :key="menu.key">
+              <component #icon v-if="menu.icon" :is="menu.icon"></component>
+              {{ menu.label }}
+            </a-menu-item> -->
+          </a-menu>
         </div>
 
         <div class="unione-header-right">
@@ -50,16 +55,16 @@
         <iframe
           class="unione-iframe-content"
           v-if="$route.meta.url"
-          :src="$route.meta.url"
+          :src="$route.meta.url.toString()"
         ></iframe>
-        <RouterView v-else></RouterView>
+        <RouterView v-else :key="$route.name"></RouterView>
       </a-layout-content>
     </a-layout>
   </a-layout>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch } from 'vue'
+import { computed, h } from 'vue'
 import { RouterView } from 'vue-router'
 import { default as AvatarDropdown } from '@/components/avatar-dropdown.vue'
 import { default as NoticeIcon } from '@/components/notice-icon/index.vue'

@@ -127,33 +127,31 @@ const toLogin = () => {
     session
       .doLogin(data)
       .then((res: any) => {
+        let timer: any = null
         const modal = Modal.success({
           title: '提示信息',
           content: '登录成功',
           centered: true,
           onOk: () => {
+            if(timer){
+              clearInterval(timer)
+            }
             router.push('/home')
           }
         })
-        let count = 10
-        const timer = () => {
-          setTimeout(() => {
-            modal.update({
-              content: '登录成功,' + count + '秒后自动进入系统!'
-            })
-            count = count - 1
-            if (count >= 0) {
-              timer()
-            }
-            if (count < 0) {
-              modal.destroy()
-              router.push('/home')
-            }
-          }, 1000)
-        }
-        timer()
-      })
-      .catch((err: any) => {
+        let count = 5
+        timer = setInterval(() => {
+          modal.update({
+            content: '登录成功,' + count + '秒后自动进入系统!'
+          })
+          count = count - 1
+          if (count <= 0) {
+            modal.destroy()
+            clearInterval(timer)
+            router.push('/home')
+          }
+        },1000)
+      }).catch((err: any) => {
         if (err && err.message) {
           Modal.error({
             title: '登录失败',
@@ -188,6 +186,7 @@ const toLogin = () => {
   .login-box {
     width: 70%;
     height: 55%;
+    min-height: 450px;
     background-color: #ffffff;
     border-radius: 10px;
 

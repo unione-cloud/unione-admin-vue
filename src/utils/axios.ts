@@ -21,9 +21,10 @@ const err = (error: any) => {
 }
 
 // 注册rest axios服务
-Object.keys(config.axios).forEach((key) => {
+const axiosServers: any = config.axios
+Object.keys(axiosServers).forEach((key) => {
   const serverAxios = axios.create({
-    baseURL: config.axios[key], // api base_url
+    baseURL: axiosServers[key], // api base_url
     timeout: 60000 // 请求超时时间
   })
 

@@ -62,7 +62,6 @@ export default defineComponent({
     title: String
   },
   emits: ['itemClick', 'clear', 'viewMore'],
-  slots: ['extra'],
   setup(_props, { emit }) {
     const handleClick = (item: any) => {
       emit('itemClick', item)
