@@ -18,7 +18,7 @@
         theme="dark"
         :inline-collapsed="sideMenu.collapsed"
         :items="sideMenu.list"
-        @click="({ key }:any) => admin.sideMenuClick(key)"
+        @click="({ key }: any) => admin.sideMenuClick(key)"
       ></a-menu>
     </a-layout-sider>
     <a-layout>
@@ -37,7 +37,7 @@
             v-model:openKeys="topMenu.openKeys"
             v-model:selectedKeys="topMenu.selectedKeys"
             :items="topMenu.list"
-            @click="({ key }:any) => admin.topMenuClick(key)"
+            @click="({ key }: any) => admin.topMenuClick(key)"
           >
             <!-- <a-menu-item v-for="menu in topMenu.list" :key="menu.key">
               <component #icon v-if="menu.icon" :is="menu.icon"></component>
@@ -57,7 +57,7 @@
           v-if="$route.meta.url"
           :src="$route.meta.url.toString()"
         ></iframe>
-        <RouterView v-else :key="$route.name"></RouterView>
+        <RouterView v-else :key="$route.name?.toString()"></RouterView>
       </a-layout-content>
     </a-layout>
   </a-layout>
