@@ -70,9 +70,9 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
 import type { Rule } from 'ant-design-vue/es/form'
-import { sm2Encrypt } from '@/utils/sm2'
+import { utils } from 'unione-base-vue'
 import { useAdminStore } from '@/stores/admin'
-import { useSessionStore } from '@/stores/session'
+import { useSessionStore } from 'unione-base-vue'
 
 import ImageBg from '@/assets/login/bg.jpg'
 import ImageAd from '@/assets/login/ad1.png'
@@ -117,9 +117,9 @@ const toLogin = () => {
   loginForm.value.validate().then((data: any) => {
     // 密码加密
     if (loginType.value == 'username') {
-      data.password = sm2Encrypt(data.password)
+      data.password = utils.sm2Encrypt(data.password)
     } else {
-      data.smscode = sm2Encrypt(data.smscode)
+      data.smscode = utils.sm2Encrypt(data.smscode)
     }
 
     submiting.value = true
@@ -133,7 +133,7 @@ const toLogin = () => {
           content: '登录成功',
           centered: true,
           onOk: () => {
-            if(timer){
+            if (timer) {
               clearInterval(timer)
             }
             router.push('/home')
@@ -150,8 +150,10 @@ const toLogin = () => {
             clearInterval(timer)
             router.push('/home')
           }
-        },1000)
-      }).catch((err: any) => {
+        }, 1000)
+      })
+      .catch((err: any) => {
+        console.error('登录失败', err)
         if (err && err.message) {
           Modal.error({
             title: '登录失败',

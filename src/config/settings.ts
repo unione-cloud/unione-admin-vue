@@ -1,18 +1,18 @@
 /**
  * 默认配置项
  */
-export default  {
+export default {
   // view setting
   view: {
     logo: {
       title: {
-        text: 'Unione Form Vue',
+        text: 'Unione Cloud Admin',
         css: 'font-size:20px;padding-left:3px;'
       }
     },
     login: {
-      appTitle: 'Unione Form Vue',
-      subTitle: '欢迎使用Unione Form Vue'
+      appTitle: 'Unione Cloud Admin',
+      subTitle: '欢迎使用Cloud Admin'
     },
     primaryColor: '#1890FF', // primary color of ant design
     navTheme: 'light', // theme for nav menu

@@ -1,11 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { MenuItem } from '../stores/typing'
+import { UinonePageView } from 'unione-form-vue'
 import { useAdminStore } from '@/stores/admin'
-import { useSessionStore } from '@/stores/session'
-let admin: any = null
-let session: any = null
-
-import { MailOutlined, DesktopOutlined, AppstoreOutlined } from '@ant-design/icons-vue'
 
 export const local: Array<MenuItem> = [
   {
@@ -13,6 +9,22 @@ export const local: Array<MenuItem> = [
     title: '首页',
     path: '/home',
     component: () => import('@/views/home.vue')
+  },
+  {
+    sid: '10000',
+    title: '表单页面',
+    path: '/form',
+    meta: {
+      icon: 'MailOutlined'
+    },
+    children: [
+      {
+        sid: '100001000',
+        title: '用户管理',
+        path: '/form/organ/user',
+        component: UinonePageView
+      }
+    ]
   },
   {
     sid: '20000',
@@ -48,7 +60,15 @@ export const router = createRouter({
     {
       path: '/',
       name: 'root',
-      component: () => import('@/layouts/basicLayout.vue')
+      redirect: '/home',
+      component: () => import('@/layouts/basicLayout.vue'),
+      children: [
+        {
+          path: '/home',
+          name: 'home',
+          component: () => import('@/views/home.vue')
+        }
+      ]
     },
     {
       path: '/login',
@@ -63,6 +83,7 @@ export const router = createRouter({
   ]
 })
 
+//路由守卫
 const whiteRouteName: Array<string> = ['NotFound', 'login']
 router.beforeEach((to, from, next) => {
   // ...
@@ -75,16 +96,11 @@ router.beforeEach((to, from, next) => {
     next()
   }
 
-  if (!admin) {
-    admin = useAdminStore()
+  const admin = useAdminStore()
+  if (!admin.isLogin()) {
+    next({ path: '/login' })
   }
-  if (!session) {
-    session = useSessionStore()
-  }
-  if (!session.isLogin()) {
-    next('/login')
-  }
-  admin.initRoute({ key: to.name, path: to.path, query: to.query, params: to.params }).then(() => {
+  admin.initRoute(to).then(() => {
     next()
   })
 })

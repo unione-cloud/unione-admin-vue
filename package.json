@@ -15,7 +15,8 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "format": "prettier --write src/"
   },
-  "devDependencies": {
+  "devDependencies": {},
+  "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",
     "@codemirror/lang-javascript": "^6.2.2",
     "@rushstack/eslint-patch": "^1.8.0",
@@ -55,6 +56,7 @@
     "vue-codemirror": "^6.1.1",
     "vue-i18n": "^9.13.1",
     "vue-router": "^4.3.0",
-    "vue-tsc": "^2.0.11"
+    "vue-tsc": "^2.0.11",
+    "unione-form-vue": "^0.0.1"
   }
 }

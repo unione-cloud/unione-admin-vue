@@ -39,7 +39,7 @@ import { defineComponent } from 'vue'
 import { UserOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useSessionStore } from '@/stores/session'
+import { useSessionStore } from 'unione-base-vue'
 
 export default defineComponent({
   name: 'AvatarDropdown',

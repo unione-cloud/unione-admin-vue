@@ -68,7 +68,7 @@ import { computed, h } from 'vue'
 import { RouterView } from 'vue-router'
 import { default as AvatarDropdown } from '@/components/avatar-dropdown.vue'
 import { default as NoticeIcon } from '@/components/notice-icon/index.vue'
-import { useSessionStore } from '@/stores/session'
+import { useSessionStore } from 'unione-base-vue'
 import { useAdminStore } from '@/stores/admin'
 
 // 会话对象

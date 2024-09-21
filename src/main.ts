@@ -10,14 +10,14 @@ import Antd from 'ant-design-vue'
 import * as Icons from '@ant-design/icons-vue/lib/icons'
 import 'ant-design-vue/dist/reset.css'
 
-import locale from './locales'
+import UnioneFormVue from 'unione-form-vue'
+import UninoneBaseVue from 'unione-base-vue'
+import { loadLanguage } from './locales'
 
 const app = createApp(App)
-app
-  .use(createPinia())
-  .use(router)
-  .use(Antd)
-  .use(locale as any)
+app.use(createPinia()).use(router).use(Antd).use(UninoneBaseVue).use(UnioneFormVue)
+
+loadLanguage('zh-CN') //'en-US' 'en-US'
 
 const AntdIcons: any = Icons
 Object.keys(AntdIcons).forEach((key: any) => {

@@ -1,8 +1,10 @@
-import { ref,h } from 'vue'
-import { defineStore } from 'pinia'
+import { ref,h,watch } from 'vue'
+import { defineStore, getActivePinia } from 'pinia'
 import type { MenuItem, ViewSetting } from './typing'
 import config from '@/config/settings'
-import { router, local } from '@/router'
+import { local } from '@/router'
+import { useSessionStore } from 'unione-base-vue'
+import { useRouter } from 'vue-router'
 
 /**
  * Admin Store
@@ -10,7 +12,6 @@ import { router, local } from '@/router'
 export const useAdminStore = defineStore('unione-admin', () => {
   // 菜单数据集合
   const menuData = ref<Array<MenuItem>>([])
-
   const menuMap = ref<any>({})
   const topMenu = ref<any>({
     selectedKeys: [],
@@ -25,6 +26,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
   })
   // view配置
   const view = ref<ViewSetting>({ ...config.view })
+  const router = useRouter()
 
   // 构建路由
   function buildRoute(items: Array<MenuItem>) {
@@ -148,7 +150,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
             }
           }
         }
-        router.push(to)
+        router.push({path:to.path})
       }
 
       resolve(menuList)
@@ -221,6 +223,11 @@ export const useAdminStore = defineStore('unione-admin', () => {
     view.value = { ...view.value, ...setting }
   }
 
+  const session = useSessionStore(getActivePinia())
+  function isLogin(){
+    return session.isLogin()
+  }
+
   return {
     menuData,
     sideMenu,
@@ -229,6 +236,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
     topMenuClick,
     sideMenuClick,
     view,
-    setView
+    setView,
+    isLogin
   }
 })
