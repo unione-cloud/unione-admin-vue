@@ -72,7 +72,7 @@ import { ref, watch, computed } from 'vue'
 import type { Rule } from 'ant-design-vue/es/form'
 import { utils } from 'unione-base-vue'
 import { useAdminStore } from '@/stores/admin'
-import { useSessionStore } from 'unione-base-vue'
+import { useSession } from 'unione-base-vue'
 
 import ImageBg from '@/assets/login/bg.jpg'
 import ImageAd from '@/assets/login/ad1.png'
@@ -87,7 +87,7 @@ const view: any = computed(() => {
   return admin.view
 })
 
-const session = useSessionStore()
+const session = useSession()
 
 const loginType = ref('username')
 watch(loginType, () => {

@@ -68,11 +68,11 @@ import { computed, h } from 'vue'
 import { RouterView } from 'vue-router'
 import { default as AvatarDropdown } from '@/components/avatar-dropdown.vue'
 import { default as NoticeIcon } from '@/components/notice-icon/index.vue'
-import { useSessionStore } from 'unione-base-vue'
+import { useSession } from 'unione-base-vue'
 import { useAdminStore } from '@/stores/admin'
 
 // 会话对象
-const session = useSessionStore()
+const session = useSession()
 const principal = computed(() => {
   return session.getPrincipal()
 })

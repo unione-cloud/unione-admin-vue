@@ -39,7 +39,7 @@ import { defineComponent } from 'vue'
 import { UserOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useSessionStore } from 'unione-base-vue'
+import { useSession } from 'unione-base-vue'
 
 export default defineComponent({
   name: 'AvatarDropdown',
@@ -55,7 +55,7 @@ export default defineComponent({
   },
   setup() {
     const router = useRouter()
-    const session = useSessionStore()
+    const session = useSession()
     // const store = useStore();
     const { t } = useI18n()
     const handleToCenter = () => {

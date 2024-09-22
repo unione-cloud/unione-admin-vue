@@ -1,9 +1,9 @@
-import { ref,h,watch } from 'vue'
+import { ref, h, watch } from 'vue'
 import { defineStore, getActivePinia } from 'pinia'
 import type { MenuItem, ViewSetting } from './typing'
 import config from '@/config/settings'
 import { local } from '@/router'
-import { useSessionStore } from 'unione-base-vue'
+import { useSession } from 'unione-base-vue'
 import { useRouter } from 'vue-router'
 
 /**
@@ -68,8 +68,8 @@ export const useAdminStore = defineStore('unione-admin', () => {
           // icon: item.meta?.icon,
           path: item.path
         }
-        if(typeof menu.icon ==='string'){
-          menu.icon=()=>h(menu.icon)
+        if (typeof menu.icon === 'string') {
+          menu.icon = () => h(menu.icon)
         }
         menuMap.value[menu.key] = menu
         menuMap.value[menu.path] = menu
@@ -90,7 +90,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
     return new Promise((resolve, reject) => {
       // 加载菜单
       //menuData.value = local
-      const menuList:Array<MenuItem>=local
+      const menuList: Array<MenuItem> = local
 
       // 构建路由
       const routes = buildRoute(menuList)
@@ -150,7 +150,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
             }
           }
         }
-        router.push({path:to.path})
+        router.push({ path: to.path })
       }
 
       resolve(menuList)
@@ -162,8 +162,8 @@ export const useAdminStore = defineStore('unione-admin', () => {
     return new Promise((resolve, reject) => {
       if (!menuMap.value || !Object.keys(menuMap.value).length) {
         // 如果菜单信息为空，则加载菜单
-        loadMenu(to).then((menuList:any) => {
-          menuData.value=menuList
+        loadMenu(to).then((menuList: any) => {
+          menuData.value = menuList
           reject(true)
         })
       } else {
@@ -223,8 +223,8 @@ export const useAdminStore = defineStore('unione-admin', () => {
     view.value = { ...view.value, ...setting }
   }
 
-  const session = useSessionStore(getActivePinia())
-  function isLogin(){
+  const session = useSession()
+  function isLogin() {
     return session.isLogin()
   }
 
