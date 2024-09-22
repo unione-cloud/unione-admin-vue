@@ -65,7 +65,9 @@ export default defineComponent({
       router.push({ path: '/account/settings' })
     }
     const handleLogout = () => {
-      session.doLogout()
+      session.doLogout().then(() => {
+        router.push({ path: '/login' })
+      })
     }
 
     return {
@@ -74,11 +76,6 @@ export default defineComponent({
       handleToSettings,
       handleLogout
     }
-  },
-  components: {
-    UserOutlined,
-    SettingOutlined,
-    LogoutOutlined
   }
 })
 </script>

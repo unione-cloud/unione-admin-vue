@@ -9,6 +9,7 @@ import router from './router'
 import Antd from 'ant-design-vue'
 import * as Icons from '@ant-design/icons-vue/lib/icons'
 import 'ant-design-vue/dist/reset.css'
+import 'unione-form-vue/dist/style.css'
 
 import UnioneFormVue from 'unione-form-vue'
 import UninoneBaseVue from 'unione-base-vue'
