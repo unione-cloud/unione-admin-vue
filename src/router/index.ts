@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { MenuItem } from '../stores/typing'
-import { UinonePageView } from 'unione-form-vue'
+import { UnionePageView } from 'unione-form-vue'
 import { useAdminStore } from '@/stores/admin'
 
 export const local: Array<MenuItem> = [
@@ -22,7 +22,16 @@ export const local: Array<MenuItem> = [
         sid: '100001000',
         title: '用户管理',
         path: '/form/organ/user',
-        component: UinonePageView
+        component: UnionePageView,
+        meta: {
+          psn: 'udemo'
+        }
+      },
+      {
+        sid: '100001001',
+        title: '数据定义',
+        path: '/form/data/define',
+        component: () => import('@/views/demo/dms.vue')
       }
     ]
   },

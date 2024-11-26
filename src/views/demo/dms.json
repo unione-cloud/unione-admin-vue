@@ -1,0 +1,325 @@
+{
+	"sn": "new_",
+	"title": "新建页面",
+	"types": "setting",
+	"vers": 1,
+	"component": "unione-form-page",
+	"configs":{
+		"widgetList": [{
+			"wid": "query-form",
+			"widget": "unione-query-form",
+			"dataModel": "datalist",
+			"configs": {
+				"keywords": {},
+				"fields": [],
+				"labelWidth": 8,
+				"queryBtn": {},
+				"resetBtn": {},
+				"advancedBtn": {},
+				"btns": [{
+					"visible": true,
+					"name": "query",
+					"title": "搜索",
+					"type": "primary",
+					"event": {},
+					"props": {},
+					"action": {
+						"maskClosable": true,
+						"params": []
+					},
+					"size": "middle"
+				}, {
+					"visible": true,
+					"name": "advanced",
+					"title": "高级搜索",
+					"type": "default"
+				}, {
+					"visible": true,
+					"name": "reset",
+					"title": "重置",
+					"type": "default",
+					"event": {},
+					"props": {},
+					"action": {
+						"maskClosable": true,
+						"params": []
+					},
+					"size": "middle"
+				}, {
+					"title": "新增",
+					"name": "new_4",
+					"size": "default",
+					"index": 4,
+					"visible": true,
+					"type": "default",
+					"props": {
+						"block": false,
+						"ghost": false,
+						"danger": true
+					},
+					"event": {
+						"clickScript": "",
+						"titleScript": "",
+						"disableScript": "",
+						"visibleScript": ""
+					},
+					"action": {
+						"params": [{
+							"title": "年龄",
+							"name": "age",
+							"value": "18"
+						}],
+						"type": "link",
+						"href": "http://www.baido.com",
+						"target": "_blank"
+					}
+				}]
+			}
+		}, {
+			"wid": "table-list",
+			"widget": "unione-table-list",
+			"dataModel": "datalist",
+			"configs": {
+				"pagination": null,
+				"selection": true,
+				"leftBtns": [{
+					"visible": true,
+					"title": "新增",
+					"icon": "PlusOutlined",
+					"size": "small",
+					"index": 0,
+					"type": "primary",
+					"props": {
+						"danger": false,
+						"block": false,
+						"ghost": false
+					},
+					"name": "add"
+				}, {
+					"visible": true,
+					"title": "批量删除",
+					"icon": "DeleteOutlined",
+					"size": "small",
+					"index": 1,
+					"type": "primary",
+					"props": {
+						"danger": true,
+						"block": false,
+						"ghost": false
+					},
+					"name": "delBatch"
+				}],
+				"rightBtns": [{
+					"visible": true,
+					"icon": "CloudDownloadOutlined",
+					"size": "small",
+					"title": "导出",
+					"index": 0,
+					"type": "default",
+					"props": {
+						"danger": false,
+						"block": false,
+						"ghost": false
+					},
+					"name": "downData"
+				}, {
+					"visible": true,
+					"title": "导入",
+					"icon": "CloudUploadOutlined",
+					"size": "small",
+					"index": 1,
+					"type": "default",
+					"props": {
+						"danger": false,
+						"block": false,
+						"ghost": false
+					},
+					"name": "impData"
+				}, {
+					"visible": true,
+					"title": "导出",
+					"icon": "CloudUploadOutlined",
+					"size": "small",
+					"index": 2,
+					"type": "default",
+					"props": {
+						"danger": false,
+						"block": false,
+						"ghost": false
+					},
+					"name": "expData"
+				}, {
+					"visible": true,
+					"icon": "CloudDownloadOutlined",
+					"size": "small",
+					"title": "模版",
+					"index": 3,
+					"type": "default",
+					"props": {
+						"danger": false,
+						"block": false,
+						"ghost": false
+					},
+					"name": "downTmpl"
+				}],
+				"rownum": {
+					"title": "序号",
+					"fixed": "left",
+					"align": "center",
+					"width": 60,
+					"visible": true
+				},
+				"columns": [],
+				"operation": {
+					"title": "操作",
+					"visible": true,
+					"width": 250,
+					"btns": [{
+						"title": "编辑",
+						"name": "edit",
+						"disabled": false,
+						"visible": true
+					}, {
+						"title": "查看",
+						"name": "view",
+						"disabled": false,
+						"visible": true
+					}, {
+						"title": "删除",
+						"name": "delete",
+						"disabled": false,
+						"visible": true,
+						"props": {
+							"danger": true
+						}
+					}, {
+						"title": "归档",
+						"name": "archive",
+						"disabled": false,
+						"visible": true
+					}, {
+						"title": "启用",
+						"name": "use",
+						"disabled": false,
+						"visible": true
+					}, {
+						"title": "停用",
+						"name": "unuse",
+						"disabled": false,
+						"visible": true
+					}],
+					"more": {
+						"title": "更多",
+						"visible": true,
+						"trigger": "hover",
+						"size": "small",
+						"layout": "horizontal",
+						"items": [{
+							"title": "归档",
+							"name": "archive",
+							"disabled": false,
+							"visible": true
+						}, {
+							"title": "启用",
+							"name": "use",
+							"disabled": false,
+							"visible": true
+						}, {
+							"title": "停用",
+							"name": "unuse",
+							"disabled": false,
+							"visible": true
+						}]
+					},
+					"count": 3
+				}
+			}
+		}],
+		"dataModels": [{
+			"sn": "datalist",
+			"name": "userinfo",
+			"title": "用户信息",
+			"fields": [{
+				"name": "sid",
+				"title": "主键",
+				"isPk": true,
+				"show": {
+					"list": {}
+				}
+			}, {
+				"name": "username",
+				"title": "姓名",
+				"isPk": false,
+				"isQuery": true,
+				"isList": true,
+				"show": {
+					"list": {
+						"fixed": "left",
+						"width": 150
+					}
+				},
+				"dataIndex": "username",
+				"width": 150,
+				"fixed": "left",
+				"visible": false
+			}, {
+				"name": "sex",
+				"title": "性别",
+				"isPk": false,
+				"isSort": true,
+				"isQuery": true,
+				"isList": true,
+				"show": {
+					"list": {
+						"width": 90
+					}
+				},
+				"dataIndex": "sex",
+				"width": 90,
+				"visible": false
+			}, {
+				"name": "age",
+				"title": "年龄",
+				"isPk": false,
+				"isSort": true,
+				"isList": true,
+				"show": {
+					"list": {
+						"width": 70
+					}
+				},
+				"dataIndex": "age",
+				"width": 70
+			}, {
+				"name": "tel",
+				"title": "手机号",
+				"isPk": false,
+				"isQuery": true,
+				"isList": true,
+				"show": {
+					"list": {
+						"width": 100
+					}
+				},
+				"dataIndex": "tel",
+				"width": 100,
+				"visible": false
+			}, {
+				"name": "addr",
+				"title": "地址",
+				"isPk": false,
+				"isQuery": true,
+				"isList": true,
+				"dataIndex": "addr",
+				"show": {
+					"list": {}
+				},
+				"visible": false
+			}]
+		}],
+		"settings": {
+			"ctx": "/portal",
+			"timeout": 60000
+		}
+	}
+}
