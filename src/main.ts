@@ -11,12 +11,14 @@ import * as Icons from '@ant-design/icons-vue/lib/icons'
 import 'ant-design-vue/dist/reset.css'
 import 'unione-form-vue/dist/style.css'
 
+import config from '@/config/settings'
+
 import UnioneFormVue from 'unione-form-vue'
 import UninoneBaseVue from 'unione-base-vue'
 import { loadLanguage } from './locales'
 
 const app = createApp(App)
-app.use(createPinia()).use(router).use(Antd).use(UninoneBaseVue).use(UnioneFormVue)
+app.use(createPinia()).use(router).use(Antd).use(UninoneBaseVue, config).use(UnioneFormVue, config)
 
 loadLanguage('zh-CN') //'en-US' 'en-US'
 
