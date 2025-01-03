@@ -45,6 +45,22 @@ export const local: Array<MenuItem> = [
     children: [
       {
         sid: '20000100',
+        title: '基础管理',
+        path: '/system/base',
+        meta: {
+          icon: 'MailOutlined'
+        },
+        children: [
+          {
+            sid: '20000100100',
+            title: '字典管理',
+            path: '/system/base/dict',
+            component: () => import('@/views/system/base/dict/list.vue')
+          }
+        ]
+      },
+      {
+        sid: '20000101',
         title: '组织管理',
         path: '/system/organ',
         meta: {
@@ -52,7 +68,7 @@ export const local: Array<MenuItem> = [
         },
         children: [
           {
-            sid: '20000100100',
+            sid: '20000101100',
             title: '用户管理',
             path: '/system/organ/user',
             component: () => import('@/views/system/user/list.vue')

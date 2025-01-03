@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import { provide } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { useI18n } from 'unione-base-vue'
 import { useAdminStore } from './stores/admin'
 
 const admin = useAdminStore()

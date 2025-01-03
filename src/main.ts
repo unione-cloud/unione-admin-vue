@@ -21,6 +21,8 @@ const app = createApp(App)
 app.use(createPinia()).use(router).use(Antd).use(UninoneBaseVue, config).use(UnioneFormVue, config)
 
 loadLanguage('zh-CN') //'en-US' 'en-US'
+import uoneApi from './api/index' // api 请求
+app.provide('unione', { api: uoneApi })
 
 const AntdIcons: any = Icons
 Object.keys(AntdIcons).forEach((key: any) => {
