@@ -48,7 +48,6 @@ const tableList = ref({
       name: 'delBatch'
     }
   ],
-  rightBtns: [],
   columns: [
     {
       title: '应用名称',
@@ -109,7 +108,7 @@ const dataList = ref({
   pagination: {
     total: 0,
     current: 1,
-    pageSize: 20
+    pageSize: 10
   },
   loading: false,
   params: {},
