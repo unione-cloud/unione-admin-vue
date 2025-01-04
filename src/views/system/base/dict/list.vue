@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <div class="unione-page list-page">
+  <div class="unione-page unione-page-list">
     <UnioneQuery :widget="queryForm" @query="toQuery" @reset="toQuery"></UnioneQuery>
     <UnioneTable
       :widget="tableList"
