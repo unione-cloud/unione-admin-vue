@@ -35,6 +35,10 @@ const queryForm = ref({
       name: 'dictName'
     },
     {
+      title: '字典标题',
+      name: 'dictValue'
+    },
+    {
       title: '字典类型',
       name: 'dictType'
     }
@@ -42,12 +46,6 @@ const queryForm = ref({
 })
 
 const tableList = ref({
-  leftBtns: [
-    {
-      visible: false,
-      name: 'delBatch'
-    }
-  ],
   columns: [
     {
       title: '应用名称',
@@ -80,7 +78,7 @@ const tableList = ref({
   ],
   operation: {
     title: '操作',
-    width: 250,
+    width: 190,
     btns: [
       {
         name: 'view',
@@ -89,10 +87,6 @@ const tableList = ref({
       {
         name: 'manage',
         title: '管理'
-      },
-      {
-        name: 'subnode',
-        title: '创建子级'
       }
     ],
     count: 4,
@@ -111,7 +105,7 @@ const dataList = ref({
     pageSize: 10
   },
   loading: false,
-  params: {},
+  params: { parentId: -1 },
   data: []
 })
 function loadData() {
