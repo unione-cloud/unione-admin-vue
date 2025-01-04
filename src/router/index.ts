@@ -1,6 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { MenuItem } from '../stores/typing'
-import { UnionePageView } from 'unione-form-vue'
+import {
+  UnioneDataDefineList,
+  UnioneDataDefineEdit,
+  UnionePageForm,
+  UnionePageList
+} from 'unione-form-vue'
 import { useAdminStore } from '@/stores/admin'
 
 export const local: Array<MenuItem> = [
@@ -11,27 +16,37 @@ export const local: Array<MenuItem> = [
     component: () => import('@/views/home.vue')
   },
   {
-    sid: '10000',
-    title: '表单页面',
-    path: '/form',
+    sid: '1000',
+    title: 'unione',
+    path: '/unione',
+    hidden: true,
     meta: {
       icon: 'MailOutlined'
     },
     children: [
       {
-        sid: '100001000',
-        title: '用户管理',
-        path: '/form/organ/user',
-        component: UnionePageView,
-        meta: {
-          psn: 'udemo'
-        }
+        sid: '1001',
+        title: '新增',
+        path: '/unione/page/add',
+        component: UnionePageForm
       },
       {
-        sid: '100001001',
-        title: '数据定义',
-        path: '/form/data/define',
-        component: () => import('@/views/demo/dms.vue')
+        sid: '1002',
+        title: '修改',
+        path: '/unione/page/edit',
+        component: UnionePageForm
+      },
+      {
+        sid: '1003',
+        title: '查看',
+        path: '/unione/page/view',
+        component: UnionePageForm
+      },
+      {
+        sid: '1004',
+        title: '列表',
+        path: '/unione/page/list',
+        component: UnionePageList
       }
     ]
   },
@@ -45,6 +60,29 @@ export const local: Array<MenuItem> = [
     children: [
       {
         sid: '20000100',
+        title: '数据管理',
+        path: '/system/data/manage',
+        meta: {
+          icon: 'MailOutlined'
+        },
+        children: [
+          {
+            sid: '20000100100',
+            title: '数据定义',
+            path: '/system/data/define/list',
+            component: UnioneDataDefineList
+          },
+          {
+            sid: '20000100101',
+            title: '数据定义',
+            path: '/system/data/define/edit',
+            hidden: true,
+            component: UnioneDataDefineEdit
+          }
+        ]
+      },
+      {
+        sid: '20000101',
         title: '基础管理',
         path: '/system/base',
         meta: {
@@ -52,7 +90,7 @@ export const local: Array<MenuItem> = [
         },
         children: [
           {
-            sid: '20000100100',
+            sid: '20000101100',
             title: '字典管理',
             path: '/system/base/dict',
             component: () => import('@/views/system/base/dict/list.vue')
@@ -60,7 +98,7 @@ export const local: Array<MenuItem> = [
         ]
       },
       {
-        sid: '20000101',
+        sid: '20000102',
         title: '组织管理',
         path: '/system/organ',
         meta: {
@@ -68,7 +106,7 @@ export const local: Array<MenuItem> = [
         },
         children: [
           {
-            sid: '20000101100',
+            sid: '20000102100',
             title: '用户管理',
             path: '/system/organ/user',
             component: () => import('@/views/system/user/list.vue')

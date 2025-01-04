@@ -22,6 +22,7 @@ export interface MenuMeta {
 
 export interface MenuItem {
   sid: string | number
+  hidden?:boolean,
   title: string
   path: string
   url?: string

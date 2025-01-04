@@ -79,7 +79,10 @@ export const useAdminStore = defineStore('unione-admin', () => {
             child.parent = menu.key
           })
         }
-        menus.push(menu)
+
+        if (!item.hidden) {
+          menus.push(menu)
+        }
       })
     }
     return menus
