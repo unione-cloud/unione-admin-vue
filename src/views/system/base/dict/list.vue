@@ -59,6 +59,10 @@ const tableList = ref({
       name: 'dictName'
     },
     {
+      title: '字典标题',
+      name: 'dictValue'
+    },
+    {
       title: '字典类型',
       name: 'dictType'
     },
@@ -77,7 +81,7 @@ const tableList = ref({
   ],
   operation: {
     title: '操作',
-    width: 190,
+    width: 250,
     btns: [
       {
         name: 'view',
@@ -88,11 +92,11 @@ const tableList = ref({
         title: '管理'
       },
       {
-        name: 'sub',
+        name: 'subnode',
         title: '创建子级'
       }
     ],
-    count: 2,
+    count: 4,
     more: {
       layout: 'vertical'
     }
@@ -140,13 +144,9 @@ function toQuery(params?: any) {
 function tableBtnClick({ btn, event, row }: any) {
   console.log('table btn click', btn, event, row)
 
-  if (btn.name == 'add' || btn.name == 'edit') {
-    router.push({
-      path: '/system/data/define/edit',
-      query: row ? { id: row.id } : {}
-    })
+  if (btn.name == 'add') {
   }
-  if (btn.name == 'view') {
+  if (btn.name == 'edit') {
   }
 }
 </script>
