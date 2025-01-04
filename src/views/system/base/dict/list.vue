@@ -105,7 +105,7 @@ const dataList = ref({
     pageSize: 10
   },
   loading: false,
-  params: { parentId: -1 },
+  params: {},
   data: []
 })
 function loadData() {
@@ -114,7 +114,7 @@ function loadData() {
     .find({
       page: dataList.value.pagination.current,
       pageSize: dataList.value.pagination.pageSize,
-      body: dataList.value.params
+      body: { ...dataList.value.params, parentId: -1 }
     })
     .then((result: any) => {
       dataList.value.data = result.body
