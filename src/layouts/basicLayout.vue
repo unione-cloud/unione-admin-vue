@@ -80,6 +80,11 @@ const principal = computed(() => {
 // Admin对象
 const admin = useAdminStore()
 const sideMenu = computed(() => {
+  if (admin.sideMenu.collapsed) {
+    document.body.classList.add('side-menu-collapsed')
+  } else {
+    document.body.classList.remove('side-menu-collapsed')
+  }
   return admin.sideMenu
 })
 const topMenu = computed(() => {
