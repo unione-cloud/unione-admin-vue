@@ -226,6 +226,11 @@ const drawer = ref({
         name: 'dictName',
         props: {
           required: true
+        },
+        event: {
+          visible: (value: string, ctx: any) => {
+            return !ctx.id
+          }
         }
       },
       {
