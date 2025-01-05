@@ -176,7 +176,16 @@ function toQuery(params?: any) {
 }
 function tableBtnClick({ btn, event, row }: any) {
   console.log('table btn click', btn, event, row)
-
+  if (btn.name == 'delete') {
+    unione.api.sysBaseDict.delete([row.id]).then(() => {
+      toQuery()
+    })
+  }
+  if (btn.name == 'status') {
+    unione.api.sysBaseDict.setStatus(row.id, row.status == 1 ? 0 : 1).then(() => {
+      toQuery()
+    })
+  }
   if (btn.name == 'add') {
     drawer.value.visible = true
     drawer.value.title = '新增字典'
