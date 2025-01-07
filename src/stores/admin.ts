@@ -153,7 +153,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
             }
           }
         }
-        router.push({ path: to.path })
+        router.push({ path: to.path, query: to.query, params: to.params })
       }
 
       resolve(menuList)
