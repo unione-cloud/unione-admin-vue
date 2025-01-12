@@ -26,15 +26,6 @@
         <a-button @click="drawer.visible = false">取消</a-button>
       </div>
     </a-drawer>
-    <a-drawer
-      title="字典管理"
-      :width="850"
-      v-model:visible="manage.visible"
-      placement="right"
-      class="drawer-form"
-    >
-      <unione-page-tree v-bind="manage.page" :params="manage.params"></unione-page-tree>
-    </a-drawer>
   </div>
 </template>
 
@@ -128,15 +119,11 @@ const tableList = ref({
   ],
   operation: {
     title: '操作',
-    width: 240,
+    width: 190,
     btns: [
       {
         name: 'view',
         visible: false
-      },
-      {
-        name: 'manage',
-        title: '管理'
       },
       {
         name: 'status',
@@ -234,13 +221,6 @@ function tableBtnClick({ btn, event, row, keys }: any) {
       form.value.setValue(row)
     })
   }
-  if (btn.name == 'manage') {
-    manage.value.visible = true
-    manage.value.target = row
-    manage.value.params = {
-      dictName: row.dictName
-    }
-  }
 }
 
 const form = ref() //form ref obj
@@ -252,73 +232,89 @@ const drawer = ref({
   form: {
     fields: [
       {
-        title: '应用名称',
-        name: 'appName',
+        title: '所属机构',
+        name: 'orgName',
         props: {
           required: true
         }
       },
       {
-        title: '字典名称',
-        name: 'dictName',
-        props: {
-          required: true
-        },
-        event: {
-          visible: (value: string, ctx: any) => {
-            return !ctx.id
-          }
-        }
-      },
-      {
-        title: '字典标题',
-        name: 'dictValue',
-        props: {
-          required: true
-        }
-      },
-      {
-        title: '字典类型',
-        name: 'dictType',
+        title: '用户类型',
+        name: 'userType',
         control: 'unione-select-box',
         value: 2,
         convert: {
-          types: 'option',
-          options: [
-            { value: 0, label: '平台' },
-            { value: 1, label: '租户' },
-            { value: 2, label: '机构' }
-          ]
+          types: 'dict',
+          dictName: 'USERTYPE'
         }
       },
       {
-        title: '显示方式',
-        name: 'showType',
-        control: 'unione-select-box',
-        value: 'text',
-        convert: {
-          types: 'option',
-          options: [
-            { value: 'text', label: '文本' },
-            { value: 'tag', label: '标签' }
-          ]
+        title: '用户帐号',
+        name: 'username',
+        props: {
+          required: true
         }
       },
       {
-        title: '显示顺序',
-        name: 'ordered',
-        value: 1,
-        control: 'a-input-number'
+        title: '用户密码',
+        name: 'pwdText',
+        control: 'a-input-password'
       },
       {
-        title: '字典状态',
-        name: 'status',
+        title: '用户姓名',
+        name: 'realName',
+        props: {
+          required: true
+        }
+      },
+      {
+        title: '用户性别',
+        name: 'sex',
         control: 'unione-switch-box',
+        value: 2,
+        convert: {
+          types: 'dict',
+          dictName: 'SEX'
+        }
+      },
+      {
+        title: '出生日期',
+        name: 'birthday',
+        control: 'a-date-picker',
+        props: {
+          placeholder: '',
+          valueFormat: 'YYYY-MM-DD'
+        }
+      },
+      {
+        title: '手机号码',
+        name: 'tel',
+        props: {
+          required: true
+        }
+      },
+      {
+        title: '邮箱地址',
+        name: 'email'
+      },
+      {
+        title: 'QQ号码',
+        name: 'qq'
+      },
+      {
+        title: '用户状态',
+        name: 'status',
+        control: 'unione-select-box',
         value: 1,
         convert: {
           types: 'dict',
-          dictName: 'USEORNOT'
+          dictName: 'USERSTATUS'
         }
+      },
+      {
+        title: '备注',
+        control: 'a-textarea',
+        name: 'descs'
       }
     ],
     setting: {
@@ -345,124 +341,6 @@ const drawer = ref({
         toQuery()
       })
     })
-  }
-})
-
-// 字典项管理
-const manage = ref<any>({
-  visible: false,
-  target: {},
-  params: {},
-  page: {
-    storage: {
-      controller: '/api/system/dict'
-    },
-    fields: [
-      {
-        title: '应用名称',
-        name: 'appName',
-        event: {
-          visible: {
-            enable: true,
-            scriptText: 'return ctx.parentId==-1'
-          }
-        }
-      },
-      {
-        title: '字典类型',
-        name: 'dictType',
-        control: 'unione-select-box',
-        value: 0,
-        convert: {
-          types: 'option',
-          options: [
-            { value: 0, label: '平台' },
-            { value: 1, label: '租户' },
-            { value: 2, label: '机构' }
-          ]
-        },
-        event: {
-          visible: {
-            enable: true,
-            scriptText: 'return ctx.parentId==-1'
-          }
-        }
-      },
-      {
-        title: '字典名称',
-        name: 'dictName',
-        event: {
-          visible: {
-            enable: true,
-            scriptText: 'return ctx.parentId==-1'
-          }
-        }
-      },
-      {
-        title: '字典key',
-        name: 'dictKey',
-        event: {
-          visible: {
-            enable: true,
-            scriptText: 'return ctx.parentId!=-1'
-          }
-        }
-      },
-      {
-        title: '字典Value',
-        name: 'dictValue',
-        event: {
-          title: {
-            enable: true,
-            scriptText: "return ctx.parentId==-1?'字典标题':'字典Value'"
-          }
-        }
-      },
-      {
-        title: '显示顺序',
-        name: 'ordered',
-        control: 'a-input-number'
-      },
-      {
-        title: '字典状态',
-        name: 'status',
-        control: 'unione-switch-box',
-        value: 1,
-        convert: {
-          types: 'dict',
-          dictName: 'USEORNOT'
-        }
-      }
-    ],
-    setting: {
-      tree: {
-        labelField: 'dictValue'
-      },
-      form: {
-        showColumn: 1,
-        labelWidth: 4,
-        valueWidth: 15
-      }
-    },
-    event: {
-      preSave: (data: any) => {
-        if (data.parentId == -1) {
-          data.dictKey = data.dictName
-        }
-      },
-      createNode: (node: any, parent: any, params: any) => {
-        if (parent) {
-          node.appName = parent.appName
-          node.dictName = parent.dictName
-          node.dictType = parent.dictType
-        } else {
-          node.parentId = manage.value.target.id
-          node.appName = manage.value.target.appName
-          node.dictType = manage.value.target.dictType
-          node.dictName = manage.value.target.dictName
-        }
-      }
-    }
   }
 })
 </script>

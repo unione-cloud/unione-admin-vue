@@ -428,8 +428,7 @@ const manage = ref<any>({
       },
       form: {
         showColumn: 1,
-        labelWidth: 4,
-        valueWidth: 15
+        labelWidth: 4
       }
     },
     event: {
