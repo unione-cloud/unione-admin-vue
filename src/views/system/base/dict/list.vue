@@ -3,6 +3,7 @@
   <div class="unione-page unione-page-list">
     <UnioneQuery :widget="queryForm" @query="toQuery" @reset="toQuery"></UnioneQuery>
     <UnioneTable
+      ref="unioneTable"
       :widget="tableList"
       :dataList="dataList.data"
       :loading="dataList.loading"
@@ -25,11 +26,20 @@
         <a-button @click="drawer.visible = false">取消</a-button>
       </div>
     </a-drawer>
+    <a-drawer
+      title="字典管理"
+      :width="850"
+      v-model:visible="manage.visible"
+      placement="right"
+      class="drawer-form"
+    >
+      <unione-page-tree v-bind="manage.page" :params="manage.params"></unione-page-tree>
+    </a-drawer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Router } from 'vue-router'
+import type { Router } from 'vue-router'
 import { computed, inject, nextTick, onMounted, ref } from 'vue'
 import { useDialog, loadConfig } from 'unione-base-vue'
 
@@ -38,6 +48,10 @@ const dialog = useDialog()
 const unione: any = inject('unione')
 const router: any | Router = inject('router') //useRouter()
 
+// dom ref
+const unioneTable = ref()
+
+// query form
 const queryForm = ref({
   fields: [
     {
@@ -174,10 +188,16 @@ function toQuery(params?: any) {
   dataList.value.params = params || {}
   loadData()
 }
-function tableBtnClick({ btn, event, row }: any) {
+function tableBtnClick({ btn, event, row, keys }: any) {
   console.log('table btn click', btn, event, row)
   if (btn.name == 'delete') {
     unione.api.sysBaseDict.delete([row.id]).then(() => {
+      toQuery()
+    })
+  }
+  if (btn.name == 'delBatch') {
+    unione.api.sysBaseDict.delete(keys).then(() => {
+      unioneTable.value.clearSelected()
       toQuery()
     })
   }
@@ -203,6 +223,13 @@ function tableBtnClick({ btn, event, row }: any) {
     nextTick(() => {
       form.value.setValue(row)
     })
+  }
+  if (btn.name == 'manage') {
+    manage.value.visible = true
+    manage.value.target = row
+    manage.value.params = {
+      dictName: row.dictName
+    }
   }
 }
 
@@ -308,6 +335,124 @@ const drawer = ref({
         toQuery()
       })
     })
+  }
+})
+
+// 字典项管理
+const manage = ref<any>({
+  visible: false,
+  target: {},
+  params: {},
+  page: {
+    storage: {
+      controller: '/api/system/dict'
+    },
+    fields: [
+      {
+        title: '应用名称',
+        name: 'appName',
+        event: {
+          visible: {
+            enable: true,
+            scriptText: 'return ctx.parentId==-1'
+          }
+        }
+      },
+      {
+        title: '字典类型',
+        name: 'dictType',
+        control: 'unione-select-box',
+        value: 0,
+        convert: {
+          types: 'option',
+          options: [
+            { value: 0, label: '平台' },
+            { value: 1, label: '租户' },
+            { value: 2, label: '机构' }
+          ]
+        },
+        event: {
+          visible: {
+            enable: true,
+            scriptText: 'return ctx.parentId==-1'
+          }
+        }
+      },
+      {
+        title: '字典名称',
+        name: 'dictName',
+        event: {
+          visible: {
+            enable: true,
+            scriptText: 'return ctx.parentId==-1'
+          }
+        }
+      },
+      {
+        title: '字典key',
+        name: 'dictKey',
+        event: {
+          visible: {
+            enable: true,
+            scriptText: 'return ctx.parentId!=-1'
+          }
+        }
+      },
+      {
+        title: '字典Value',
+        name: 'dictValue',
+        event: {
+          title: {
+            enable: true,
+            scriptText: "return ctx.parentId==-1?'字典标题':'字典Value'"
+          }
+        }
+      },
+      {
+        title: '显示顺序',
+        name: 'ordered',
+        control: 'a-input-number'
+      },
+      {
+        title: '字典状态',
+        name: 'status',
+        control: 'unione-switch-box',
+        value: 1,
+        convert: {
+          types: 'dict',
+          dictName: 'USEORNOT'
+        }
+      }
+    ],
+    setting: {
+      tree: {
+        labelField: 'dictValue'
+      },
+      form: {
+        showColumn: 1,
+        labelWidth: 4,
+        valueWidth: 15
+      }
+    },
+    event: {
+      preSave: (data: any) => {
+        if (data.parentId == -1) {
+          data.dictKey = data.dictName
+        }
+      },
+      createNode: (node: any, parent: any, params: any) => {
+        if (parent) {
+          node.appName = parent.appName
+          node.dictName = parent.dictName
+          node.dictType = parent.dictType
+        } else {
+          node.parentId = manage.value.target.id
+          node.appName = manage.value.target.appName
+          node.dictType = manage.value.target.dictType
+          node.dictName = manage.value.target.dictName
+        }
+      }
+    }
   }
 })
 </script>
