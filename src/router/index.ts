@@ -100,7 +100,7 @@ export const local: Array<MenuItem> = [
       {
         sid: '20000102',
         title: '组织管理',
-        path: '/system/organ',
+        path: '/system/org',
         meta: {
           icon: 'MailOutlined'
         },
@@ -108,8 +108,8 @@ export const local: Array<MenuItem> = [
           {
             sid: '20000102100',
             title: '用户管理',
-            path: '/system/organ/user',
-            component: () => import('@/views/system/user/list.vue')
+            path: '/system/org/user',
+            component: () => import('@/views/system/org/user/list.vue')
           }
         ]
       }
