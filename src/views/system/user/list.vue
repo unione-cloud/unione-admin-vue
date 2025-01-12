@@ -1,227 +1,479 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <div class="unione-page user-manage">
-    <!-- 查询表单 -->
-    <div class="unione-query">
-      <a-form-item label="关键字" class="query-field keywords">
-        <a-input placeholder="请输入搜索内容"></a-input>
-      </a-form-item>
-      <div class="query-btn">
-        <a-button type="primary" class="btn do-search">搜索</a-button>
-        <a-button class="btn do-reset">重置</a-button>
-        <a-dropdown class="btn">
-          <template #overlay>
-            <a-menu>
-              <a-menu-item key="1"><a-checkbox>姓名</a-checkbox></a-menu-item>
-              <a-menu-item key="2"><a-checkbox>性别</a-checkbox></a-menu-item>
-            </a-menu>
-          </template>
-          <a-button>
-            高级搜索
-            <DownOutlined />
-          </a-button>
-        </a-dropdown>
+  <div class="unione-page unione-page-list unione-system-user">
+    <UnioneQuery :widget="queryForm" @query="toQuery" @reset="toQuery"></UnioneQuery>
+    <UnioneTable
+      ref="unioneTable"
+      :widget="tableList"
+      :dataList="dataList.data"
+      :loading="dataList.loading"
+      :pagination="dataList.pagination"
+      @change="tableChanged"
+      @btnClick="tableBtnClick"
+    ></UnioneTable>
+
+    <a-drawer
+      :title="drawer.title"
+      :width="550"
+      v-model:visible="drawer.visible"
+      :placement="drawer.placement"
+      class="drawer-form"
+    >
+      <unione-form :form="drawer.form" ref="form"></unione-form>
+
+      <div class="btns">
+        <a-button type="primary" @click="drawer.tosave">保存</a-button>
+        <a-button @click="drawer.visible = false">取消</a-button>
       </div>
-    </div>
-
-    <!-- 页面工具 -->
-    <div class="unione-tools">
-      <a-button class="btn add" type="primary" size="small">
-        <template #icon>
-          <PlusOutlined />
-        </template>
-        新增</a-button
-      >
-      <a-button class="btn delete" type="primary" danger size="small">
-        <template #icon>
-          <DeleteOutlined />
-        </template>
-        批量删除</a-button
-      >
-      <a-button class="btn right tmpl" size="small">
-        <template #icon>
-          <CloudDownloadOutlined />
-        </template>
-        模版</a-button
-      >
-      <a-button class="btn right import" size="small">
-        <template #icon>
-          <CloudUploadOutlined />
-        </template>
-        导入</a-button
-      >
-      <a-button class="btn right export" size="small">
-        <template #icon>
-          <CloudDownloadOutlined />
-        </template>
-        导出</a-button
-      >
-    </div>
-
-    <!-- 页面数据 -->
-    <div class="unione-data data-list">
-      <a-table
-        :columns="columns"
-        :data-source="dataSource"
-        :scroll="{ x: 1500 }"
-        :pagination="{
-          showTotal: (total:any) => '共' + total + '记录',
-          total: 1000,
-          position: ['bottomCenter']
-        }"
-        bordered
-        size="small"
-      >
-        <template #bodyCell="{ column }">
-          <template v-if="column.key === 'operation'">
-            <a>action</a>
-          </template>
-        </template>
-      </a-table>
-    </div>
+    </a-drawer>
+    <a-drawer
+      title="字典管理"
+      :width="850"
+      v-model:visible="manage.visible"
+      placement="right"
+      class="drawer-form"
+    >
+      <unione-page-tree v-bind="manage.page" :params="manage.params"></unione-page-tree>
+    </a-drawer>
   </div>
 </template>
 
 <script setup lang="ts">
-import {
-  DeleteOutlined,
-  PlusOutlined,
-  CloudUploadOutlined,
-  CloudDownloadOutlined
-} from '@ant-design/icons-vue'
+import { inject, nextTick, onMounted, ref } from 'vue'
+import { useDialog, loadConfig } from 'unione-base-vue'
 
-interface DataItem {
-  key: number
-  name: string
-  age: number
-  address: string
-}
+const config = loadConfig()
+const dialog = useDialog()
+const unione: any = inject('unione')
 
-const columns = [
-  {
-    title: 'Full Name',
-    dataIndex: 'name',
-    fixed: 'left',
-    sorter: true,
-    width: 150
-  },
-  {
-    title: 'Age',
-    dataIndex: 'age',
-    fixed: 'left',
-    sorter: true,
-    width: 100
-  },
-  {
-    title: 'Column 1',
-    dataIndex: 'address'
-  },
-  {
-    title: 'Column 2',
-    dataIndex: 'address'
-  },
-  {
-    title: 'Column 3',
-    dataIndex: 'address'
-  },
-  {
-    title: 'Column 4',
-    dataIndex: 'address'
-  },
-  { title: 'Column 5', dataIndex: 'address' },
-  {
-    title: 'Action',
-    key: 'operation',
-    fixed: 'right',
-    width: 100
-  }
-]
-const dataSource: DataItem[] = []
-for (let i = 0; i < 1000; i++) {
-  dataSource.push({
-    key: i,
-    name: `Edrward ${i}`,
-    age: i + 1,
-    address: `London Park no. ${i}`
-  })
-}
-</script>
+// dom ref
+const unioneTable = ref()
 
-<style scoped lang="less">
-.unione-page {
-  padding: 10px;
-
-  .unione-query {
-    display: flex;
-    padding-bottom: 10px;
-    padding-left: 5px;
-
-    .query-field {
-      display: inline-block;
-      margin-bottom: 5px;
-      &.keywords {
-        width: 280px;
-      }
+// query form
+const queryForm = ref({
+  fields: [
+    {
+      title: '用户姓名',
+      name: 'realName'
+    },
+    {
+      title: '用户帐号',
+      name: 'username'
+    },
+    {
+      title: '手机号',
+      name: 'tel'
+    },
+    {
+      title: '用户类型',
+      name: 'userType'
+    },
+    {
+      title: '用户状态',
+      name: 'status'
     }
+  ]
+})
 
-    .query-btn {
-      display: inline-block;
-      .btn {
-        margin: auto 5px;
-
-        &.save-search {
-          float: right;
-          position: absolute;
-          right: 10px;
-        }
+const tableList = ref({
+  columns: [
+    {
+      title: '机构名称',
+      name: 'orgName'
+    },
+    {
+      title: '用户姓名',
+      name: 'realName'
+    },
+    {
+      title: '用户帐号',
+      name: 'username'
+    },
+    {
+      title: '手机号',
+      name: 'tel'
+    },
+    {
+      title: '性别',
+      name: 'sex',
+      convert: {
+        types: 'dict',
+        dictName: 'SEX'
       }
+    },
+    {
+      title: '用户类型',
+      name: 'userType',
+      convert: {
+        types: 'dict',
+        dictName: 'USERTYPE'
+      }
+    },
+    {
+      title: '用户状态',
+      name: 'status',
+      convert: {
+        types: 'dict',
+        dictName: 'USERSTATUS'
+      }
+    },
+    {
+      title: '创建时间',
+      name: 'created'
+    },
+    {
+      title: '修改时间',
+      name: 'lastUpdated'
     }
-  }
-
-  .unione-tools {
-    padding-bottom: 10px;
-    .btn {
-      margin: auto 5px;
-      &.right {
-        float: right;
-      }
-    }
-    /deep/.ant-btn-sm {
-      height: 27px;
-    }
-  }
-
-  .data-list {
-    /deep/.ant-table-content {
-      border-inline-start: 1px solid #cfcfcf;
-      border-top-left-radius: 8px;
-      border-top-right-radius: 8px;
-      overflow: hidden;
-
-      table {
-        border-top: 1px solid #cfcfcf !important;
-      }
-      .ant-table-thead {
-        .ant-table-cell {
-          background-color: #f0f0f0;
-          border-inline-end: 1px solid #cfcfcf !important;
-          border-bottom: 1px solid #cfcfcf !important;
-        }
-      }
-      .ant-table-tbody {
-        .ant-table-cell {
-          border-inline-end: 1px solid #cfcfcf !important;
-          border-bottom: 1px solid #cfcfcf !important;
-        }
-        .ant-table-row:hover {
-          background-color: #e6f7ff;
-          color: #2795f9;
-
-          .ant-table-cell {
-            background-color: #e6f7ff;
-            color: #2795f9;
+  ],
+  operation: {
+    title: '操作',
+    width: 240,
+    btns: [
+      {
+        name: 'view',
+        visible: false
+      },
+      {
+        name: 'manage',
+        title: '管理'
+      },
+      {
+        name: 'status',
+        title: '启用',
+        event: {
+          title: (ctx: any) => {
+            if (ctx.row?.status == 1) {
+              return '停用'
+            }
+            return '启用'
           }
         }
       }
+    ],
+    count: 4,
+    more: {
+      layout: 'vertical'
+    }
+  }
+})
+onMounted(() => {
+  loadData()
+})
+const dataList = ref({
+  pagination: {
+    total: 0,
+    current: 1,
+    pageSize: 10
+  },
+  loading: false,
+  params: {},
+  sorts: [{ name: 'created', asc: false }],
+  data: []
+})
+function loadData() {
+  dataList.value.loading = true
+  unione.api.sysOrgUser
+    .find({
+      page: dataList.value.pagination.current,
+      pageSize: dataList.value.pagination.pageSize,
+      body: { ...dataList.value.params, parentId: -1 },
+      sorts: dataList.value.sorts
+    })
+    .then((result: any) => {
+      dataList.value.data = result.body
+      dataList.value.pagination.total = result.total * 1
+    })
+    .finally(() => {
+      dataList.value.loading = false
+    })
+}
+function tableChanged(event: any) {
+  dataList.value.pagination.current = event.pagination.current
+  dataList.value.pagination.pageSize = event.pagination.pageSize
+  loadData()
+}
+function toQuery(params?: any) {
+  dataList.value.pagination.current = 1
+  dataList.value.params = params || {}
+  loadData()
+}
+function tableBtnClick({ btn, event, row, keys }: any) {
+  console.log('table btn click', btn, event, row)
+  if (btn.name == 'delete') {
+    unione.api.sysOrgUser.delete([row.id]).then(() => {
+      toQuery()
+    })
+  }
+  if (btn.name == 'delBatch') {
+    unione.api.sysOrgUser.delete(keys).then(() => {
+      unioneTable.value.clearSelected()
+      toQuery()
+    })
+  }
+  if (btn.name == 'status') {
+    unione.api.sysOrgUser.setStatus(row.id, row.status == 1 ? 0 : 1).then(() => {
+      toQuery()
+    })
+  }
+  if (btn.name == 'add') {
+    drawer.value.visible = true
+    drawer.value.title = '新增字典'
+    drawer.value.placement = 'left'
+    drawer.value.row = {}
+    nextTick(() => {
+      form.value.reset()
+    })
+  }
+  if (btn.name == 'edit') {
+    drawer.value.visible = true
+    drawer.value.title = '编辑字典'
+    drawer.value.placement = 'right'
+    drawer.value.row = row
+    nextTick(() => {
+      form.value.setValue(row)
+    })
+  }
+  if (btn.name == 'manage') {
+    manage.value.visible = true
+    manage.value.target = row
+    manage.value.params = {
+      dictName: row.dictName
+    }
+  }
+}
+
+const form = ref() //form ref obj
+const drawer = ref({
+  title: '新增用户',
+  placement: 'left',
+  visible: false,
+  row: {},
+  form: {
+    fields: [
+      {
+        title: '应用名称',
+        name: 'appName',
+        props: {
+          required: true
+        }
+      },
+      {
+        title: '字典名称',
+        name: 'dictName',
+        props: {
+          required: true
+        },
+        event: {
+          visible: (value: string, ctx: any) => {
+            return !ctx.id
+          }
+        }
+      },
+      {
+        title: '字典标题',
+        name: 'dictValue',
+        props: {
+          required: true
+        }
+      },
+      {
+        title: '字典类型',
+        name: 'dictType',
+        control: 'unione-select-box',
+        value: 2,
+        convert: {
+          types: 'option',
+          options: [
+            { value: 0, label: '平台' },
+            { value: 1, label: '租户' },
+            { value: 2, label: '机构' }
+          ]
+        }
+      },
+      {
+        title: '显示方式',
+        name: 'showType',
+        control: 'unione-select-box',
+        value: 'text',
+        convert: {
+          types: 'option',
+          options: [
+            { value: 'text', label: '文本' },
+            { value: 'tag', label: '标签' }
+          ]
+        }
+      },
+      {
+        title: '显示顺序',
+        name: 'ordered',
+        value: 1,
+        control: 'a-input-number'
+      },
+      {
+        title: '字典状态',
+        name: 'status',
+        control: 'unione-switch-box',
+        value: 1,
+        convert: {
+          types: 'dict',
+          dictName: 'USEORNOT'
+        }
+      }
+    ],
+    setting: {
+      showColumn: 1,
+      labelWidth: 5
+    }
+  },
+  tosave: () => {
+    form.value.validate().then((data: any) => {
+      const type = data.showType || 'text'
+      delete data.showType
+      data.ordered = data.ordered || 0
+
+      data = {
+        ...drawer.value.row,
+        ...data,
+        dictKey: data.dictName,
+        parentId: -1,
+        isLeaf: 0,
+        dictShow: JSON.stringify({ type })
+      }
+      unione.api.sysOrgUser.save(data).then(() => {
+        drawer.value.visible = false
+        toQuery()
+      })
+    })
+  }
+})
+
+// 字典项管理
+const manage = ref<any>({
+  visible: false,
+  target: {},
+  params: {},
+  page: {
+    storage: {
+      controller: '/api/system/dict'
+    },
+    fields: [
+      {
+        title: '应用名称',
+        name: 'appName',
+        event: {
+          visible: {
+            enable: true,
+            scriptText: 'return ctx.parentId==-1'
+          }
+        }
+      },
+      {
+        title: '字典类型',
+        name: 'dictType',
+        control: 'unione-select-box',
+        value: 0,
+        convert: {
+          types: 'option',
+          options: [
+            { value: 0, label: '平台' },
+            { value: 1, label: '租户' },
+            { value: 2, label: '机构' }
+          ]
+        },
+        event: {
+          visible: {
+            enable: true,
+            scriptText: 'return ctx.parentId==-1'
+          }
+        }
+      },
+      {
+        title: '字典名称',
+        name: 'dictName',
+        event: {
+          visible: {
+            enable: true,
+            scriptText: 'return ctx.parentId==-1'
+          }
+        }
+      },
+      {
+        title: '字典key',
+        name: 'dictKey',
+        event: {
+          visible: {
+            enable: true,
+            scriptText: 'return ctx.parentId!=-1'
+          }
+        }
+      },
+      {
+        title: '字典Value',
+        name: 'dictValue',
+        event: {
+          title: {
+            enable: true,
+            scriptText: "return ctx.parentId==-1?'字典标题':'字典Value'"
+          }
+        }
+      },
+      {
+        title: '显示顺序',
+        name: 'ordered',
+        control: 'a-input-number'
+      },
+      {
+        title: '字典状态',
+        name: 'status',
+        control: 'unione-switch-box',
+        value: 1,
+        convert: {
+          types: 'dict',
+          dictName: 'USEORNOT'
+        }
+      }
+    ],
+    setting: {
+      tree: {
+        labelField: 'dictValue'
+      },
+      form: {
+        showColumn: 1,
+        labelWidth: 4,
+        valueWidth: 15
+      }
+    },
+    event: {
+      preSave: (data: any) => {
+        if (data.parentId == -1) {
+          data.dictKey = data.dictName
+        }
+      },
+      createNode: (node: any, parent: any, params: any) => {
+        if (parent) {
+          node.appName = parent.appName
+          node.dictName = parent.dictName
+          node.dictType = parent.dictType
+        } else {
+          node.parentId = manage.value.target.id
+          node.appName = manage.value.target.appName
+          node.dictType = manage.value.target.dictType
+          node.dictName = manage.value.target.dictName
+        }
+      }
+    }
+  }
+})
+</script>
+
+<style scoped lang="less">
+.drawer-form {
+  .btns {
+    text-align: center;
+
+    :deep(.ant-btn) {
+      margin: 5px 10px;
     }
   }
 }

@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <div class="unione-page unione-page-list">
+  <div class="unione-page unione-page-list unione-system-dict">
     <UnioneQuery :widget="queryForm" @query="toQuery" @reset="toQuery"></UnioneQuery>
     <UnioneTable
       ref="unioneTable"
@@ -39,14 +39,12 @@
 </template>
 
 <script setup lang="ts">
-import type { Router } from 'vue-router'
-import { computed, inject, nextTick, onMounted, ref } from 'vue'
+import { inject, nextTick, onMounted, ref } from 'vue'
 import { useDialog, loadConfig } from 'unione-base-vue'
 
 const config = loadConfig()
 const dialog = useDialog()
 const unione: any = inject('unione')
-const router: any | Router = inject('router') //useRouter()
 
 // dom ref
 const unioneTable = ref()
