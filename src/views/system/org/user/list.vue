@@ -214,7 +214,7 @@ function tableBtnClick({ btn, event, row, keys }: any) {
   }
   if (btn.name == 'edit') {
     drawer.value.visible = true
-    drawer.value.title = '编辑字典'
+    drawer.value.title = '编辑用户'
     drawer.value.placement = 'right'
     drawer.value.row = row
     nextTick(() => {
@@ -233,9 +233,14 @@ const drawer = ref({
     fields: [
       {
         title: '所属机构',
-        name: 'orgName',
-        props: {
-          required: true
+        name: 'orgId',
+        required: true,
+        control: 'unione-select-box',
+        convert: {
+          types: 'local',
+          url: '/api/system/organ/find',
+          labelField: 'name',
+          search: true
         }
       },
       {
@@ -251,21 +256,23 @@ const drawer = ref({
       {
         title: '用户帐号',
         name: 'username',
-        props: {
-          required: true
-        }
+        required: true
       },
       {
         title: '用户密码',
         name: 'pwdText',
-        control: 'a-input-password'
+        control: 'a-input-password',
+        required: true,
+        event: {
+          visible: (value: any, ctx: any) => {
+            return !ctx.id
+          }
+        }
       },
       {
         title: '用户姓名',
         name: 'realName',
-        props: {
-          required: true
-        }
+        required: true
       },
       {
         title: '用户性别',
@@ -289,9 +296,7 @@ const drawer = ref({
       {
         title: '手机号码',
         name: 'tel',
-        props: {
-          required: true
-        }
+        required: true
       },
       {
         title: '邮箱地址',
@@ -324,17 +329,9 @@ const drawer = ref({
   },
   tosave: () => {
     form.value.validate().then((data: any) => {
-      const type = data.showType || 'text'
-      delete data.showType
-      data.ordered = data.ordered || 0
-
       data = {
         ...drawer.value.row,
-        ...data,
-        dictKey: data.dictName,
-        parentId: -1,
-        isLeaf: 0,
-        dictShow: JSON.stringify({ type })
+        ...data
       }
       unione.api.sysOrgUser.save(data).then(() => {
         drawer.value.visible = false

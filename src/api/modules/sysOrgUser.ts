@@ -12,17 +12,23 @@ export default {
   save(data: any) {
     const url = data.id ? '/api/system/user/update' : '/api/system/user/save'
     if (data.id) {
-      return axios.admin.toUpdate({
+      return axios.admin.toUpdate(
+        {
+          method: 'post',
+          url,
+          data
+        },
+        { useMessage: true }
+      )
+    }
+    return axios.admin.toSave(
+      {
         method: 'post',
         url,
         data
-      })
-    }
-    return axios.admin.toSave({
-      method: 'post',
-      url,
-      data
-    })
+      },
+      { useMessage: true }
+    )
   },
   // 删除
   delete(ids: Array<any>) {
