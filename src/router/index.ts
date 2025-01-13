@@ -107,6 +107,12 @@ export const local: Array<MenuItem> = [
         children: [
           {
             sid: '20000102100',
+            title: '机构管理',
+            path: '/system/org/organ',
+            component: () => import('@/views/system/org/organ/tree.vue')
+          },
+          {
+            sid: '20000102101',
             title: '用户管理',
             path: '/system/org/user',
             component: () => import('@/views/system/org/user/list.vue')

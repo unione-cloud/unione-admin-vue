@@ -1,0 +1,120 @@
+<!-- eslint-disable vue/multi-word-component-names -->
+<template>
+  <unione-page-tree v-bind="unionePage" class="unione-system-organ"></unione-page-tree>
+</template>
+
+<script setup lang="ts">
+import { inject, nextTick, onMounted, ref } from 'vue'
+import { useDialog, loadConfig } from 'unione-base-vue'
+
+const config = loadConfig()
+const dialog = useDialog()
+const unione: any = inject('unione')
+
+const unionePage = ref<any>({
+  storage: {
+    controller: '/api/system/organ'
+  },
+  fields: [
+    {
+      title: '机构名称',
+      name: 'name',
+      required: true
+    },
+    {
+      title: '机构别名',
+      name: 'alias'
+    },
+    {
+      title: '机构类型',
+      name: 'types',
+      control: 'unione-select-box',
+      value: 3,
+      convert: {
+        types: 'dict',
+        dictName: 'ORGTYPES'
+      }
+    },
+    {
+      title: '机构编码',
+      name: 'sn',
+      required: true
+    },
+    {
+      title: '机构级别',
+      name: 'levels',
+      control: 'unione-select-box',
+      value: 2,
+      convert: {
+        types: 'dict',
+        dictName: 'ORGLEVELS'
+      }
+    },
+    {
+      title: '主营业务',
+      name: 'busiMain',
+      control: 'a-textarea'
+    },
+    {
+      title: '经营范围',
+      name: 'busiScop',
+      control: 'a-textarea'
+    },
+    {
+      title: '机构地址',
+      name: 'addr'
+    },
+    {
+      title: '联系电话',
+      name: 'tel'
+    },
+    {
+      title: '显示顺序',
+      name: 'ordered',
+      control: 'a-input-number'
+    },
+    {
+      title: '机构状态',
+      name: 'status',
+      control: 'unione-switch-box',
+      value: 1,
+      convert: {
+        types: 'dict',
+        dictName: 'USEORNOT'
+      }
+    },
+    {
+      title: '备注',
+      name: 'descs',
+      control: 'a-textarea'
+    }
+  ],
+  setting: {
+    tree: {
+      labelField: 'name'
+    },
+    form: {
+      showColumn: 1,
+      labelWidth: 4
+    }
+  },
+  event: {
+    preSave: (data: any) => {
+      if (data.parentId == -1) {
+        data.dictKey = data.dictName
+      }
+    },
+    createNode: (node: any, parent: any, params: any) => {
+      if (parent) {
+        node.level = parent.level + 1
+      } else {
+        node.level = 0
+      }
+      node.isLeaf = 1
+      node.ordered = 0
+    }
+  }
+})
+</script>
+
+<style scoped lang="less"></style>
