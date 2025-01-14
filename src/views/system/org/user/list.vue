@@ -119,23 +119,11 @@ const tableList = ref({
   ],
   operation: {
     title: '操作',
-    width: 190,
+    width: 130,
     btns: [
       {
         name: 'view',
         visible: false
-      },
-      {
-        name: 'status',
-        title: '启用',
-        event: {
-          title: (ctx: any) => {
-            if (ctx.row?.status == 1) {
-              return '停用'
-            }
-            return '启用'
-          }
-        }
       }
     ],
     count: 4,
@@ -261,7 +249,7 @@ const drawer = ref({
       {
         title: '用户密码',
         name: 'pwdText',
-        control: 'a-input-password',
+        control: 'unione-pwd-box',
         required: true,
         event: {
           visible: (value: any, ctx: any) => {
