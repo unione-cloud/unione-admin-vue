@@ -180,18 +180,18 @@ function tableBtnClick({ btn, event, row, keys }: any) {
   console.log('table btn click', btn, event, row)
   if (btn.name == 'delete') {
     unione.api.sysOrgUser.delete([row.id]).then(() => {
-      toQuery()
+      loadData()
     })
   }
   if (btn.name == 'delBatch') {
     unione.api.sysOrgUser.delete(keys).then(() => {
       unioneTable.value.clearSelected()
-      toQuery()
+      loadData()
     })
   }
   if (btn.name == 'status') {
     unione.api.sysOrgUser.setStatus(row.id, row.status == 1 ? 0 : 1).then(() => {
-      toQuery()
+      loadData()
     })
   }
   if (btn.name == 'add') {
@@ -326,7 +326,8 @@ const drawer = ref({
       }
       unione.api.sysOrgUser.save(data).then(() => {
         drawer.value.visible = false
-        toQuery()
+        dataList.value.pagination.current = 1
+        loadData()
       })
     })
   }
