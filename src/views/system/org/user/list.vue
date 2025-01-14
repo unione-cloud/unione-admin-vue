@@ -135,7 +135,7 @@ const tableList = ref({
 onMounted(() => {
   loadData()
 })
-const dataList = ref({
+const dataList = ref<any>({
   pagination: {
     total: 0,
     current: 1,
@@ -148,11 +148,13 @@ const dataList = ref({
 })
 function loadData() {
   dataList.value.loading = true
+  const keywords = dataList.value.keywords
   unione.api.sysOrgUser
     .find({
       page: dataList.value.pagination.current,
       pageSize: dataList.value.pagination.pageSize,
-      body: { ...dataList.value.params, parentId: -1 },
+      body: { ...dataList.value.params },
+      keywords,
       sorts: dataList.value.sorts
     })
     .then((result: any) => {
@@ -168,9 +170,10 @@ function tableChanged(event: any) {
   dataList.value.pagination.pageSize = event.pagination.pageSize
   loadData()
 }
-function toQuery(params?: any) {
+function toQuery({ params, keywords }: any) {
   dataList.value.pagination.current = 1
-  dataList.value.params = params || {}
+  dataList.value.params = params
+  dataList.value.keywords = keywords
   loadData()
 }
 function tableBtnClick({ btn, event, row, keys }: any) {

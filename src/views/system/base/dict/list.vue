@@ -148,7 +148,7 @@ const tableList = ref({
 onMounted(() => {
   loadData()
 })
-const dataList = ref({
+const dataList = ref<any>({
   pagination: {
     total: 0,
     current: 1,
@@ -166,6 +166,7 @@ function loadData() {
       page: dataList.value.pagination.current,
       pageSize: dataList.value.pagination.pageSize,
       body: { ...dataList.value.params, parentId: -1 },
+      keywords: dataList.value.keywords,
       sorts: dataList.value.sorts
     })
     .then((result: any) => {
@@ -181,9 +182,10 @@ function tableChanged(event: any) {
   dataList.value.pagination.pageSize = event.pagination.pageSize
   loadData()
 }
-function toQuery(params?: any) {
+function toQuery({ params, keywords }: any) {
   dataList.value.pagination.current = 1
-  dataList.value.params = params || {}
+  dataList.value.params = params
+  dataList.value.keywords = keywords
   loadData()
 }
 function tableBtnClick({ btn, event, row, keys }: any) {
