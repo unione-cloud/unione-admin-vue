@@ -122,7 +122,7 @@ const drawer = ref({
         title: '角色类型',
         name: 'types',
         control: 'unione-select-box',
-        value: 2,
+        value: 9,
         convert: {
           types: 'dict',
           dictName: 'ROLETYPE'
