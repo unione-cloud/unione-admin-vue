@@ -4,12 +4,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject, nextTick, onMounted, ref } from 'vue'
-import { useDialog, loadConfig } from 'unione-base-vue'
-
-const config = loadConfig()
-const dialog = useDialog()
-const unione: any = inject('unione')
+import {ref } from 'vue'
 
 const unionePage = ref<any>({
   storage: {

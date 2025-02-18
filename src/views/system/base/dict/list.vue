@@ -1,16 +1,7 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <div class="unione-page unione-page-list unione-system-dict">
-    <UnioneQuery :widget="queryForm" @query="toQuery" @reset="toQuery"></UnioneQuery>
-    <UnioneTable
-      ref="unioneTable"
-      :widget="tableList"
-      :dataList="dataList.data"
-      :loading="dataList.loading"
-      :pagination="dataList.pagination"
-      @change="tableChanged"
-      @btnClick="tableBtnClick"
-    ></UnioneTable>
+    <unione-page-list ref="page" v-bind="define" @btnClick="btnClick"></unione-page-list>
 
     <a-drawer
       :title="drawer.title"
@@ -26,6 +17,7 @@
         <a-button @click="drawer.visible = false">取消</a-button>
       </div>
     </a-drawer>
+
     <a-drawer
       title="字典管理"
       :width="850"
@@ -39,51 +31,30 @@
 </template>
 
 <script setup lang="ts">
-import { inject, nextTick, onMounted, ref } from 'vue'
-import { useDialog, loadConfig } from 'unione-base-vue'
-
-const config = loadConfig()
+import { nextTick, ref } from 'vue'
+import { axios, useDialog } from 'unione-base-vue'
 const dialog = useDialog()
-const unione: any = inject('unione')
 
-// dom ref
-const unioneTable = ref()
-
-// query form
-const queryForm = ref({
+const page = ref()
+const define = ref({
+  storage: {
+    controller: '/api/system/dict'
+  },
   fields: [
-    {
+  {
       title: '应用名称',
-      name: 'appName'
+      name: 'appName',
+      isQuery: true
     },
     {
       title: '字典名称',
-      name: 'dictName'
+      name: 'dictName',
+      isQuery: true
     },
     {
       title: '字典标题',
-      name: 'dictValue'
-    },
-    {
-      title: '字典类型',
-      name: 'dictType'
-    }
-  ]
-})
-
-const tableList = ref({
-  columns: [
-    {
-      title: '应用名称',
-      name: 'appName'
-    },
-    {
-      title: '字典名称',
-      name: 'dictName'
-    },
-    {
-      title: '字典标题',
-      name: 'dictValue'
+      name: 'dictValue',
+      isQuery: true
     },
     {
       title: '字典类型',
@@ -95,7 +66,8 @@ const tableList = ref({
           { value: 1, label: '租户' },
           { value: 2, label: '机构' }
         ]
-      }
+      },
+      isQuery: true
     },
     {
       title: '状态',
@@ -103,7 +75,8 @@ const tableList = ref({
       convert: {
         types: 'dict',
         dictName: 'USEORNOT'
-      }
+      },
+      isQuery: true
     },
     {
       title: '创建时间',
@@ -145,67 +118,9 @@ const tableList = ref({
     }
   }
 })
-onMounted(() => {
-  loadData()
-})
-const dataList = ref<any>({
-  pagination: {
-    total: 0,
-    current: 1,
-    pageSize: 10
-  },
-  loading: false,
-  params: {},
-  sorts: [{ name: 'created', asc: false }],
-  data: []
-})
-function loadData() {
-  dataList.value.loading = true
-  unione.api.sysBaseDict
-    .find({
-      page: dataList.value.pagination.current,
-      pageSize: dataList.value.pagination.pageSize,
-      body: { ...dataList.value.params, parentId: -1 },
-      keywords: dataList.value.keywords,
-      sorts: dataList.value.sorts
-    })
-    .then((result: any) => {
-      dataList.value.data = result.body
-      dataList.value.pagination.total = result.total * 1
-    })
-    .finally(() => {
-      dataList.value.loading = false
-    })
-}
-function tableChanged(event: any) {
-  dataList.value.pagination.current = event.pagination.current
-  dataList.value.pagination.pageSize = event.pagination.pageSize
-  loadData()
-}
-function toQuery({ params, keywords }: any) {
-  dataList.value.pagination.current = 1
-  dataList.value.params = params
-  dataList.value.keywords = keywords
-  loadData()
-}
-function tableBtnClick({ btn, event, row, keys }: any) {
+
+function btnClick({ btn, event, row, keys }: any) {
   console.log('table btn click', btn, event, row)
-  if (btn.name == 'delete') {
-    unione.api.sysBaseDict.delete([row.id]).then(() => {
-      loadData()
-    })
-  }
-  if (btn.name == 'delBatch') {
-    unione.api.sysBaseDict.delete(keys).then(() => {
-      unioneTable.value.clearSelected()
-      loadData()
-    })
-  }
-  if (btn.name == 'status') {
-    unione.api.sysBaseDict.setStatus(row.id, row.status == 1 ? 0 : 1).then(() => {
-      loadData()
-    })
-  }
   if (btn.name == 'add') {
     drawer.value.visible = true
     drawer.value.title = '新增字典'
@@ -231,6 +146,26 @@ function tableBtnClick({ btn, event, row, keys }: any) {
       dictName: row.dictName
     }
   }
+  if (btn.name == 'status') {
+    setStatus(row.id, row.status == 1 ? 0 : 1)
+  }
+}
+
+function setStatus(id: string, status: number) {
+  dialog.confirm({
+    content: '确定要' + (status == 1 ? '启用' : '停用') + '该字典么?',
+    onOk: () => {
+      axios.admin
+        .request({
+          url: '/api/system/dict/status',
+          method: 'post',
+          data: { id, status }
+        })
+        .then((res: any) => {
+          page.value.reload()
+        })
+    }
+  })
 }
 
 const form = ref() //form ref obj
@@ -241,7 +176,7 @@ const drawer = ref({
   row: {},
   form: {
     fields: [
-      {
+    {
         title: '应用名称',
         name: 'appName',
         props: {
@@ -318,22 +253,13 @@ const drawer = ref({
   },
   tosave: () => {
     form.value.validate().then((data: any) => {
-      const type = data.showType || 'text'
-      delete data.showType
-      data.ordered = data.ordered || 0
-
       data = {
         ...drawer.value.row,
-        ...data,
-        dictKey: data.dictName,
-        parentId: -1,
-        isLeaf: 0,
-        dictShow: JSON.stringify({ type })
+        ...data
       }
-      unione.api.sysBaseDict.save(data).then(() => {
+      page.value.storage().save({ data }).then(() => {
         drawer.value.visible = false
-        dataList.value.pagination.current = 1
-        loadData()
+        page.value.reload()
       })
     })
   }
@@ -455,6 +381,7 @@ const manage = ref<any>({
     }
   }
 })
+
 </script>
 
 <style scoped lang="less">
