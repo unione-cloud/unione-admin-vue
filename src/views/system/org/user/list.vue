@@ -1,16 +1,7 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <div class="unione-page unione-page-list unione-system-user">
-    <UnioneQuery :widget="queryForm" @query="toQuery" @reset="toQuery"></UnioneQuery>
-    <UnioneTable
-      ref="unioneTable"
-      :widget="tableList"
-      :dataList="dataList.data"
-      :loading="dataList.loading"
-      :pagination="dataList.pagination"
-      @change="tableChanged"
-      @btnClick="tableBtnClick"
-    ></UnioneTable>
+    <unione-page-list ref="page" v-bind="define" @btnClick="btnClick"></unione-page-list>
 
     <a-drawer
       :title="drawer.title"
@@ -30,44 +21,14 @@
 </template>
 
 <script setup lang="ts">
-import { inject, nextTick, onMounted, ref } from 'vue'
-import { useDialog, loadConfig } from 'unione-base-vue'
+import { nextTick, ref } from 'vue'
 
-const config = loadConfig()
-const dialog = useDialog()
-const unione: any = inject('unione')
-
-// dom ref
-const unioneTable = ref()
-
-// query form
-const queryForm = ref({
+const page = ref()
+const define = ref({
+  storage: {
+    controller: '/api/system/user'
+  },
   fields: [
-    {
-      title: '用户姓名',
-      name: 'realName'
-    },
-    {
-      title: '用户帐号',
-      name: 'username'
-    },
-    {
-      title: '手机号',
-      name: 'tel'
-    },
-    {
-      title: '用户类型',
-      name: 'userType'
-    },
-    {
-      title: '用户状态',
-      name: 'status'
-    }
-  ]
-})
-
-const tableList = ref({
-  columns: [
     {
       title: '机构名称',
       name: 'orgName'
@@ -115,15 +76,21 @@ const tableList = ref({
     {
       title: '修改时间',
       name: 'lastUpdated'
-    }
+    },
   ],
   operation: {
     title: '操作',
-    width: 130,
+    width: 175,
     btns: [
       {
         name: 'view',
         visible: false
+      },
+      {
+        name: 'status',
+        title:(row:any)=>{
+          return row.status == 1 ? '禁用' : '启用'
+        }
       }
     ],
     count: 4,
@@ -132,71 +99,12 @@ const tableList = ref({
     }
   }
 })
-onMounted(() => {
-  loadData()
-})
-const dataList = ref<any>({
-  pagination: {
-    total: 0,
-    current: 1,
-    pageSize: 10
-  },
-  loading: false,
-  params: {},
-  sorts: [{ name: 'created', asc: false }],
-  data: []
-})
-function loadData() {
-  dataList.value.loading = true
-  const keywords = dataList.value.keywords
-  unione.api.sysOrgUser
-    .find({
-      page: dataList.value.pagination.current,
-      pageSize: dataList.value.pagination.pageSize,
-      body: { ...dataList.value.params },
-      keywords,
-      sorts: dataList.value.sorts
-    })
-    .then((result: any) => {
-      dataList.value.data = result.body
-      dataList.value.pagination.total = result.total * 1
-    })
-    .finally(() => {
-      dataList.value.loading = false
-    })
-}
-function tableChanged(event: any) {
-  dataList.value.pagination.current = event.pagination.current
-  dataList.value.pagination.pageSize = event.pagination.pageSize
-  loadData()
-}
-function toQuery({ params, keywords }: any) {
-  dataList.value.pagination.current = 1
-  dataList.value.params = params
-  dataList.value.keywords = keywords
-  loadData()
-}
-function tableBtnClick({ btn, event, row, keys }: any) {
+
+function btnClick({ btn, event, row, keys }: any) {
   console.log('table btn click', btn, event, row)
-  if (btn.name == 'delete') {
-    unione.api.sysOrgUser.delete([row.id]).then(() => {
-      loadData()
-    })
-  }
-  if (btn.name == 'delBatch') {
-    unione.api.sysOrgUser.delete(keys).then(() => {
-      unioneTable.value.clearSelected()
-      loadData()
-    })
-  }
-  if (btn.name == 'status') {
-    unione.api.sysOrgUser.setStatus(row.id, row.status == 1 ? 0 : 1).then(() => {
-      loadData()
-    })
-  }
   if (btn.name == 'add') {
     drawer.value.visible = true
-    drawer.value.title = '新增字典'
+    drawer.value.title = '新增用户'
     drawer.value.placement = 'left'
     drawer.value.row = {}
     nextTick(() => {
@@ -222,7 +130,7 @@ const drawer = ref({
   row: {},
   form: {
     fields: [
-      {
+    {
         title: '所属机构',
         name: 'orgId',
         required: true,
@@ -324,10 +232,9 @@ const drawer = ref({
         ...drawer.value.row,
         ...data
       }
-      unione.api.sysOrgUser.save(data).then(() => {
+      page.value.storage().save({ data }).then(() => {
         drawer.value.visible = false
-        dataList.value.pagination.current = 1
-        loadData()
+        page.value.reload()
       })
     })
   }

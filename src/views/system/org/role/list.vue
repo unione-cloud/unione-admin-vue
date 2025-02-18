@@ -75,7 +75,7 @@ function btnClick({ btn, event, row, keys }: any) {
   console.log('table btn click', btn, event, row)
   if (btn.name == 'add') {
     drawer.value.visible = true
-    drawer.value.title = '新增字典'
+    drawer.value.title = '新增角色'
     drawer.value.placement = 'left'
     drawer.value.row = {}
     nextTick(() => {
@@ -84,7 +84,7 @@ function btnClick({ btn, event, row, keys }: any) {
   }
   if (btn.name == 'edit') {
     drawer.value.visible = true
-    drawer.value.title = '编辑用户'
+    drawer.value.title = '编辑角色'
     drawer.value.placement = 'right'
     drawer.value.row = row
     nextTick(() => {
@@ -95,7 +95,7 @@ function btnClick({ btn, event, row, keys }: any) {
 
 const form = ref() //form ref obj
 const drawer = ref({
-  title: '新增用户',
+  title: '新增角色',
   placement: 'left',
   visible: false,
   row: {},
