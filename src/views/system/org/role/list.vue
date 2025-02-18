@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <div class="unione-page unione-page-list unione-system-role">
-    <unione-page-list v-bind="define" @btnClick="btnClick"></unione-page-list>
+    <unione-page-list ref="page" v-bind="define" @btnClick="btnClick"></unione-page-list>
 
     <a-drawer
       :title="drawer.title"
@@ -21,14 +21,9 @@
 </template>
 
 <script setup lang="ts">
-import { inject, nextTick, onMounted, ref } from 'vue'
-import { useDialog, loadConfig } from 'unione-base-vue'
-import { DataStorage } from 'unione-form-vue'
+import { nextTick, ref } from 'vue'
 
-const config = loadConfig()
-const dialog = useDialog()
-const unione: any = inject('unione')
-
+const page = ref()
 const define = ref({
   storage: {
     controller: '/api/system/role'
@@ -75,8 +70,6 @@ const define = ref({
     }
   ]
 })
-
-const storage = new DataStorage(define.value.storage, 'list', 'run')
 
 function btnClick({ btn, event, row, keys }: any) {
   console.log('table btn click', btn, event, row)
@@ -155,8 +148,9 @@ const drawer = ref({
         ...drawer.value.row,
         ...data
       }
-      storage.save({ data }).then(() => {
+      page.value.storage().save({ data }).then(() => {
         drawer.value.visible = false
+        page.value.reload()
       })
     })
   }
