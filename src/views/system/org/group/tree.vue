@@ -1,10 +1,10 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <unione-page-tree v-bind="unionePage" class="unione-system-group" :btns="[{name:'submit',visible:false}]"></unione-page-tree>
+  <unione-page-tree v-bind="unionePage" class="unione-system-group"></unione-page-tree>
 </template>
 
 <script setup lang="ts">
-import {ref } from 'vue'
+import { ref } from 'vue'
 
 const unionePage = ref<any>({
   storage: {
@@ -28,11 +28,11 @@ const unionePage = ref<any>({
     },
     {
       title: '分组图标',
-      name: 'iconFont',
+      name: 'iconFont'
     },
     {
       title: '分组图片',
-      name: 'iconPic',
+      name: 'iconPic'
     },
     {
       title: '显示顺序',
@@ -68,6 +68,7 @@ const unionePage = ref<any>({
     createNode: (node: any, parent: any, params: any) => {
       if (parent) {
         node.level = parent.level + 1
+        node.types = parent.types
       } else {
         node.level = 0
       }
