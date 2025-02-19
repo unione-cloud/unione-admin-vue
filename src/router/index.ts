@@ -94,6 +94,12 @@ export const local: Array<MenuItem> = [
             title: '字典管理',
             path: '/system/base/dict',
             component: () => import('@/views/system/base/dict/list.vue')
+          },
+          {
+            sid: '20000101101',
+            title: '应用管理',
+            path: '/system/base/apps',
+            component: () => import('@/views/system/base/apps/list.vue')
           }
         ]
       },
