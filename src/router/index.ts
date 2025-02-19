@@ -136,6 +136,22 @@ export const local: Array<MenuItem> = [
             component: () => import('@/views/system/org/post/tree.vue')
           }
         ]
+      },
+      {
+        sid: '20000103',
+        title: '租户管理',
+        path: '/system/tenant',
+        meta: {
+          icon: 'MailOutlined'
+        },
+        children: [
+          {
+            sid: '20000103001',
+            title: '租户列表',
+            path: '/system/tenant/list',
+            component: () => import('@/views/system/tenant/list/index.vue')
+          }
+        ]
       }
     ]
   }
