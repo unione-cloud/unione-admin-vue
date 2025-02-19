@@ -253,10 +253,19 @@ const drawer = ref({
   },
   tosave: () => {
     form.value.validate().then((data: any) => {
+      const type = data.showType || 'text'
+      delete data.showType
+      data.ordered = data.ordered || 0
+
       data = {
         ...drawer.value.row,
-        ...data
+        ...data,
+        dictKey: data.dictName,
+        parentId: -1,
+        isLeaf: 0,
+        dictShow: JSON.stringify({ type })
       }
+
       page.value.storage().save({ data }).then(() => {
         drawer.value.visible = false
         page.value.reload()

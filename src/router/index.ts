@@ -122,6 +122,12 @@ export const local: Array<MenuItem> = [
             title: '角色管理',
             path: '/system/org/role',
             component: () => import('@/views/system/org/role/list.vue')
+          },
+          {
+            sid: '20000102103',
+            title: '分组管理',
+            path: '/system/org/group',
+            component: () => import('@/views/system/org/group/tree.vue')
           }
         ]
       }

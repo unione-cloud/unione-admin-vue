@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <unione-page-tree v-bind="unionePage" class="unione-system-organ"></unione-page-tree>
+  <unione-page-tree v-bind="unionePage" class="unione-system-group" :btns="[{name:'submit',visible:false}]"></unione-page-tree>
 </template>
 
 <script setup lang="ts">
@@ -8,60 +8,31 @@ import {ref } from 'vue'
 
 const unionePage = ref<any>({
   storage: {
-    controller: '/api/system/organ'
+    controller: '/api/system/group'
   },
   fields: [
     {
-      title: '机构名称',
+      title: '分组名称',
       name: 'name',
       required: true
     },
     {
-      title: '机构别名',
-      name: 'alias'
-    },
-    {
-      title: '机构类型',
+      title: '分组类型',
       name: 'types',
       control: 'unione-select-box',
-      value: 3,
+      value: 9,
       convert: {
         types: 'dict',
-        dictName: 'ORGTYPES'
+        dictName: 'GROUPTYPES'
       }
     },
     {
-      title: '机构编码',
-      name: 'sn',
-      required: true
+      title: '分组图标',
+      name: 'iconFont',
     },
     {
-      title: '机构级别',
-      name: 'levels',
-      control: 'unione-select-box',
-      value: 2,
-      convert: {
-        types: 'dict',
-        dictName: 'ORGLEVELS'
-      }
-    },
-    {
-      title: '主营业务',
-      name: 'busiMain',
-      control: 'a-textarea'
-    },
-    {
-      title: '经营范围',
-      name: 'busiScop',
-      control: 'a-textarea'
-    },
-    {
-      title: '机构地址',
-      name: 'addr'
-    },
-    {
-      title: '联系电话',
-      name: 'tel'
+      title: '分组图片',
+      name: 'iconPic',
     },
     {
       title: '显示顺序',
@@ -69,7 +40,7 @@ const unionePage = ref<any>({
       control: 'a-input-number'
     },
     {
-      title: '机构状态',
+      title: '分组状态',
       name: 'status',
       control: 'unione-switch-box',
       value: 1,
@@ -79,7 +50,7 @@ const unionePage = ref<any>({
       }
     },
     {
-      title: '备注',
+      title: '分组描述',
       name: 'descs',
       control: 'a-textarea'
     }
