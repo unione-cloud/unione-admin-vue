@@ -128,6 +128,12 @@ export const local: Array<MenuItem> = [
             title: '分组管理',
             path: '/system/org/group',
             component: () => import('@/views/system/org/group/tree.vue')
+          },
+          {
+            sid: '20000102104',
+            title: '岗位管理',
+            path: '/system/org/post',
+            component: () => import('@/views/system/org/post/tree.vue')
           }
         ]
       }
