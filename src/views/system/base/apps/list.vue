@@ -177,13 +177,23 @@ const drawer = ref({
         name: 'welcome'
       },
       {
+        title: '显示顺序',
+        name: 'ordered',
+        value: 1,
+        control: 'a-input-number',
+        required: true
+      },
+      {
         title: '版本号',
         name: 'versNo',
+        value: 1,
+        control: 'a-input-number',
         required: true
       },
       {
         title: '版本说明',
-        name: 'versDesc'
+        name: 'versDesc',
+        control: 'a-textarea',
       },
       {
         title: '字体图标',
@@ -202,22 +212,33 @@ const drawer = ref({
         name: 'picMax'
       },
       {
-        title: '平台应用',
-        name: 'isPlatform',
-        control: 'unione-select-box',
-        value: '0',
+        title: '模版应用',
+        name: 'isTmpl',
+        control: 'unione-switch-box',
+        value:'0',
         convert: {
           types: 'dict',
           dictName: 'TUREORFALSE'
         }
       },
       {
-        title: '状态',
-        name: 'status',
+        title: '平台应用',
+        name: 'isPlatform',
         control: 'unione-switch-box',
+        value:'0',
         convert: {
           types: 'dict',
-          dictName: 'USERSTATUS'
+          dictName: 'TUREORFALSE'
+        }
+      },
+      {
+        title: '应用状态',
+        name: 'status',
+        control: 'unione-select-box',
+        value: 1,
+        convert: {
+          types: 'dict',
+          dictName: 'APPSTATUS'
         }
       },
       {

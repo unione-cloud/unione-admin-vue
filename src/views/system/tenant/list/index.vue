@@ -179,15 +179,13 @@ const drawer = ref({
         name: 'locationProvince'
       },
       {
-        title: '开户时间',
-        name: 'openTime'
-      },
-      {
         title: '租户状态',
         name: 'status',
+        control: 'unione-select-box',
+        value: 1,
         convert: {
           types: 'dict',
-          dictName: 'USERSTATUS'
+          dictName: 'TENANTSTATUS'
         }
       },
       {
@@ -204,7 +202,8 @@ const drawer = ref({
     form.value.validate().then((data: any) => {
       data = {
         ...drawer.value.row,
-        ...data
+        ...data,
+        registeWay:2
       }
       page.value
         .storage()
