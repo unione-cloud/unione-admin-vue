@@ -40,6 +40,9 @@ const define = ref({
   storage: {
     controller: '/api/system/dict'
   },
+  params:{
+    parentId:-1
+  },
   fields: [
   {
       title: '应用名称',
