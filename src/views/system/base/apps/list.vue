@@ -179,7 +179,7 @@ const drawer = ref({
       {
         title: '显示顺序',
         name: 'ordered',
-        value: 1,
+        value: 0,
         control: 'a-input-number',
         required: true
       },
@@ -215,7 +215,7 @@ const drawer = ref({
         title: '模版应用',
         name: 'isTmpl',
         control: 'unione-switch-box',
-        value:'0',
+        value:0,
         convert: {
           types: 'dict',
           dictName: 'TUREORFALSE'
@@ -225,7 +225,7 @@ const drawer = ref({
         title: '平台应用',
         name: 'isPlatform',
         control: 'unione-switch-box',
-        value:'0',
+        value:0,
         convert: {
           types: 'dict',
           dictName: 'TUREORFALSE'
