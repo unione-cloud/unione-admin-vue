@@ -17,6 +17,9 @@
         <a-button @click="drawer.visible = false">取消</a-button>
       </div>
     </a-drawer>
+
+    
+
   </div>
 </template>
 
@@ -105,9 +108,7 @@ const define = ref({
       },
       {
         name: 'status',
-        title: (row: any) => {
-          return row.status == 1 ? '禁用' : '启用'
-        }
+        title: '状态'
       }
     ],
     count: 4,
@@ -136,6 +137,9 @@ function btnClick({ btn, event, row, keys }: any) {
     nextTick(() => {
       form.value.setValue(row)
     })
+  }
+  if (btn.name == 'status') {
+
   }
 }
 
