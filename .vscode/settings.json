@@ -4,5 +4,6 @@
   },
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "vetur.validation.script": false
+  "vetur.validation.script": false,
+  "vitest.disableWorkspaceWarning": true
 }

@@ -17,15 +17,16 @@
         <a-button @click="drawer.visible = false">取消</a-button>
       </div>
     </a-drawer>
-
-    
-
   </div>
 </template>
 
 <script setup lang="ts">
 import { nextTick, ref } from 'vue'
+import { useDialog } from 'unione-base-vue'
+import { Convertor } from 'unione-form-vue'
 
+const dialog = useDialog()
+const stsConvert = new Convertor({ types: 'dict', dictName: 'APPSTATUS' })
 const page = ref()
 const define = ref({
   storage: {
@@ -85,7 +86,7 @@ const define = ref({
       name: 'status',
       convert: {
         types: 'dict',
-        dictName: 'USERSTATUS'
+        dictName: 'APPSTATUS'
       },
       isQuery: true
     },
@@ -100,7 +101,7 @@ const define = ref({
   ],
   operation: {
     title: '操作',
-    width: 175,
+    width: 200,
     btns: [
       {
         name: 'view',
@@ -108,17 +109,40 @@ const define = ref({
       },
       {
         name: 'status',
-        title: '状态'
+        title: '状态',
+        widget: 'dropdown',
+        items: [
+          {
+            name: 'sts-2',
+            title: '内测'
+          },
+          {
+            name: 'sts-3',
+            title: '发布'
+          },
+          {
+            name: 'sts-4',
+            title: '撤销'
+          }
+        ]
+      },
+      {
+        name: 'api',
+        title: '接口管理'
+      },
+      {
+        name: 'menu',
+        title: '菜单管理'
       }
     ],
-    count: 4,
+    count: 2,
     more: {
       layout: 'vertical'
     }
   }
 })
 
-function btnClick({ btn, event, row, keys }: any) {
+async function btnClick({ btn, event, row, keys }: any) {
   console.log('table btn click', btn, event, row)
   if (btn.name == 'add') {
     drawer.value.visible = true
@@ -138,8 +162,23 @@ function btnClick({ btn, event, row, keys }: any) {
       form.value.setValue(row)
     })
   }
-  if (btn.name == 'status') {
-
+  if (btn.name.startsWith('sts-')) {
+    const status = btn.name.split('-')[1]
+    const stsLable = await stsConvert.convert(status)
+    dialog.confirm({
+      content: '确定要设置应用状态为：' + stsLable,
+      onOk: () => {
+        page.value
+          .storage()
+          .request({
+            url: '/status',
+            data: { id: row.id, status }
+          })
+          .then(() => {
+            page.value.reload()
+          })
+      }
+    })
   }
 }
 
@@ -197,7 +236,7 @@ const drawer = ref({
       {
         title: '版本说明',
         name: 'versDesc',
-        control: 'a-textarea',
+        control: 'a-textarea'
       },
       {
         title: '字体图标',
@@ -219,7 +258,7 @@ const drawer = ref({
         title: '模版应用',
         name: 'isTmpl',
         control: 'unione-switch-box',
-        value:0,
+        value: 0,
         convert: {
           types: 'dict',
           dictName: 'TUREORFALSE'
@@ -229,7 +268,7 @@ const drawer = ref({
         title: '平台应用',
         name: 'isPlatform',
         control: 'unione-switch-box',
-        value:0,
+        value: 0,
         convert: {
           types: 'dict',
           dictName: 'TUREORFALSE'
