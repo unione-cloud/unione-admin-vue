@@ -78,6 +78,9 @@ export const useAdminStore = defineStore('unione-admin', () => {
           menu.children.forEach((child: any) => {
             child.parent = menu.key
           })
+          if (menu.children.length == 0) {
+            delete menu.children
+          }
         }
 
         if (!item.hidden) {
