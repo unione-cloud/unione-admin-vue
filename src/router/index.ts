@@ -98,7 +98,7 @@ export const local: Array<MenuItem> = [
           {
             sid: '20000101101',
             title: '应用管理',
-            path: '/system/base/apps/list',
+            path: '/system/base/apps',
             component: () => import('@/views/system/base/apps/list.vue')
           },
           {
@@ -142,6 +142,13 @@ export const local: Array<MenuItem> = [
             title: '角色管理',
             path: '/system/org/role',
             component: () => import('@/views/system/org/role/list.vue')
+          },
+          {
+            sid: '2000010210201',
+            title: '用户列表',
+            path: '/system/org/role/userlist',
+            hidden: true,
+            component: () => import('@/views/system/org/role/users.vue')
           },
           {
             sid: '20000102103',

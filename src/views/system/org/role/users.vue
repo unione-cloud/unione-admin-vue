@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <div class="unione-page unione-page-list unione-system-role">
+  <div class="unione-page unione-page-list unione-system-userlist">
     <unione-page-list ref="page" v-bind="define" @btnClick="btnClick"></unione-page-list>
 
     <a-drawer
@@ -28,31 +28,31 @@ const router: Router = useRouter()
 const page = ref()
 const define = ref({
   storage: {
-    controller: '/api/system/role'
+    controller: '/api/system/userRole'
   },
   fields: [
     {
       title: '角色名称',
-      name: 'name',
-      isQuery: true
+      name: 'roleName'
     },
     {
       title: '角色编码',
-      name: 'sn'
+      name: 'roleSn'
     },
     {
-      title: '角色类型',
-      name: 'types',
-      control: 'unione-select-box',
-      value: 0,
-      convert: {
-        types: 'dict',
-        dictName: 'ROLETYPE'
-      },
-      isQuery: true
+      title: '机构名称',
+      name: 'rogName'
     },
     {
-      title: '角色状态',
+      title: '用户帐号',
+      name: 'username'
+    },
+    {
+      title: '用户姓名',
+      name: 'realName'
+    },
+    {
+      title: '用户状态',
       name: 'status',
       control: 'unione-switch-box',
       value: 1,
@@ -63,25 +63,33 @@ const define = ref({
       isQuery: true
     },
     {
-      title: '创建时间',
-      name: 'created'
+      title: '用户性别',
+      name: 'sex',
+      control: 'unione-switch-box',
+      value: 1,
+      convert: {
+        types: 'dict',
+        dictName: 'SEX'
+      }
     },
     {
-      title: '修改时间',
-      name: 'lastUpdated'
+      title: '分配时间',
+      name: 'created'
     }
   ],
+  leftBtns: false,
+  rightBtns: false,
   operation: {
     title: '操作',
-    width: 210,
+    width: 100,
     btns: [
       {
         name: 'view',
         visible: false
       },
       {
-        name: 'userlist',
-        title: '用户列表'
+        name: 'edit',
+        visible: false
       }
     ],
     count: 4
@@ -98,18 +106,6 @@ function btnClick({ btn, event, row, keys }: any) {
     nextTick(() => {
       form.value.reset()
     })
-  }
-  if (btn.name == 'edit') {
-    drawer.value.visible = true
-    drawer.value.title = '编辑角色'
-    drawer.value.placement = 'right'
-    drawer.value.row = row
-    nextTick(() => {
-      form.value.setValue(row)
-    })
-  }
-  if (btn.name == 'userlist') {
-    router.push({ path: '/system/org/role/userlist', query: { roleId: row.id } })
   }
 }
 
