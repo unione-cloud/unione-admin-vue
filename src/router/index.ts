@@ -107,6 +107,13 @@ export const local: Array<MenuItem> = [
             path: '/system/base/apps/api',
             hidden: true,
             component: () => import('@/views/system/base/apps/api.vue')
+          },
+          {
+            sid: '2000010110102',
+            title: '资源管理',
+            path: '/system/base/apps/res',
+            hidden: true,
+            component: () => import('@/views/system/base/apps/res.vue')
           }
         ]
       },

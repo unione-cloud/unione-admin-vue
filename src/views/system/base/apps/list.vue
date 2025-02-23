@@ -144,8 +144,8 @@ const define = ref({
         title: '接口管理'
       },
       {
-        name: 'menu',
-        title: '菜单管理'
+        name: 'res',
+        title: '资源管理'
       }
     ],
     count: 2,
@@ -177,6 +177,9 @@ async function btnClick({ btn, event, row, keys }: any) {
   }
   if (btn.name == 'api') {
     router.push({ path: '/system/base/apps/api', query: { appId: row.id } })
+  }
+  if (btn.name == 'res') {
+    router.push({ path: '/system/base/apps/res', query: { appId: row.id } })
   }
   if (btn.name.startsWith('sts-')) {
     const status = btn.name.split('-')[1]
