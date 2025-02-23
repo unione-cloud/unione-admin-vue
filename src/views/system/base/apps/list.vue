@@ -114,15 +114,25 @@ const define = ref({
         items: [
           {
             name: 'sts-2',
-            title: '内测'
+            title: '内测',
+            disabled: ({ row }: any) => {
+              console.log('=====内测====', row)
+              return row.status == 2
+            }
           },
           {
             name: 'sts-3',
-            title: '发布'
+            title: '发布',
+            disabled: ({ row }: any) => {
+              return row.status == 3
+            }
           },
           {
             name: 'sts-4',
-            title: '撤销'
+            title: '撤销',
+            disabled: ({ row }: any) => {
+              return row.status == 4
+            }
           }
         ]
       },
