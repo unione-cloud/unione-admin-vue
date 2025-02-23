@@ -55,7 +55,7 @@ const define = ref({
       title: '用户状态',
       name: 'status',
       control: 'unione-switch-box',
-      value: 1,
+      defaultValue: 1,
       convert: {
         types: 'dict',
         dictName: 'USEORNOT'
