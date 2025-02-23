@@ -24,9 +24,12 @@
 import { nextTick, ref } from 'vue'
 import { useDialog } from 'unione-base-vue'
 import { Convertor } from 'unione-form-vue'
+import { useRouter, type Router } from 'vue-router'
 
 const dialog = useDialog()
 const stsConvert = new Convertor({ types: 'dict', dictName: 'APPSTATUS' })
+const router: Router = useRouter()
+
 const page = ref()
 const define = ref({
   storage: {
@@ -171,6 +174,9 @@ async function btnClick({ btn, event, row, keys }: any) {
     nextTick(() => {
       form.value.setValue(row)
     })
+  }
+  if (btn.name == 'api') {
+    router.push({ path: '/system/base/apps/api', query: { appId: row.id } })
   }
   if (btn.name.startsWith('sts-')) {
     const status = btn.name.split('-')[1]

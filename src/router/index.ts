@@ -98,8 +98,15 @@ export const local: Array<MenuItem> = [
           {
             sid: '20000101101',
             title: '应用管理',
-            path: '/system/base/apps',
+            path: '/system/base/apps/list',
             component: () => import('@/views/system/base/apps/list.vue')
+          },
+          {
+            sid: '2000010110101',
+            title: '接口管理',
+            path: '/system/base/apps/api',
+            hidden: true,
+            component: () => import('@/views/system/base/apps/api.vue')
           }
         ]
       },
