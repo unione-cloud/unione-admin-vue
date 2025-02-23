@@ -12,17 +12,19 @@ const unionePage = ref<any>({
   },
   fields: [
     {
+      title: '接口标题',
+      name: 'title',
+      required: true
+    },
+    {
       title: '接口名称',
       name: 'name',
       required: true
     },
     {
-      title: '接口标题',
-      name: 'title'
-    },
-    {
       title: '接口URL',
-      name: 'url'
+      name: 'url',
+      required: true
     },
     {
       title: '请求方式',
@@ -36,8 +38,7 @@ const unionePage = ref<any>({
     },
     {
       title: '请求参数',
-      name: 'params',
-      required: true
+      name: 'params'
     },
     {
       title: '接口响应',
@@ -46,6 +47,7 @@ const unionePage = ref<any>({
     {
       title: '显示顺序',
       name: 'ordered',
+      value: 0,
       control: 'a-input-number'
     },
     {
