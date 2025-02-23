@@ -22,6 +22,11 @@
 
 <script setup lang="ts">
 import { nextTick, ref } from 'vue'
+import { useDialog } from 'unione-base-vue'
+import { Convertor } from 'unione-form-vue'
+
+const dialog = useDialog()
+const stsConvert = new Convertor({ types: 'dict', dictName: 'TENANTSTATUS' })
 
 const page = ref()
 const define = ref({
@@ -71,7 +76,7 @@ const define = ref({
       name: 'status',
       convert: {
         types: 'dict',
-        dictName: 'USERSTATUS'
+        dictName: 'TENANTSTATUS'
       },
       isQuery: true
     },
@@ -94,9 +99,31 @@ const define = ref({
       },
       {
         name: 'status',
-        title: (row: any) => {
-          return row.status == 1 ? '禁用' : '启用'
-        }
+        title: '状态',
+        widget: 'dropdown',
+        items: [
+          {
+            name: 'sts-1',
+            title: '试用',
+            disabled: ({ row }: any) => {
+              return row.status == 1
+            }
+          },
+          {
+            name: 'sts-2',
+            title: '开通',
+            disabled: ({ row }: any) => {
+              return row.status == 2
+            }
+          },
+          {
+            name: 'sts-3',
+            title: '关闭',
+            disabled: ({ row }: any) => {
+              return row.status == 3
+            }
+          }
+        ]
       }
     ],
     count: 4,
@@ -106,7 +133,7 @@ const define = ref({
   }
 })
 
-function btnClick({ btn, event, row, keys }: any) {
+async function btnClick({ btn, event, row, keys }: any) {
   console.log('table btn click', btn, event, row)
   if (btn.name == 'add') {
     drawer.value.visible = true
@@ -124,6 +151,24 @@ function btnClick({ btn, event, row, keys }: any) {
     drawer.value.row = row
     nextTick(() => {
       form.value.setValue(row)
+    })
+  }
+  if (btn.name.startsWith('sts-')) {
+    const status = btn.name.split('-')[1]
+    const stsLable = await stsConvert.convert(status)
+    dialog.confirm({
+      content: '确定要设置租户状态为：' + stsLable,
+      onOk: () => {
+        page.value
+          .storage()
+          .request({
+            url: '/status',
+            data: { id: row.id, status }
+          })
+          .then(() => {
+            page.value.reload()
+          })
+      }
     })
   }
 }
@@ -203,7 +248,7 @@ const drawer = ref({
       data = {
         ...drawer.value.row,
         ...data,
-        registeWay:2
+        registeWay: 2
       }
       page.value
         .storage()
