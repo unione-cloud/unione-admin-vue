@@ -68,7 +68,18 @@ const define = ref({
       title: '修改时间',
       name: 'lastUpdated'
     }
-  ]
+  ],
+  operation: {
+    title: '操作',
+    width: 210,
+    btns: [
+      {
+        name: 'view',
+        title: '用户列表'
+      }
+    ],
+    count: 4
+  }
 })
 
 function btnClick({ btn, event, row, keys }: any) {
@@ -148,10 +159,13 @@ const drawer = ref({
         ...drawer.value.row,
         ...data
       }
-      page.value.storage().save({ data }).then(() => {
-        drawer.value.visible = false
-        page.value.reload()
-      })
+      page.value
+        .storage()
+        .save({ data })
+        .then(() => {
+          drawer.value.visible = false
+          page.value.reload()
+        })
     })
   }
 })
