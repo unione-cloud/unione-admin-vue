@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <div class="unione-page unione-page-list unione-system-userlist">
+  <div class="unione-page unione-page-list unione-system-rolelist">
     <unione-page-list ref="page" v-bind="define"></unione-page-list>
   </div>
 </template>
@@ -17,14 +17,6 @@ const define = ref({
   },
   fields: [
     {
-      title: '角色名称',
-      name: 'roleName'
-    },
-    {
-      title: '角色编码',
-      name: 'roleSn'
-    },
-    {
       title: '机构名称',
       name: 'orgName'
     },
@@ -37,25 +29,12 @@ const define = ref({
       name: 'realName'
     },
     {
-      title: '用户状态',
-      name: 'status',
-      control: 'unione-switch-box',
-      defaultValue: 1,
-      convert: {
-        types: 'dict',
-        dictName: 'USEORNOT'
-      },
-      isQuery: true
+      title: '角色名称',
+      name: 'roleName'
     },
     {
-      title: '用户性别',
-      name: 'sex',
-      control: 'unione-switch-box',
-      value: 1,
-      convert: {
-        types: 'dict',
-        dictName: 'SEX'
-      }
+      title: '角色编码',
+      name: 'roleSn'
     },
     {
       title: '分配时间',

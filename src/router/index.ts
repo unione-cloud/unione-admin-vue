@@ -138,6 +138,13 @@ export const local: Array<MenuItem> = [
             component: () => import('@/views/system/org/user/list.vue')
           },
           {
+            sid: '2000010210101',
+            title: '角色列表',
+            path: '/system/org/user/rolelist',
+            hidden: true,
+            component: () => import('@/views/system/org/user/roles.vue')
+          },
+          {
             sid: '20000102102',
             title: '角色管理',
             path: '/system/org/role',

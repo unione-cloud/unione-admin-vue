@@ -22,7 +22,9 @@
 
 <script setup lang="ts">
 import { nextTick, ref } from 'vue'
+import { useRouter, type Router } from 'vue-router'
 
+const router: Router = useRouter()
 const page = ref()
 const define = ref({
   storage: {
@@ -31,19 +33,23 @@ const define = ref({
   fields: [
     {
       title: '机构名称',
-      name: 'orgName'
+      name: 'orgName',
+      isQuery:true
     },
     {
       title: '用户姓名',
-      name: 'realName'
+      name: 'realName',
+      isQuery:true
     },
     {
       title: '用户帐号',
-      name: 'username'
+      name: 'username',
+      isQuery:true
     },
     {
       title: '手机号',
-      name: 'tel'
+      name: 'tel',
+      isQuery:true
     },
     {
       title: '性别',
@@ -51,7 +57,8 @@ const define = ref({
       convert: {
         types: 'dict',
         dictName: 'SEX'
-      }
+      },
+      isQuery:true
     },
     {
       title: '用户类型',
@@ -59,7 +66,8 @@ const define = ref({
       convert: {
         types: 'dict',
         dictName: 'USERTYPE'
-      }
+      },
+      isQuery:true
     },
     {
       title: '用户状态',
@@ -67,7 +75,8 @@ const define = ref({
       convert: {
         types: 'dict',
         dictName: 'USERSTATUS'
-      }
+      },
+      isQuery:true
     },
     {
       title: '创建时间',
@@ -80,7 +89,7 @@ const define = ref({
   ],
   operation: {
     title: '操作',
-    width: 175,
+    width: 190,
     btns: [
       {
         name: 'view',
@@ -91,9 +100,17 @@ const define = ref({
         title:(row:any)=>{
           return row.status == 1 ? '禁用' : '启用'
         }
-      }
+      },
+      {
+        name: 'rolelist',
+        title: '角色列表',
+      },
+      {
+        name: 'resetpwd',
+        title: '重置密码',
+      },
     ],
-    count: 4,
+    count: 2,
     more: {
       layout: 'vertical'
     }
@@ -118,6 +135,14 @@ function btnClick({ btn, event, row, keys }: any) {
     drawer.value.row = row
     nextTick(() => {
       form.value.setValue(row)
+    })
+  }
+  if(btn.name == 'rolelist'){
+    router.push({
+      path: '/system/org/user/rolelist',
+      query: {
+        userId: row.id
+      }
     })
   }
 }
