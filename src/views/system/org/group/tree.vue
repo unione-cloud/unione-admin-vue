@@ -2,7 +2,7 @@
 <template>
   <unione-page-tree v-bind="unionePage" class="unione-system-group" @btnClick="btnClick">
     <template #form-warp v-if="memberVisible">
-      <unione-page-list v-bind="defineMember"></unione-page-list>
+      <unione-page-list v-bind="defineMember" @btnClick="memberClick"></unione-page-list>
     </template>
   </unione-page-tree>
 </template>
@@ -93,7 +93,11 @@ function btnClick({btn,event}:any){
   }
 }
 
-
+function memberClick({btn,event}:any){
+  if(btn.name =='back'){
+    memberVisible.value = false
+  }
+}
 const memberVisible=ref(false)
 const defineMember = ref({
   storage: {
