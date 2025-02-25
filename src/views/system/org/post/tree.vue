@@ -1,6 +1,10 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <unione-page-tree v-bind="unionePage" class="unione-system-post"></unione-page-tree>
+  <unione-page-tree v-bind="unionePage" class="unione-system-post" @btnClick="btnClick">
+    <template #form-warp v-if="memberVisible">
+      <unione-page-list v-bind="defineMember"></unione-page-list>
+    </template>
+  </unione-page-tree>
 </template>
 
 <script setup lang="ts">
@@ -60,6 +64,10 @@ const unionePage = ref<any>({
       control: 'a-textarea'
     }
   ],
+  btns:[{
+    name:'member',
+    title:'成员管理',
+  }],
   setting: {
     tree: {
       labelField: 'name'
@@ -82,6 +90,80 @@ const unionePage = ref<any>({
     }
   }
 })
+
+function btnClick({btn,event}:any){
+  if(btn.name == 'member'){
+    memberVisible.value = true
+  }
+}
+
+const memberVisible=ref(false)
+const defineMember = ref({
+  storage: {
+    controller: '/api/system/userRole'
+  },
+  fields: [
+    {
+      title: '机构名称',
+      name: 'orgName'
+    },
+    {
+      title: '用户帐号',
+      name: 'username'
+    },
+    {
+      title: '成员姓名',
+      name: 'realName'
+    },
+    {
+      title: '成员状态',
+      name: 'status',
+      control: 'unione-switch-box',
+      defaultValue: 1,
+      convert: {
+        types: 'dict',
+        dictName: 'USEORNOT'
+      },
+      isQuery: true
+    },
+    {
+      title: '成员性别',
+      name: 'sex',
+      control: 'unione-switch-box',
+      value: 1,
+      convert: {
+        types: 'dict',
+        dictName: 'SEX'
+      }
+    },
+    {
+      title: '加入时间',
+      name: 'created'
+    }
+  ],
+  queryBtns:[{
+    name:'back',
+    title:'返回',
+    index:4
+  }],
+  operation: {
+    title: '操作',
+    width: 100,
+    btns: [
+      {
+        name: 'view',
+        visible: false
+      },
+      {
+        name: 'edit',
+        visible: false
+      }
+    ],
+    count: 4
+  }
+})
+
+
 </script>
 
 <style scoped lang="less"></style>
