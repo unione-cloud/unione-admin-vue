@@ -105,7 +105,7 @@ function memberClick({btn,event}:any){
 const memberVisible=ref(false)
 const defineMember = ref({
   storage: {
-    controller: '/api/system/userRole'
+    controller: '/api/system/userPost'
   },
   fields: [
     {
@@ -127,7 +127,7 @@ const defineMember = ref({
       defaultValue: 1,
       convert: {
         types: 'dict',
-        dictName: 'USEORNOT'
+        dictName: 'MENBERSTATUS'
       },
       isQuery: true
     },
@@ -143,7 +143,11 @@ const defineMember = ref({
     },
     {
       title: '加入时间',
-      name: 'created'
+      name: 'timeJoin'
+    },
+    {
+      title: '加入时间',
+      name: 'timeLeave'
     }
   ],
   queryBtns:[{
