@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <unione-page-tree v-bind="unionePage" class="unione-system-group"></unione-page-tree>
+  <unione-page-tree v-bind="unionePage" class="unione-system-group" @btnClick="btnClick"></unione-page-tree>
 </template>
 
 <script setup lang="ts">
@@ -55,6 +55,10 @@ const unionePage = ref<any>({
       control: 'a-textarea'
     }
   ],
+  btns:[{
+    name:'member',
+    title:'成员管理',
+  }],
   setting: {
     tree: {
       labelField: 'name'
@@ -77,6 +81,22 @@ const unionePage = ref<any>({
     }
   }
 })
+
+
+
+
+function btnClick({btn,event}:any){
+  if(btn.name == 'member'){
+    console.log('member')
+  }
+}
+
+
+
+
+
+
+
 </script>
 
 <style scoped lang="less"></style>
