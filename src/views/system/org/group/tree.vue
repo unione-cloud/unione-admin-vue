@@ -1,8 +1,8 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <unione-page-tree v-bind="unionePage" class="unione-system-group" @btnClick="btnClick">
+  <unione-page-tree ref="page" v-bind="unionePage" class="unione-system-group" @btnClick="btnClick">
     <template #form-warp v-if="memberVisible">
-      <unione-page-list v-bind="defineMember" @btnClick="memberClick"></unione-page-list>
+      <unione-page-list v-bind="defineMember" @btnClick="memberClick" ref="member"></unione-page-list>
     </template>
   </unione-page-tree>
 </template>
@@ -10,6 +10,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
+const page=ref()// pageTree dom ref obj
+const member=ref()// member dom ref obj
 const unionePage = ref<any>({
   storage: {
     controller: '/api/system/group'
@@ -96,6 +98,7 @@ function btnClick({btn,event}:any){
 function memberClick({btn,event}:any){
   if(btn.name =='back'){
     memberVisible.value = false
+    page.value.$forceUpdate()
   }
 }
 const memberVisible=ref(false)
