@@ -2,16 +2,24 @@
 <template>
   <unione-page-tree ref="page" v-bind="unionePage" class="unione-system-group" @btnClick="btnClick">
     <template #form-warp v-if="memberVisible">
-      <unione-page-list v-bind="defineMember" @btnClick="memberClick" ref="member"></unione-page-list>
+      <unione-page-list
+        v-bind="defineMember"
+        @btnClick="memberClick"
+        ref="member"
+      ></unione-page-list>
     </template>
   </unione-page-tree>
+
+  <!-- 用户选择组件 -->
+  <UserSelect v-model:visible="userSelectVisible" position="left"></UserSelect>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import UserSelect from '@/components/user-select/index.vue'
 
-const page=ref()// pageTree dom ref obj
-const member=ref()// member dom ref obj
+const page = ref() // pageTree dom ref obj
+const member = ref() // member dom ref obj
 const unionePage = ref<any>({
   storage: {
     controller: '/api/system/group'
@@ -61,10 +69,12 @@ const unionePage = ref<any>({
       control: 'a-textarea'
     }
   ],
-  btns:[{
-    name:'member',
-    title:'成员管理',
-  }],
+  btns: [
+    {
+      name: 'member',
+      title: '成员管理'
+    }
+  ],
   setting: {
     tree: {
       labelField: 'name'
@@ -88,20 +98,23 @@ const unionePage = ref<any>({
   }
 })
 
-
-function btnClick({btn,event}:any){
-  if(btn.name == 'member'){
+function btnClick({ btn, event }: any) {
+  if (btn.name == 'member') {
     memberVisible.value = true
   }
 }
 
-function memberClick({btn,event}:any){
-  if(btn.name =='back'){
+function memberClick({ btn, event }: any) {
+  if (btn.name == 'back') {
     memberVisible.value = false
     page.value.$forceUpdate()
   }
+  if (btn.name == 'add') {
+    userSelectVisible.value = true
+  }
 }
-const memberVisible=ref(false)
+const memberVisible = ref(false)
+const userSelectVisible = ref(false)
 const defineMember = ref({
   storage: {
     controller: '/api/system/groupMember'
@@ -149,11 +162,13 @@ const defineMember = ref({
       name: 'timeLeave'
     }
   ],
-  queryBtns:[{
-    name:'back',
-    title:'返回',
-    index:4
-  }],
+  queryBtns: [
+    {
+      name: 'back',
+      title: '返回',
+      index: 4
+    }
+  ],
   operation: {
     title: '操作',
     width: 100,
@@ -170,8 +185,6 @@ const defineMember = ref({
     count: 4
   }
 })
-
-
 </script>
 
 <style scoped lang="less"></style>
