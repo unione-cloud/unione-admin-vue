@@ -6,11 +6,10 @@
     v-model:visible="visible"
     :placement="props.position"
     :maskClosable="false"
-    class="user-list user-drawer"
+    :bodyStyle="{ padding: 0 }"
+    class="user-select user-select-drawer"
   >
-    <p>Some contents...</p>
-    <p>Some contents...</p>
-    <p>Some contents...</p>
+    <userList :typeList="typeList" :targetType="targetType" :targetValue="targetValue"></userList>
 
     <template #footer>
       <a-button type="primary" @click="visible = false">确定</a-button>
@@ -24,16 +23,15 @@
     v-model:open="visible"
     :centered="props.position == 'center'"
     :maskClosable="false"
-    class="user-list user-dialog"
+    class="user-select user-select-dialog"
   >
-    <p>Some contents...</p>
-    <p>Some contents...</p>
-    <p>Some contents...</p>
+    <userList :typeList="typeList" :targetType="targetType" :targetValue="targetValue"></userList>
   </a-modal>
 </template>
 
-<script setup name="UserSelect" lang="ts">
+<script setup lang="ts">
 import { ref } from 'vue'
+import userList from './user-list.vue'
 
 defineOptions({ name: 'UserSelect' })
 const props = defineProps({
@@ -42,7 +40,7 @@ const props = defineProps({
     default: '用户选择'
   },
   typeList: {
-    type: Array,
+    type: Array<String>,
     default: () => ['organ', 'role', 'group', 'post']
   },
   targetType: {
@@ -68,8 +66,8 @@ const visible = defineModel('visible')
 </script>
 
 <style lang="less" scoped>
-.user-list {
-  &.user-drawer {
+.user-select {
+  &.user-select-drawer {
     .ant-drawer-footer {
       .ant-btn {
         float: right;
