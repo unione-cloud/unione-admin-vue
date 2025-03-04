@@ -5,25 +5,24 @@
         <a-tab-pane v-for="type in typeList" :key="type" :tab="getTypeLabel(type)">
           <a-input :placeholder="'搜索' + getTypeLabel(type) + '...'" class="type-search"></a-input>
           <a-tree
-            :show-line="true"
-            :show-icon="true"
-            v-model:selectedKeys="selectedKeys"
-            :expanded-keys="expandedKeys"
+            :showLine="{ showLeafIcon: false }"
+            showIcon
+            checkable
+            blockNode
             :tree-data="treeData"
             @select="onSelect"
-            @expand="handleExpand"
           >
-            <template #icon><carry-out-outlined /></template>
             <template #title="{ dataRef }">
-              <template v-if="dataRef.key === '0-0-0-1'">
-                <div>multiple line title</div>
-                <div>multiple line title</div>
-              </template>
-              <template v-else>{{ dataRef.title }}</template>
+              {{ dataRef.title }}{{ dataRef.userCount ? '[' + dataRef.userCount + ']' : '' }}
+              <a-input
+                v-if="activeNode?.key == dataRef.key && dataRef.ntype != 'user'"
+                class="user-search-input"
+                size="small"
+                placeholder="搜索用户..."
+              ></a-input>
             </template>
-            <template #switcherIcon="{ dataRef, defaultIcon }">
-              <SmileTwoTone v-if="dataRef.key === '0-0-2'" />
-              <component :is="defaultIcon" v-else />
+            <template #icon="{ dataRef }">
+              <UserOutlined v-if="dataRef.ntype == 'user'"></UserOutlined>
             </template>
           </a-tree>
         </a-tab-pane>
@@ -35,10 +34,11 @@
           <a-list-item>
             <a-list-item-meta>
               <template #title>
-                <a href="https://www.antdv.com/">{{ item.realName }}</a>
+                {{ item.realName }}
+                <DeleteOutlined class="btn" />
               </template>
               <template #avatar>
-                <a-avatar src="https://joeschmoe.io/api/v1/random" size="large" />
+                <a-avatar src="/avatar.png" size="large" />
               </template>
               <template #description>
                 <div>性别：{{ item.sex }}</div>
@@ -54,9 +54,8 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { CarryOutOutlined, SmileTwoTone } from '@ant-design/icons-vue'
+import { CarryOutOutlined, UserOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 import type { TreeProps } from 'ant-design-vue'
-import difference from 'lodash-es/difference'
 
 const props = defineProps({
   typeList: {
@@ -80,29 +79,34 @@ typeMap.value = {
 function getTypeLabel(type: any) {
   return typeMap.value[type]
 }
-
+// tab 当前选中的类型
 const activeType = ref('organ')
-
+// tree 选中的节点
+const activeNode = ref<any>(null)
 const treeData = ref<TreeProps['treeData']>([
   {
-    title: 'parent 1',
+    title: '九重焱科技有限公司',
     key: '0-0',
+    ntype: 'organ',
+    userCount: 50,
     children: [
       {
-        title: 'parent 1-0',
+        title: '市场部',
         key: '0-0-0',
+        ntype: 'organ',
+        userCount: 10,
         children: [
-          { title: 'leaf', key: '0-0-0-0' },
-          {
-            key: '0-0-0-1'
-          },
-          { title: 'leaf', key: '0-0-0-2' }
+          { title: '陈总', key: '0-0-0-0', ntype: 'user' },
+          { title: '张三', key: '0-0-0-1', ntype: 'user' },
+          { title: '李四', key: '0-0-0-2', ntype: 'user' }
         ]
       },
       {
-        title: 'parent 1-1',
+        title: '技术部',
         key: '0-0-1',
-        children: [{ title: 'leaf', key: '0-0-1-0' }]
+        ntype: 'organ',
+        userCount: 15,
+        children: [{ title: '杨淼', key: '0-0-1-0', ntype: 'user' }]
       },
       {
         title: 'parent 1-2',
@@ -132,31 +136,8 @@ const treeData = ref<TreeProps['treeData']>([
     ]
   }
 ])
-const onSelect: TreeProps['onSelect'] = (selectedKeys, info) => {
-  console.log('selected', selectedKeys, info)
-}
-const expandedKeys = ref<string[]>([])
-const selectedKeys = ref<string[]>(['0-0-0', '0-0-1'])
-const checkedKeys = ref<string[]>(['0-0-0', '0-0-1'])
-watch(expandedKeys, () => {
-  console.log('expandedKeys', expandedKeys)
-})
-watch(selectedKeys, () => {
-  console.log('selectedKeys', selectedKeys)
-})
-watch(checkedKeys, () => {
-  console.log('checkedKeys', checkedKeys)
-})
-const handleExpand = (keys: string[], { expanded, node }: any) => {
-  // node.parent add from 3.0.0-alpha.10
-  const tempKeys = ((node.parent ? node.parent.children : treeData.value) || []).map(
-    ({ key }: any) => key
-  )
-  if (expanded) {
-    expandedKeys.value = difference(keys, tempKeys).concat(node.key)
-  } else {
-    expandedKeys.value = keys
-  }
+const onSelect: TreeProps['onSelect'] = (selectedKeys, { node }: any) => {
+  activeNode.value = node
 }
 
 const data: any = [
@@ -191,13 +172,37 @@ const data: any = [
     height: 100%;
     border-right: 1px solid #eeeeee;
 
+    .user-search-input {
+      font-size: 12px;
+    }
+
     :deep(.ant-tabs-tabpane) {
       padding: 5px;
+    }
+
+    :deep(.ant-tree-checkbox) {
+      align-self: stretch;
     }
   }
   .selected-list {
     height: 100%;
     padding: 5px;
+
+    :deep(.ant-list-item) {
+      padding: 5px;
+      .btn {
+        display: none;
+        float: right;
+        cursor: pointer;
+        color: rgba(0, 0, 0, 0.88);
+      }
+    }
+    :deep(.ant-list-item:hover) {
+      background-color: #eeeeee;
+      .btn {
+        display: block;
+      }
+    }
   }
 }
 </style>
