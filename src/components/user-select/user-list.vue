@@ -1,41 +1,63 @@
 <template>
   <a-row class="user-list">
     <a-col :span="13" class="type-list">
-      <a-tabs v-model:activeKey="activeType" type="card" tabPosition="left">
+      <a-tabs
+        v-model:activeKey="activeType"
+        type="card"
+        tabPosition="left"
+        @change="loadTreeData(activeType, '-1')"
+      >
         <a-tab-pane v-for="type in typeList" :key="type" :tab="getTypeLabel(type)">
-          <a-input :placeholder="'搜索' + getTypeLabel(type) + '...'" class="type-search"></a-input>
+          <a-input
+            v-model:value="treeKeywords[activeType]"
+            :placeholder="'搜索' + getTypeLabel(type) + '(回车)...'"
+            class="type-search"
+            allowClear
+            @pressEnter="loadTreeData(activeType, '-1')"
+          ></a-input>
           <a-tree
             :showLine="{ showLeafIcon: false }"
             showIcon
             checkable
             blockNode
-            :tree-data="treeData"
+            :tree-data="treeData[activeType]"
+            :fieldNames="{ key: 'id' }"
+            v-model:selectedKeys="selectedKeys[activeType]"
+            v-model:checkedKeys="checkedKeys[activeType]"
+            @expand="onExpand"
             @select="onSelect"
+            @check="onCheck"
           >
             <template #title="{ dataRef }">
               {{ dataRef.title }}{{ dataRef.userCount ? '[' + dataRef.userCount + ']' : '' }}
               <a-input
-                v-if="activeNode?.key == dataRef.key && dataRef.ntype != 'user'"
+                v-if="
+                  activeNode[activeType]?.id == dataRef.id &&
+                  ((dataRef.isLeaf == false && dataRef.ntype == 'user') || dataRef.ntype == 'role')
+                "
+                v-model:value="userKeywords"
                 class="user-search-input"
                 size="small"
-                placeholder="搜索用户..."
+                placeholder="搜索用户(回车)..."
+                allowClear
+                @pressEnter="loadUserList(dataRef.id)"
               ></a-input>
             </template>
             <template #icon="{ dataRef }">
-              <UserOutlined v-if="dataRef.ntype == 'user'"></UserOutlined>
+              <component :is="typeMap[dataRef.ntype][1]"></component>
             </template>
           </a-tree>
         </a-tab-pane>
       </a-tabs>
     </a-col>
     <a-col :span="11" class="selected-list">
-      <a-list item-layout="horizontal" :data-source="data">
-        <template #renderItem="{ item }">
+      <a-list item-layout="horizontal" :data-source="selectedUsers">
+        <template #renderItem="{ item, index }">
           <a-list-item>
             <a-list-item-meta>
               <template #title>
                 {{ item.realName }}
-                <DeleteOutlined class="btn" />
+                <DeleteOutlined class="btn" @click="delSelect(index, item)" />
               </template>
               <template #avatar>
                 <a-avatar src="/avatar.png" size="large" />
@@ -53,9 +75,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { CarryOutOutlined, UserOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 import type { TreeProps } from 'ant-design-vue'
+import { axios } from 'unione-base-vue'
 
 const props = defineProps({
   typeList: {
@@ -69,99 +92,149 @@ const props = defineProps({
     type: String
   }
 })
-const typeMap = ref<any>({})
-typeMap.value = {
-  organ: '组织',
-  role: '角色',
-  group: '分组',
-  post: '岗位'
-}
+const typeMap = ref<any>({
+  user: ['用户', 'UserOutlined'],
+  organ: ['组织', 'ApartmentOutlined'],
+  role: ['角色', 'IdcardOutlined'],
+  group: ['分组', 'ClusterOutlined'],
+  post: ['岗位', 'CoffeeOutlined']
+})
+
 function getTypeLabel(type: any) {
-  return typeMap.value[type]
+  return typeMap.value[type][0]
 }
 // tab 当前选中的类型
-const activeType = ref('organ')
+const activeType = ref<'organ' | 'role' | 'group' | 'post' | 'user'>('organ')
 // tree 选中的节点
-const activeNode = ref<any>(null)
-const treeData = ref<TreeProps['treeData']>([
-  {
-    title: '九重焱科技有限公司',
-    key: '0-0',
-    ntype: 'organ',
-    userCount: 50,
-    children: [
-      {
-        title: '市场部',
-        key: '0-0-0',
-        ntype: 'organ',
-        userCount: 10,
-        children: [
-          { title: '陈总', key: '0-0-0-0', ntype: 'user' },
-          { title: '张三', key: '0-0-0-1', ntype: 'user' },
-          { title: '李四', key: '0-0-0-2', ntype: 'user' }
-        ]
-      },
-      {
-        title: '技术部',
-        key: '0-0-1',
-        ntype: 'organ',
-        userCount: 15,
-        children: [{ title: '杨淼', key: '0-0-1-0', ntype: 'user' }]
-      },
-      {
-        title: 'parent 1-2',
-        key: '0-0-2',
-        children: [
-          { title: 'leaf 1', key: '0-0-2-0' },
-          {
-            title: 'leaf 2',
-            key: '0-0-2-1'
-          }
-        ]
-      }
-    ]
-  },
-  {
-    title: 'parent 2',
-    key: '0-1',
-    children: [
-      {
-        title: 'parent 2-0',
-        key: '0-1-0',
-        children: [
-          { title: 'leaf', key: '0-1-0-0' },
-          { title: 'leaf', key: '0-1-0-1' }
-        ]
-      }
-    ]
+const activeNode = ref<any>({})
+const checkedKeys = ref<any>({})
+const selectedKeys = ref<any>({})
+const treeKeywords = ref<any>({})
+const userKeywords = ref<any>()
+
+const treeNode = ref<any>({})
+const treeData = ref<any>({})
+function loadTreeData(type: 'organ' | 'role' | 'group' | 'post' | 'user', pid: string) {
+  if (!pid || pid == '-1') {
+    if (treeData.value[type]?.length > 0) {
+      return
+    }
+  } else {
+    if (type == 'role' || type == 'user') {
+      //加载角色用户列表
+      loadUserList(pid)
+      return
+    }
   }
-])
-const onSelect: TreeProps['onSelect'] = (selectedKeys, { node }: any) => {
-  activeNode.value = node
+  axios
+    .admin({
+      url: `/api/selector/${type}/${type == 'role' ? 'node' : 'tree'}/-1`,
+      method: 'post',
+      data: {
+        body: pid ? pid : -1,
+        keywords: treeKeywords.value[type],
+        page: 1,
+        pageSize: 1000
+      }
+    })
+    .then((res: any) => {
+      let target: any = []
+      if (!pid || pid == '-1') {
+        target = treeData.value[type]
+      } else {
+        if (!treeNode.value[pid].children) {
+          treeNode.value['userList-' + pid] = {
+            title: '用户列表',
+            ntype: 'user',
+            pid: pid,
+            id: 'userList-' + pid,
+            isLeaf: false
+          }
+          treeNode.value[pid].children = []
+          treeNode.value[pid].children[0] = treeNode.value['userList-' + pid]
+        }
+        target = treeNode.value[pid].children
+      }
+      const nmap: any = {}
+      res.body.forEach((item: any) => {
+        nmap[item.id] = item
+        treeNode.value[item.id] = item
+        item.isLeaf = false
+      })
+      res.body.forEach((item: any) => {
+        const parent = nmap[item.pid]
+        if (parent) {
+          if (!parent.children) {
+            parent.children = []
+          }
+          parent.children.push(item)
+        } else {
+          target.push(item)
+        }
+      })
+    })
+}
+function loadUserList(pid: string) {
+  const parent = treeNode.value[pid]
+  if (parent.ntype == 'user') {
+    pid = parent.pid
+  }
+  axios
+    .admin({
+      url: `/api/selector/user/node`,
+      method: 'post',
+      data: {
+        body: {
+          pid: pid,
+          ntype: activeType.value
+        },
+        keywords: userKeywords.value,
+        page: 1,
+        pageSize: 2000
+      }
+    })
+    .then((res: any) => {
+      parent.children = res.body
+      res.body.forEach((item: any) => {
+        treeNode.value[item.id] = item
+      })
+      treeData.value = { ...treeData.value }
+    })
+}
+function onExpand(expandedKeys: any, { expanded, node }: any) {
+  if ((expanded && !node.children) || !node.children.length) {
+    loadTreeData(node.ntype, node.key)
+  }
+}
+function onSelect(sltKeys: any, { node }: any) {
+  activeNode.value[activeType.value] = node
+  selectedKeys.value[activeType.value] = [node.id]
+}
+const selectedUsers = ref<any>([])
+function onCheck(checkedKeys: any) {
+  selectedUsers.value = []
+  checkedKeys.forEach((key: any) => {
+    const node = treeNode.value[key]
+    if (node.ntype == 'user' && node.isLeaf != false) {
+      selectedUsers.value.push(node)
+    }
+  })
+}
+function delSelect(index: number, item: any) {
+  selectedUsers.value.splice(index, 1)
+  checkedKeys.value[activeType.value] = checkedKeys.value[activeType.value].filter((key: any) => {
+    return key != item.id
+  })
+  checkedKeys.value = { ...checkedKeys.value }
+  treeData.value = { ...treeData.value }
 }
 
-const data: any = [
-  {
-    realName: '张三',
-    sex: 1,
-    tel: '0571-22098820'
-  },
-  {
-    realName: '李四',
-    sex: 1,
-    tel: '0571-22098820'
-  },
-  {
-    realName: '王五',
-    sex: 1,
-    tel: '0571-22098820'
-  },
-  {
-    realName: '赵六',
-    sex: 1,
-    tel: '0571-22098820'
-  }
-]
+onMounted(() => {
+  Object.keys(typeMap.value).forEach((type: any) => {
+    treeData.value[type] = []
+  })
+  loadTreeData(activeType.value, '-1')
+})
 </script>
 
 <style lang="less" scoped>
