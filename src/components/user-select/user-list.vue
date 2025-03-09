@@ -23,7 +23,7 @@
             :tree-data="treeData[activeType]"
             :fieldNames="{ key: 'id' }"
             v-model:selectedKeys="selectedKeys[activeType]"
-            v-model:checkedKeys="checkedKeys[activeType]"
+            v-model:checkedKeys="checkedKeys"
             @expand="onExpand"
             @select="onSelect"
             @check="onCheck"
@@ -63,7 +63,7 @@
                 <a-avatar src="/avatar.png" size="large" />
               </template>
               <template #description>
-                <div>性别：{{ item.sex }}</div>
+                <div>性别：{{ item.sexLabel }}</div>
                 <div>电话{{ item.tel }}</div>
               </template>
             </a-list-item-meta>
@@ -79,6 +79,7 @@ import { onMounted, ref, watch } from 'vue'
 import { CarryOutOutlined, UserOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 import type { TreeProps } from 'ant-design-vue'
 import { axios } from 'unione-base-vue'
+import { Convertor } from 'unione-form-vue'
 
 const props = defineProps({
   typeList: {
@@ -103,11 +104,17 @@ const typeMap = ref<any>({
 function getTypeLabel(type: any) {
   return typeMap.value[type][0]
 }
+// sex Convertor
+const sexConvertor = new Convertor({
+  types: 'dict',
+  dictName: 'SEX'
+})
+
 // tab 当前选中的类型
 const activeType = ref<'organ' | 'role' | 'group' | 'post' | 'user'>('organ')
 // tree 选中的节点
 const activeNode = ref<any>({})
-const checkedKeys = ref<any>({})
+const checkedKeys = ref<any>([])
 const selectedKeys = ref<any>({})
 const treeKeywords = ref<any>({})
 const userKeywords = ref<any>()
@@ -197,6 +204,11 @@ function loadUserList(pid: string) {
       parent.children = res.body
       res.body.forEach((item: any) => {
         treeNode.value[item.id] = item
+        item.pid = pid
+        item.isLeaf = true
+        sexConvertor.convert(item.sex).then((label: any) => {
+          item.sexLabel = label
+        })
       })
       treeData.value = { ...treeData.value }
     })
@@ -222,11 +234,10 @@ function onCheck(checkedKeys: any) {
 }
 function delSelect(index: number, item: any) {
   selectedUsers.value.splice(index, 1)
-  checkedKeys.value[activeType.value] = checkedKeys.value[activeType.value].filter((key: any) => {
-    return key != item.id
+  checkedKeys.value = checkedKeys.value.filter((key: any) => {
+    return key != item.id && key != 'userList-' + item.pid
   })
-  checkedKeys.value = { ...checkedKeys.value }
-  treeData.value = { ...treeData.value }
+  checkedKeys.value = [...checkedKeys.value]
 }
 
 onMounted(() => {
