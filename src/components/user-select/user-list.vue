@@ -15,6 +15,7 @@
             allowClear
             @pressEnter="loadTreeData(activeType, '-1')"
           ></a-input>
+
           <a-tree
             :showLine="{ showLeafIcon: false }"
             showIcon
@@ -75,11 +76,12 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, provide, ref, watch } from 'vue'
 import { CarryOutOutlined, UserOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 import type { TreeProps } from 'ant-design-vue'
 import { axios } from 'unione-base-vue'
 import { Convertor } from 'unione-form-vue'
+import useTarget from 'ant-design-vue/es/vc-tour/hooks/useTarget'
 
 const props = defineProps({
   typeList: {
@@ -193,7 +195,9 @@ function loadUserList(pid: string) {
       data: {
         body: {
           pid: pid,
-          ntype: activeType.value
+          ntype: activeType.value,
+          targetType: props.targetType,
+          targetValue: props.targetValue
         },
         keywords: userKeywords.value,
         page: 1,
@@ -235,7 +239,8 @@ function onCheck(checkedKeys: any) {
 function delSelect(index: number, item: any) {
   selectedUsers.value.splice(index, 1)
   checkedKeys.value = checkedKeys.value.filter((key: any) => {
-    return key != item.id && key != 'userList-' + item.pid
+    const node = treeNode.value[key]
+    return key != item.id && node.isLeaf == true
   })
   checkedKeys.value = [...checkedKeys.value]
 }
@@ -245,6 +250,28 @@ onMounted(() => {
     treeData.value[type] = []
   })
   loadTreeData(activeType.value, '-1')
+})
+
+function getSelected() {
+  return {
+    selected: selectedUsers.value,
+    selectedKeys: selectedUsers.value.map((item: any) => {
+      return item.id
+    })
+  }
+}
+function getSelectedUserList() {
+  return selectedUsers.value
+}
+function getSelectedUserIds() {
+  return selectedUsers.value.map((item: any) => {
+    return item.id
+  })
+}
+defineExpose({
+  getSelected,
+  getSelectedUserList,
+  getSelectedUserIds
 })
 </script>
 

@@ -11,12 +11,11 @@
   </unione-page-tree>
 
   <!-- 用户选择组件 -->
-  <UserSelect v-model:visible="userSelectVisible" position="left"></UserSelect>
+  <UserSelect v-model:visible="userSelectVisible" position="left" @ok="handelOk"></UserSelect>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import UserSelect from '@/components/user-select/index.vue'
 
 const page = ref() // pageTree dom ref obj
 const member = ref() // member dom ref obj
@@ -185,6 +184,10 @@ const defineMember = ref({
     count: 4
   }
 })
+// 选择用户
+function handelOk(event: any) {
+  console.log('handel user selected', event)
+}
 </script>
 
 <style scoped lang="less"></style>

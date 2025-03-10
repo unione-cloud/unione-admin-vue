@@ -9,10 +9,15 @@
     :bodyStyle="{ padding: 0 }"
     class="user-select user-select-drawer"
   >
-    <userList :typeList="typeList" :targetType="targetType" :targetValue="targetValue"></userList>
+    <userList
+      :typeList="typeList"
+      :targetType="targetType"
+      :targetValue="targetValue"
+      ref="userListObj"
+    ></userList>
 
     <template #footer>
-      <a-button type="primary" @click="visible = false">确定</a-button>
+      <a-button type="primary" @click="handelOk">确定</a-button>
       <a-button @click="visible = false">取消</a-button>
     </template>
   </a-drawer>
@@ -24,14 +29,23 @@
     :centered="props.position == 'center'"
     :maskClosable="false"
     class="user-select user-select-dialog"
+    @ok="handelOk"
   >
-    <userList :typeList="typeList" :targetType="targetType" :targetValue="targetValue"></userList>
+    <userList
+      :typeList="typeList"
+      :targetType="targetType"
+      :targetValue="targetValue"
+      ref="userListObj"
+    ></userList>
   </a-modal>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useDialog } from 'unione-base-vue'
 import userList from './user-list.vue'
+
+const dialog = useDialog()
 
 defineOptions({ name: 'UserSelect' })
 const props = defineProps({
@@ -63,6 +77,19 @@ const props = defineProps({
   }
 })
 const visible = defineModel('visible')
+
+const emit = defineEmits(['ok'])
+const userListObj = ref()
+function handelOk() {
+  const selected = userListObj.value.getSelected()
+  if (selected?.selectedKeys?.length > 0) {
+    visible.value = false
+    console.log('user selcect ok', selected)
+    emit('ok', selected)
+    return
+  }
+  dialog.warning({ content: '请选择用户' })
+}
 </script>
 
 <style lang="less" scoped>

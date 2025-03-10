@@ -17,8 +17,16 @@ import UnioneFormVue from 'unione-form-vue'
 import UninoneBaseVue from 'unione-base-vue'
 import { loadLanguage } from './locales'
 
+import UinoneComponents from '@/components'
+
 const app = createApp(App)
-app.use(createPinia()).use(router).use(Antd).use(UninoneBaseVue, config).use(UnioneFormVue, config)
+app
+  .use(createPinia())
+  .use(router)
+  .use(Antd)
+  .use(UninoneBaseVue, config)
+  .use(UnioneFormVue, config)
+  .use(UinoneComponents, config)
 
 loadLanguage('zh-CN') //'en-US' 'en-US'
 
