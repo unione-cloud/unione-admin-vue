@@ -1,6 +1,12 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <unione-page-tree ref="page" v-bind="unionePage" class="unione-system-group" @btnClick="btnClick">
+  <unione-page-tree
+    ref="page"
+    v-bind="unionePage"
+    class="unione-system-group"
+    @btnClick="btnClick"
+    @treeClick="treeClick"
+  >
     <template #form-warp v-if="memberVisible">
       <unione-page-list
         v-bind="defineMember"
@@ -11,11 +17,18 @@
   </unione-page-tree>
 
   <!-- 用户选择组件 -->
-  <UserSelect v-model:visible="userSelectVisible" position="left" @ok="handelOk"></UserSelect>
+  <UserSelect
+    v-model:visible="userSelectVisible"
+    position="left"
+    targetType="group"
+    :targetValue="currentGroup?.id"
+    @ok="handelOk"
+  ></UserSelect>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { axios } from 'unione-base-vue'
 
 const page = ref() // pageTree dom ref obj
 const member = ref() // member dom ref obj
@@ -102,6 +115,10 @@ function btnClick({ btn, event }: any) {
     memberVisible.value = true
   }
 }
+function treeClick({ keys, event }: any) {
+  console.log('tree click', keys, event)
+  currentGroup.value = event.node
+}
 
 function memberClick({ btn, event }: any) {
   if (btn.name == 'back') {
@@ -114,6 +131,7 @@ function memberClick({ btn, event }: any) {
 }
 const memberVisible = ref(false)
 const userSelectVisible = ref(false)
+const currentGroup = ref<any>(null)
 const defineMember = ref({
   storage: {
     controller: '/api/system/groupMember'
@@ -187,6 +205,18 @@ const defineMember = ref({
 // 选择用户
 function handelOk(event: any) {
   console.log('handel user selected', event)
+  axios
+    .admin({
+      url: '/api/system/groupMember/save',
+      method: 'post',
+      data: {
+        groupId: event.targetValue,
+        users: event.userList
+      }
+    })
+    .then((res: any) => {
+      member.value.reload()
+    })
 }
 </script>
 

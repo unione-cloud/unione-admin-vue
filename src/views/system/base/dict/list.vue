@@ -40,11 +40,11 @@ const define = ref({
   storage: {
     controller: '/api/system/dict'
   },
-  params:{
-    parentId:-1
+  params: {
+    parentId: -1
   },
   fields: [
-  {
+    {
       title: '应用名称',
       name: 'appName',
       isQuery: true
@@ -179,7 +179,7 @@ const drawer = ref({
   row: {},
   form: {
     fields: [
-    {
+      {
         title: '应用名称',
         name: 'appName',
         props: {
@@ -269,10 +269,13 @@ const drawer = ref({
         dictShow: JSON.stringify({ type })
       }
 
-      page.value.storage().save({ data }).then(() => {
-        drawer.value.visible = false
-        page.value.reload()
-      })
+      page.value
+        .storage()
+        .save({ data })
+        .then(() => {
+          drawer.value.visible = false
+          page.value.reload()
+        })
     })
   }
 })
@@ -393,7 +396,6 @@ const manage = ref<any>({
     }
   }
 })
-
 </script>
 
 <style scoped lang="less">

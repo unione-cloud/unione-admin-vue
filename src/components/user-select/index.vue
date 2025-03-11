@@ -82,10 +82,10 @@ const emit = defineEmits(['ok'])
 const userListObj = ref()
 function handelOk() {
   const selected = userListObj.value.getSelected()
-  if (selected?.selectedKeys?.length > 0) {
+  if (selected?.userIds?.length > 0) {
     visible.value = false
     console.log('user selcect ok', selected)
-    emit('ok', selected)
+    emit('ok', { ...selected, targetType: props.targetType, targetValue: props.targetValue })
     return
   }
   dialog.warning({ content: '请选择用户' })

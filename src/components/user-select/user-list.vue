@@ -57,7 +57,7 @@
           <a-list-item>
             <a-list-item-meta>
               <template #title>
-                {{ item.realName }}
+                姓名：{{ item.title }}
                 <DeleteOutlined class="btn" @click="delSelect(index, item)" />
               </template>
               <template #avatar>
@@ -65,7 +65,7 @@
               </template>
               <template #description>
                 <div>性别：{{ item.sexLabel }}</div>
-                <div>电话{{ item.tel }}</div>
+                <div>电话：{{ item.tel }}</div>
               </template>
             </a-list-item-meta>
           </a-list-item>
@@ -165,12 +165,12 @@ function loadTreeData(type: 'organ' | 'role' | 'group' | 'post' | 'user', pid: s
         target = treeNode.value[pid].children
       }
       const nmap: any = {}
-      res.body.forEach((item: any) => {
+      res.body?.forEach((item: any) => {
         nmap[item.id] = item
         treeNode.value[item.id] = item
         item.isLeaf = false
       })
-      res.body.forEach((item: any) => {
+      res.body?.forEach((item: any) => {
         const parent = nmap[item.pid]
         if (parent) {
           if (!parent.children) {
@@ -197,7 +197,7 @@ function loadUserList(pid: string) {
           pid: pid,
           ntype: activeType.value,
           targetType: props.targetType,
-          targetValue: props.targetValue
+          targetId: props.targetValue
         },
         keywords: userKeywords.value,
         page: 1,
@@ -205,14 +205,24 @@ function loadUserList(pid: string) {
       }
     })
     .then((res: any) => {
+      if (!res.body) {
+        return
+      }
       parent.children = res.body
-      res.body.forEach((item: any) => {
+      res.body?.forEach((item: any) => {
         treeNode.value[item.id] = item
         item.pid = pid
         item.isLeaf = true
         sexConvertor.convert(item.sex).then((label: any) => {
           item.sexLabel = label
         })
+        if (item.checked) {
+          if (!checkedKeys.value.includes(item.id)) {
+            checkedKeys.value.push(item.id)
+          }
+          item.disableCheckbox = true
+          item.disabled = true
+        }
       })
       treeData.value = { ...treeData.value }
     })
@@ -231,7 +241,7 @@ function onCheck(checkedKeys: any) {
   selectedUsers.value = []
   checkedKeys.forEach((key: any) => {
     const node = treeNode.value[key]
-    if (node.ntype == 'user' && node.isLeaf != false) {
+    if (node.ntype == 'user' && node.isLeaf != false && !node.disabled) {
       selectedUsers.value.push(node)
     }
   })
@@ -254,8 +264,8 @@ onMounted(() => {
 
 function getSelected() {
   return {
-    selected: selectedUsers.value,
-    selectedKeys: selectedUsers.value.map((item: any) => {
+    userList: selectedUsers.value,
+    userIds: selectedUsers.value.map((item: any) => {
       return item.id
     })
   }
