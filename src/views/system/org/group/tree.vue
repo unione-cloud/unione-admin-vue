@@ -118,6 +118,9 @@ function btnClick({ btn, event }: any) {
 }
 function treeClick({ keys, event }: any) {
   console.log('tree click', keys, event)
+  if (event.node.id?.startsWith('new_')) {
+    return
+  }
   currentGroup.value = event.node
   member.value?.setParams({ groupId: currentGroup.value.id })
 }

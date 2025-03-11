@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <div class="unione-page unione-page-list unione-system-rolelist">
-    <unione-page-list ref="page" v-bind="define"></unione-page-list>
+    <unione-page-list ref="page" v-bind="define" @btnClick="btnClick"></unione-page-list>
   </div>
 </template>
 
@@ -43,6 +43,13 @@ const define = ref({
   ],
   leftBtns: ['add'],
   rightBtns: false,
+  queryBtns: [
+    {
+      name: 'back',
+      title: '返回',
+      index: 4
+    }
+  ],
   operation: {
     title: '操作',
     width: 100,
@@ -60,6 +67,11 @@ const define = ref({
   }
 })
 
+function btnClick({ btn }: any) {
+  if (btn.name == 'back') {
+    router.back()
+  }
+}
 </script>
 
 <style scoped lang="less">

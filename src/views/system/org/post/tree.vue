@@ -1,15 +1,38 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <unione-page-tree v-bind="unionePage" class="unione-system-post" @btnClick="btnClick">
+  <unione-page-tree
+    v-bind="unionePage"
+    class="unione-system-post"
+    ref="page"
+    @btnClick="btnClick"
+    @treeClick="treeClick"
+  >
     <template #form-warp v-if="memberVisible">
-      <unione-page-list v-bind="defineMember" @btnClick="memberClick"></unione-page-list>
+      <unione-page-list
+        v-bind="defineMember"
+        :params="{ postId: currentPost.id }"
+        @btnClick="memberClick"
+        ref="member"
+      ></unione-page-list>
     </template>
   </unione-page-tree>
+
+  <!-- 用户选择组件 -->
+  <UserSelect
+    v-model:visible="userSelectVisible"
+    position="left"
+    targetType="post"
+    :targetValue="currentPost?.id"
+    @ok="handelOk"
+  ></UserSelect>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { axios } from 'unione-base-vue'
 
+const page = ref() // pageTree dom ref obj
+const member = ref() // member dom ref obj
 const unionePage = ref<any>({
   storage: {
     controller: '/api/system/post'
@@ -64,10 +87,12 @@ const unionePage = ref<any>({
       control: 'a-textarea'
     }
   ],
-  btns:[{
-    name:'member',
-    title:'成员管理',
-  }],
+  btns: [
+    {
+      name: 'member',
+      title: '成员管理'
+    }
+  ],
   setting: {
     tree: {
       labelField: 'name'
@@ -87,22 +112,35 @@ const unionePage = ref<any>({
       }
       node.isLeaf = 1
       node.ordered = 0
+      memberVisible.value = false
     }
   }
 })
 
-function btnClick({btn,event}:any){
-  if(btn.name == 'member'){
+function btnClick({ btn, event }: any) {
+  if (btn.name == 'member') {
     memberVisible.value = true
   }
 }
-
-function memberClick({btn,event}:any){
-  if(btn.name =='back'){
+function treeClick({ keys, event }: any) {
+  console.log('tree click', keys, event)
+  if (event.node.id?.startsWith('new_')) {
+    return
+  }
+  currentPost.value = event.node
+  member.value?.setParams({ postId: currentPost.value.id })
+}
+function memberClick({ btn, event }: any) {
+  if (btn.name == 'back') {
     memberVisible.value = false
   }
+  if (btn.name == 'add') {
+    userSelectVisible.value = true
+  }
 }
-const memberVisible=ref(false)
+const memberVisible = ref(false)
+const userSelectVisible = ref(false)
+const currentPost = ref<any>(null)
 const defineMember = ref({
   storage: {
     controller: '/api/system/userPost'
@@ -150,11 +188,13 @@ const defineMember = ref({
       name: 'timeLeave'
     }
   ],
-  queryBtns:[{
-    name:'back',
-    title:'返回',
-    index:4
-  }],
+  queryBtns: [
+    {
+      name: 'back',
+      title: '返回',
+      index: 4
+    }
+  ],
   operation: {
     title: '操作',
     width: 100,
@@ -171,8 +211,22 @@ const defineMember = ref({
     count: 4
   }
 })
-
-
+// 选择用户
+function handelOk(event: any) {
+  console.log('handel user selected', event)
+  axios
+    .admin({
+      url: '/api/system/userPost/save',
+      method: 'post',
+      data: {
+        postId: event.targetValue,
+        users: event.userList
+      }
+    })
+    .then((res: any) => {
+      member.value.reload()
+    })
+}
 </script>
 
 <style scoped lang="less"></style>
