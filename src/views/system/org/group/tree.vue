@@ -7,9 +7,10 @@
     @btnClick="btnClick"
     @treeClick="treeClick"
   >
-    <template #form-warp v-if="memberVisible">
+    <template #form-warp v-if="memberVisible && currentGroup?.id">
       <unione-page-list
         v-bind="defineMember"
+        :params="{ groupId: currentGroup.id }"
         @btnClick="memberClick"
         ref="member"
       ></unione-page-list>
@@ -118,7 +119,7 @@ function btnClick({ btn, event }: any) {
 function treeClick({ keys, event }: any) {
   console.log('tree click', keys, event)
   currentGroup.value = event.node
-  member.value?.reload({ params: { groupId: currentGroup.value.id } })
+  member.value?.setParams({ groupId: currentGroup.value.id })
 }
 
 function memberClick({ btn, event }: any) {
@@ -135,7 +136,8 @@ const userSelectVisible = ref(false)
 const currentGroup = ref<any>(null)
 const defineMember = ref({
   storage: {
-    controller: '/api/system/groupMember'
+    controller: '/api/system/groupMember',
+    findParams: [{ name: 'groupId' }]
   },
   fields: [
     {
