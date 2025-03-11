@@ -118,6 +118,7 @@ function btnClick({ btn, event }: any) {
 function treeClick({ keys, event }: any) {
   console.log('tree click', keys, event)
   currentGroup.value = event.node
+  member.value?.reload({ params: { groupId: currentGroup.value.id } })
 }
 
 function memberClick({ btn, event }: any) {
@@ -175,7 +176,7 @@ const defineMember = ref({
       name: 'timeJoin'
     },
     {
-      title: '加入时间',
+      title: '离开时间',
       name: 'timeLeave'
     }
   ],
