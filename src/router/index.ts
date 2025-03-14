@@ -114,6 +114,19 @@ export const local: Array<MenuItem> = [
             path: '/system/base/apps/res',
             hidden: true,
             component: () => import('@/views/system/base/apps/res.vue')
+          },
+          {
+            sid: '20000101102',
+            title: '层级树管理',
+            path: '/system/base/ctree',
+            component: () => import('@/views/system/base/ctree/list.vue')
+          },
+          {
+            sid: '2000010110201',
+            title: '层级编码管理',
+            path: '/system/base/ctree/lvsn',
+            hidden: true,
+            component: () => import('@/views/system/base/ctree/lvsn.vue')
           }
         ]
       },
