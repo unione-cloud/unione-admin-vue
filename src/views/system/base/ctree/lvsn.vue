@@ -11,44 +11,53 @@ import { ref } from 'vue'
 const page = ref()
 const define = ref({
   storage: {
-    controller: '/api/system/codeTree'
+    controller: '/api/system/codeTree',
+    findUrl: '/lvsn'
   },
   fields: [
     {
       title: '应用名称',
-      name: 'appName',
-      isQuery: true
+      name: 'appName'
     },
     {
       title: '树标题',
-      name: 'title',
-      isQuery: true
+      name: 'treeTitle'
     },
     {
       title: '树编码',
-      name: 'sn',
-      isQuery: true
+      name: 'treeSn'
     },
     {
       title: '类型',
-      name: 'types',
+      name: 'lvType',
       convert: {
         types: 'dict',
         dictName: 'CODETREETYPE'
-      },
-      isQuery: true
+      }
     },
     {
       title: '租户名称',
-      name: 'tenantName'
+      name: 'tenantName',
+      customRender: (row: any) => {
+        if (row.lvType != 1) {
+          return '--'
+        }
+        return row.tenantName || '--'
+      }
     },
     {
       title: '机构名称',
-      name: 'organName'
+      name: 'orgName',
+      customRender: (row: any) => {
+        if (row.lvType != 2) {
+          return '--'
+        }
+        return row.organName || '--'
+      }
     },
     {
-      title: '所在层级',
-      name: 'lvNum'
+      title: '最大层级',
+      name: 'currentMaxLv'
     },
     {
       title: '当前编码',
