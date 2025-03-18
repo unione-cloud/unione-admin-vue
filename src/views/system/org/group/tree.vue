@@ -30,6 +30,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { axios } from 'unione-base-vue'
+import { validateSearch } from 'ant-design-vue/es/vc-mentions/src/util'
 
 const page = ref() // pageTree dom ref obj
 const member = ref() // member dom ref obj
@@ -64,7 +65,8 @@ const unionePage = ref<any>({
     {
       title: '显示顺序',
       name: 'ordered',
-      control: 'a-input-number'
+      control: 'a-input-number',
+      value: 1
     },
     {
       title: '分组状态',
@@ -99,14 +101,7 @@ const unionePage = ref<any>({
   },
   event: {
     createNode: (node: any, parent: any, params: any) => {
-      if (parent) {
-        node.level = parent.level + 1
-        node.types = parent.types
-      } else {
-        node.level = 0
-      }
       node.isLeaf = 1
-      node.ordered = 0
     }
   }
 })

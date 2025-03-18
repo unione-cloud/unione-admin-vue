@@ -64,7 +64,8 @@ const unionePage = ref<any>({
     {
       title: '显示顺序',
       name: 'ordered',
-      control: 'a-input-number'
+      control: 'a-input-number',
+      value: 1
     },
     {
       title: '岗位状态',
@@ -104,14 +105,7 @@ const unionePage = ref<any>({
   },
   event: {
     createNode: (node: any, parent: any, params: any) => {
-      if (parent) {
-        node.level = parent.level + 1
-        node.types = parent.types
-      } else {
-        node.level = 0
-      }
       node.isLeaf = 1
-      node.ordered = 0
       memberVisible.value = false
     }
   }
