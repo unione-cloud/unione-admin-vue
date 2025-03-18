@@ -40,7 +40,11 @@ const define = ref({
         types: 'dict',
         dictName: 'LOGTYPE'
       },
-      isQuery: true
+      isQuery: true,
+      sort: {
+        enable: true,
+        multiple: 2
+      }
     },
     {
       title: '操作状态',
@@ -49,7 +53,11 @@ const define = ref({
         types: 'dict',
         dictName: 'LOGSTATUS'
       },
-      isQuery: true
+      isQuery: true,
+      sort: {
+        enable: true,
+        multiple: 2
+      }
     },
     {
       title: '操作标题',
@@ -59,7 +67,10 @@ const define = ref({
     {
       title: 'IP地址',
       name: 'ip',
-      isQuery: true
+      isQuery: true,
+      sort: {
+        enable: true
+      }
     },
     {
       title: '用户账号',
@@ -80,7 +91,8 @@ const define = ref({
       sort: {
         enable: true,
         defoult: true,
-        asc: false
+        asc: false,
+        multiple: 3
       }
     },
     {
@@ -90,7 +102,11 @@ const define = ref({
     {
       title: '操作ID',
       name: 'actionId',
-      isQuery: true
+      isQuery: true,
+      sort: {
+        enable: true,
+        multiple: 1
+      }
     },
     {
       title: '请求ID',
@@ -101,7 +117,7 @@ const define = ref({
   rightBtns: ['downTmpl', 'impData'],
   operation: {
     title: '操作',
-    width: 100,
+    width: 80,
     btns: [
       {
         name: 'edit',
