@@ -185,7 +185,7 @@ export const local: Array<MenuItem> = [
         ]
       },
       {
-        sid: '20000103',
+        sid: '20000900',
         title: '租户管理',
         path: '/system/tenant',
         meta: {
@@ -193,10 +193,26 @@ export const local: Array<MenuItem> = [
         },
         children: [
           {
-            sid: '20000103001',
+            sid: '20000900001',
             title: '租户列表',
             path: '/system/tenant/list',
             component: () => import('@/views/system/tenant/list/index.vue')
+          }
+        ]
+      },
+      {
+        sid: '20000901',
+        title: '运维管理',
+        path: '/system/ops',
+        meta: {
+          icon: 'MailOutlined'
+        },
+        children: [
+          {
+            sid: '20000901001',
+            title: '日志管理',
+            path: '/system/ops/logs',
+            component: () => import('@/views/system/ops/logs/list.vue')
           }
         ]
       }
