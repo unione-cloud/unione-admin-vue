@@ -10,7 +10,7 @@
       :placement="drawer.placement"
       class="drawer-form"
     >
-      <unione-form :form="drawer.form" ref="form"></unione-form>
+      <unione-form :form="drawer.form" ref="form" class="logger-form"></unione-form>
 
       <div class="btns">
         <a-button @click="drawer.visible = false">关闭</a-button>
@@ -141,15 +141,18 @@ function btnClick({ btn, event, row, keys }: any) {
     drawer.value.visible = true
     drawer.value.title = '查看日志'
     drawer.value.placement = 'right'
-    drawer.value.row = row
+    drawer.value.row = { ...row }
+    if (drawer.value.row.contents) {
+      drawer.value.row.contents = drawer.value.row.contents.replace(/\n/g, '<br>')
+    }
     nextTick(() => {
-      form.value.setValue(row)
+      form.value.setValue(drawer.value.row)
     })
   }
 }
 
 const form = ref() //form ref obj
-const drawer = ref({
+const drawer = ref<any>({
   title: '查看日志',
   placement: 'right',
   visible: false,
@@ -216,7 +219,8 @@ const drawer = ref({
       {
         title: '日志内容',
         name: 'contents',
-        control: 'a-textarea'
+        control: 'a-textarea',
+        view: 'html'
       },
       {
         title: '异常信息',
@@ -224,9 +228,10 @@ const drawer = ref({
         control: 'a-textarea'
       }
     ],
+    model: 'view',
     setting: {
       showColumn: 1,
-      labelWidth: 5
+      labelWidth: 3
     }
   }
 })
@@ -239,6 +244,33 @@ const drawer = ref({
 
     :deep(.ant-btn) {
       margin: 5px 10px;
+    }
+  }
+
+  .logger-form {
+    :deep(.form-item-contents) {
+      .ant-form-row {
+        display: inline-block;
+        .ant-form-item-control {
+          display: inline;
+          .text-view {
+            padding: 5px;
+            background-color: #f4f4f4;
+          }
+        }
+      }
+    }
+    :deep(.form-item-errorMessage, ) {
+      .ant-form-row {
+        display: inline-block;
+
+        .text-view {
+          padding: 5px;
+          overflow: scroll;
+          background-color: #f4f4f4;
+          width: 575px;
+        }
+      }
     }
   }
 }
