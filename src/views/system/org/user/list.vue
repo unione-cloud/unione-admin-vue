@@ -34,22 +34,22 @@ const define = ref({
     {
       title: '机构名称',
       name: 'orgName',
-      isQuery:true
+      isQuery: true
     },
     {
       title: '用户姓名',
       name: 'realName',
-      isQuery:true
+      isQuery: true
     },
     {
       title: '用户帐号',
       name: 'username',
-      isQuery:true
+      isQuery: true
     },
     {
       title: '手机号',
       name: 'tel',
-      isQuery:true
+      isQuery: true
     },
     {
       title: '性别',
@@ -58,7 +58,8 @@ const define = ref({
         types: 'dict',
         dictName: 'SEX'
       },
-      isQuery:true
+      control: 'unione-select-box',
+      isQuery: true
     },
     {
       title: '用户类型',
@@ -67,7 +68,7 @@ const define = ref({
         types: 'dict',
         dictName: 'USERTYPE'
       },
-      isQuery:true
+      isQuery: true
     },
     {
       title: '用户状态',
@@ -76,7 +77,7 @@ const define = ref({
         types: 'dict',
         dictName: 'USERSTATUS'
       },
-      isQuery:true
+      isQuery: true
     },
     {
       title: '创建时间',
@@ -85,7 +86,7 @@ const define = ref({
     {
       title: '修改时间',
       name: 'lastUpdated'
-    },
+    }
   ],
   operation: {
     title: '操作',
@@ -97,18 +98,18 @@ const define = ref({
       },
       {
         name: 'status',
-        title:(row:any)=>{
+        title: (row: any) => {
           return row.status == 1 ? '禁用' : '启用'
         }
       },
       {
         name: 'rolelist',
-        title: '角色列表',
+        title: '角色列表'
       },
       {
         name: 'resetpwd',
-        title: '重置密码',
-      },
+        title: '重置密码'
+      }
     ],
     count: 2,
     more: {
@@ -137,7 +138,7 @@ function btnClick({ btn, event, row, keys }: any) {
       form.value.setValue(row)
     })
   }
-  if(btn.name == 'rolelist'){
+  if (btn.name == 'rolelist') {
     router.push({
       path: '/system/org/user/rolelist',
       query: {
@@ -155,7 +156,7 @@ const drawer = ref({
   row: {},
   form: {
     fields: [
-    {
+      {
         title: '所属机构',
         name: 'orgId',
         required: true,
@@ -257,10 +258,13 @@ const drawer = ref({
         ...drawer.value.row,
         ...data
       }
-      page.value.storage().save({ data }).then(() => {
-        drawer.value.visible = false
-        page.value.reload()
-      })
+      page.value
+        .storage()
+        .save({ data })
+        .then(() => {
+          drawer.value.visible = false
+          page.value.reload()
+        })
     })
   }
 })
