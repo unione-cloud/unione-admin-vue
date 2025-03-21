@@ -1,0 +1,109 @@
+<!-- eslint-disable vue/multi-word-component-names -->
+<template>
+  <div class="unione-page unione-page-list unione-system-userlist">
+    <unione-page-list ref="page" v-bind="define" @btnClick="btnClick"></unione-page-list>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { nextTick, ref } from 'vue'
+import { useRouter, type Router } from 'vue-router'
+
+const router: Router = useRouter()
+const page = ref()
+const define = ref({
+  storage: {
+    controller: '/api/system/userRole'
+  },
+  fields: [
+    {
+      title: '角色名称',
+      name: 'roleName'
+    },
+    {
+      title: '角色编码',
+      name: 'roleSn'
+    },
+    {
+      title: '机构名称',
+      name: 'orgName'
+    },
+    {
+      title: '用户帐号',
+      name: 'username',
+      isQuery: true
+    },
+    {
+      title: '用户姓名',
+      name: 'realName',
+      isQuery: true
+    },
+    {
+      title: '用户状态',
+      name: 'status',
+      control: 'unione-switch-box',
+      defaultValue: 1,
+      convert: {
+        types: 'dict',
+        dictName: 'USEORNOT'
+      },
+      isQuery: true
+    },
+    {
+      title: '用户性别',
+      name: 'sex',
+      control: 'unione-switch-box',
+      value: 1,
+      convert: {
+        types: 'dict',
+        dictName: 'SEX'
+      }
+    },
+    {
+      title: '分配时间',
+      name: 'created'
+    }
+  ],
+  rightBtns: false,
+  queryBtns: [
+    {
+      name: 'back',
+      title: '返回',
+      index: 4
+    }
+  ],
+  operation: {
+    title: '操作',
+    width: 100,
+    btns: [
+      {
+        name: 'view',
+        visible: false
+      },
+      {
+        name: 'edit',
+        visible: false
+      }
+    ],
+    count: 4
+  }
+})
+
+function btnClick({ btn }: any) {
+  if (btn.name == 'back') {
+    router.back()
+  }
+}
+</script>
+
+<style scoped lang="less">
+.drawer-form {
+  .btns {
+    text-align: center;
+
+    :deep(.ant-btn) {
+      margin: 5px 10px;
+    }
+  }
+}
+</style>

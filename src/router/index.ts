@@ -185,6 +185,35 @@ export const local: Array<MenuItem> = [
         ]
       },
       {
+        sid: '20000103',
+        title: '权限管理',
+        path: '/system/permis',
+        meta: {
+          icon: 'MailOutlined'
+        },
+        children: [
+          {
+            sid: '20000103001',
+            title: '用户权限',
+            path: '/system/permis/user',
+            component: () => import('@/views/system/permis/user/list.vue')
+          },
+          {
+            sid: '20000103002',
+            title: '角色权限',
+            path: '/system/permis/role',
+            component: () => import('@/views/system/permis/role/list.vue')
+          },
+          {
+            sid: '20000103003',
+            title: '用户列表',
+            path: '/system/permis/role/users',
+            hidden: true,
+            component: () => import('@/views/system/permis/role/users.vue')
+          }
+        ]
+      },
+      {
         sid: '20000900',
         title: '租户管理',
         path: '/system/tenant',
