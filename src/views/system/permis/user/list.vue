@@ -3,56 +3,7 @@
   <div class="unione-page unione-page-list unione-system-user-permis">
     <unione-page-list ref="page" v-bind="define" @btnClick="btnClick"></unione-page-list>
 
-    <a-drawer
-      :title="drawer.title"
-      :width="900"
-      v-model:visible="drawer.visible"
-      :placement="drawer.placement"
-      class="drawer-form"
-    >
-      <div class="warp">
-        <a-row>
-          <a-col :span="16">
-            <unione-page-list
-              ref="rolelist"
-              v-bind="defineRoleList"
-              @btnClick="btnClick"
-            ></unione-page-list>
-          </a-col>
-          <a-col :span="8">
-            <a-list size="small" bordered :data-source="hadRoleList">
-              <template #renderItem="{ item }">
-                <a-list-item>{{ item }}</a-list-item>
-              </template>
-              <template #header>
-                <div>已有角色</div>
-              </template>
-            </a-list>
-            <a-list size="small" bordered :data-source="addRoleList" style="margin-top: 10px">
-              <template #renderItem="{ item }">
-                <a-list-item>{{ item }}</a-list-item>
-              </template>
-              <template #header>
-                <div>新增角色</div>
-              </template>
-            </a-list>
-            <a-list size="small" bordered :data-source="delRoleList" style="margin-top: 10px">
-              <template #renderItem="{ item }">
-                <a-list-item>{{ item }}</a-list-item>
-              </template>
-              <template #header>
-                <div>删除角色</div>
-              </template>
-            </a-list>
-          </a-col>
-        </a-row>
-      </div>
-
-      <div class="btns">
-        <a-button type="primary" @click="drawer.tosave">保存</a-button>
-        <a-button @click="drawer.visible = false">取消</a-button>
-      </div>
-    </a-drawer>
+    <RoleSelect v-model:visible="roleSelectVisible" position="right" @ok="handelOk"></RoleSelect>
   </div>
 </template>
 
@@ -155,10 +106,7 @@ const define = ref({
 function btnClick({ btn, event, row, keys }: any) {
   console.log('table btn click', btn, event, row)
   if (btn.name == 'role-assign') {
-    drawer.value.visible = true
-    drawer.value.title = '角色分配'
-    drawer.value.placement = 'right'
-    drawer.value.row = row
+    roleSelectVisible.value = true
   }
   if (btn.name == 'assignBatch') {
     const selected = rolelist.value.getSelected()
@@ -174,66 +122,11 @@ function btnClick({ btn, event, row, keys }: any) {
   }
 }
 
-const defineRoleList = ref({
-  storage: {
-    controller: '/api/system/role'
-  },
-  fields: [
-    {
-      title: '类型',
-      name: 'types',
-      control: 'unione-select-box',
-      value: 0,
-      convert: {
-        types: 'dict',
-        dictName: 'ROLETYPE'
-      }
-    },
-    {
-      title: '名称',
-      name: 'name'
-    },
-    {
-      title: '编码',
-      name: 'sn'
-    }
-  ],
-  leftBtns: false,
-  rightBtns: false,
-  queryBtns: [
-    {
-      name: 'assignBatch',
-      title: '批量分配',
-      type: 'primary',
-      icon: 'PlusOutlined'
-    }
-  ],
-  operation: {
-    title: '操作',
-    width: 90,
-    btns: [
-      'view',
-      'edit',
-      'delete',
-      {
-        name: 'assign',
-        title: '分配'
-      }
-    ],
-    count: 4
-  }
-})
-
-const hadRoleList = ref<Array<any>>([])
-const addRoleList = ref<Array<any>>([])
-const delRoleList = ref<Array<any>>([])
-const drawer = ref({
-  title: '新增用户',
-  placement: 'left',
-  visible: false,
-  row: {},
-  tosave: () => {}
-})
+const roleSelectVisible = ref(false)
+function handelOk(e: any) {
+  console.log('role select ok', e)
+  roleSelectVisible.value = false
+}
 </script>
 
 <style scoped lang="less">

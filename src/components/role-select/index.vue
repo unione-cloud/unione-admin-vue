@@ -7,14 +7,9 @@
     :placement="props.position"
     :maskClosable="false"
     :bodyStyle="{ padding: 0 }"
-    class="user-select user-select-drawer"
+    class="role-select role-select-drawer"
   >
-    <userList
-      :typeList="typeList"
-      :targetType="targetType"
-      :targetValue="targetValue"
-      ref="userListObj"
-    ></userList>
+    <roleList :targetType="targetType" :targetValue="targetValue" ref="roleListObj"></roleList>
 
     <template #footer>
       <a-button type="primary" @click="handelOk">确定</a-button>
@@ -28,37 +23,28 @@
     v-model:open="visible"
     :centered="props.position == 'center'"
     :maskClosable="false"
-    class="user-select user-select-dialog"
+    class="role-select role-select-dialog"
     @ok="handelOk"
   >
-    <userList
-      :typeList="typeList"
-      :targetType="targetType"
-      :targetValue="targetValue"
-      ref="userListObj"
-    ></userList>
+    <roleList :targetType="targetType" :targetValue="targetValue" ref="roleListObj"></roleList>
   </a-modal>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useDialog } from 'unione-base-vue'
-import userList from './user-list.vue'
+import roleList from './role-list.vue'
 
 const dialog = useDialog()
 
-defineOptions({ name: 'UserSelect' })
+defineOptions({ name: 'RoleSelect' })
 const props = defineProps({
   title: {
     type: String,
-    default: '用户选择'
-  },
-  typeList: {
-    type: Array<String>,
-    default: () => ['organ', 'role', 'group', 'post']
+    default: '角色选择'
   },
   targetType: {
-    type: String // organ | role | group | post
+    type: String // user
   },
   targetValue: {
     type: String
@@ -79,22 +65,22 @@ const props = defineProps({
 const visible = defineModel('visible')
 
 const emit = defineEmits(['ok'])
-const userListObj = ref()
+const roleListObj = ref()
 function handelOk() {
-  const selected = userListObj.value.getSelected()
-  if (selected?.ids?.length > 0) {
+  const selected = roleListObj.value.getSelected()
+  if (selected?.userIds?.length > 0) {
     visible.value = false
-    console.log('user selcect ok', selected)
+    console.log('role selcect ok', selected)
     emit('ok', { ...selected, targetType: props.targetType, targetValue: props.targetValue })
     return
   }
-  dialog.warning({ content: '请选择用户' })
+  dialog.warning({ content: '请选择角色' })
 }
 </script>
 
 <style lang="less" scoped>
-.user-select {
-  &.user-select-drawer {
+.role-select {
+  &.role-select-drawer {
     .ant-drawer-footer {
       .ant-btn {
         float: right;

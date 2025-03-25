@@ -1,5 +1,5 @@
 <template>
-  <a-row class="user-list">
+  <a-row class="user-list-warp">
     <a-col :span="13" class="type-list">
       <a-tabs
         v-model:activeKey="activeType"
@@ -264,29 +264,29 @@ onMounted(() => {
 
 function getSelected() {
   return {
-    userList: selectedUsers.value,
-    userIds: selectedUsers.value.map((item: any) => {
+    list: selectedUsers.value,
+    ids: selectedUsers.value.map((item: any) => {
       return item.id
     })
   }
 }
-function getSelectedUserList() {
+function getSelectedList() {
   return selectedUsers.value
 }
-function getSelectedUserIds() {
+function getSelectedIds() {
   return selectedUsers.value.map((item: any) => {
     return item.id
   })
 }
 defineExpose({
   getSelected,
-  getSelectedUserList,
-  getSelectedUserIds
+  getSelectedList,
+  getSelectedIds
 })
 </script>
 
 <style lang="less" scoped>
-.user-list {
+.user-list-warp {
   height: 100%;
 
   .type-list {

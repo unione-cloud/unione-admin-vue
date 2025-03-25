@@ -212,7 +212,7 @@ function handelOk(event: any) {
       method: 'post',
       data: {
         groupId: event.targetValue,
-        users: event.userList
+        users: event.list
       }
     })
     .then((res: any) => {
