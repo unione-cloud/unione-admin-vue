@@ -74,8 +74,6 @@ const roleListObj = ref()
 function handelOk() {
   const selected = roleListObj.value.getSelected()
   if (selected?.ids?.length > 0) {
-    visible.value = false
-    console.log('role selcect ok', selected)
     emit('ok', { ...selected, targetType: props.targetType, targetValue: props.targetValue })
     return
   }

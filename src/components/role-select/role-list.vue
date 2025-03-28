@@ -36,7 +36,7 @@
                 <a-tooltip placement="top" title="是否可传递" v-if="targetType == 'permis'">
                   <a-switch
                     size="small"
-                    v-model:checked="item.checked"
+                    v-model:checked="item.enDilivery"
                     class="isDlv"
                     checkedChildren="是"
                     unCheckedChildren="否"
@@ -110,6 +110,7 @@ function loadTreeData() {
       dataList.value.forEach((item: any) => {
         treeNode.value[item.id] = item
         item.isLeaf = true
+        item.enDilivery = item.enDilivery == 1 ? true : false
         if (item.checked) {
           checkedKeys.value.push(item.id)
         }
@@ -181,7 +182,9 @@ onMounted(() => {
 
 function getSelected() {
   return {
-    list: selectedTarget.value,
+    list: selectedTarget.value.map((item: any) => {
+      return { ...item, enDilivery: item.enDilivery ? 1 : 0 }
+    }),
     ids: selectedTarget.value.map((item: any) => {
       return item.id
     })

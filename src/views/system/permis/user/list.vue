@@ -136,7 +136,7 @@ const roleSelectVisible = ref(false)
 function handelOk(e: any) {
   console.log('role select ok', e, targetObj.value)
   const roles = e.list.map((item: any) => {
-    return { id: item.id, enDilivery: item.checked ? 1 : 0 }
+    return { id: item.id, enDilivery: item.enDilivery }
   })
   axios
     .admin({
