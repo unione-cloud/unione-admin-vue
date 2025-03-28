@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useDialog } from 'unione-base-vue'
 import roleList from './role-list.vue'
 
@@ -63,6 +63,11 @@ const props = defineProps({
   }
 })
 const visible = defineModel('visible')
+watch(visible, (val) => {
+  if (val) {
+    roleListObj.value?.loadTreeData()
+  }
+})
 
 const emit = defineEmits(['ok'])
 const roleListObj = ref()

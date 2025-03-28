@@ -33,6 +33,15 @@
           <a-list-item>
             <a-list-item-meta>
               <template #title>
+                <a-tooltip placement="top" title="是否可传递" v-if="targetType == 'permis'">
+                  <a-switch
+                    size="small"
+                    v-model:checked="item.checked"
+                    class="isDlv"
+                    checkedChildren="是"
+                    unCheckedChildren="否"
+                  ></a-switch>
+                </a-tooltip>
                 <div>名称：{{ item.title }}</div>
                 <div>编码：{{ item.sn }}</div>
                 <DeleteOutlined class="btn" @click="delSelect(index, item)" />
@@ -81,6 +90,9 @@ const treeData = ref<any>([])
 const dataList = ref<any>([])
 function loadTreeData() {
   dataList.value = []
+  checkedKeys.value = []
+  selectedKeys.value = []
+  selectedTarget.value = []
   axios
     .admin({
       url: `/api/selector/role/list/` + props.targetType,
@@ -184,6 +196,7 @@ function getSelectedIds() {
   })
 }
 defineExpose({
+  loadTreeData,
   getSelected,
   getSelectedList,
   getSelectedIds
@@ -221,6 +234,9 @@ defineExpose({
         float: right;
         cursor: pointer;
         color: rgba(0, 0, 0, 0.88);
+      }
+      .isDlv {
+        float: right;
       }
     }
     :deep(.ant-list-item:hover) {

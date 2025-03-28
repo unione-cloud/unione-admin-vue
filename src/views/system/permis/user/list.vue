@@ -16,7 +16,9 @@
 <script setup lang="ts">
 import { nextTick, ref } from 'vue'
 import { useRouter, type Router } from 'vue-router'
+import { axios, useDialog } from 'unione-base-vue'
 
+const dialog = useDialog()
 const router: Router = useRouter()
 const page = ref()
 const rolelist = ref()
@@ -133,7 +135,19 @@ const targetObj = ref<any>(null)
 const roleSelectVisible = ref(false)
 function handelOk(e: any) {
   console.log('role select ok', e, targetObj.value)
-  roleSelectVisible.value = false
+  const roles = e.list.map((item: any) => {
+    return { id: item.id, enDilivery: item.checked ? 1 : 0 }
+  })
+  axios
+    .admin({
+      url: `/api/system/userRole/save`,
+      method: 'post',
+      data: { userId: targetObj.value.id, roles }
+    })
+    .then(() => {
+      dialog.success('角色分配成功')
+      roleSelectVisible.value = false
+    })
 }
 </script>
 
