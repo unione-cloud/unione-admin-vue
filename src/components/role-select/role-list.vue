@@ -23,7 +23,7 @@
         @check="onCheck"
       >
         <template #icon="{ dataRef }">
-          <component :is="dataRef.ntype == 0 ? 'FilterOutlined' : 'IdcardOutlined'"></component>
+          <component :is="dataRef.rtype == 0 ? 'FilterOutlined' : 'IdcardOutlined'"></component>
         </template>
       </a-tree>
     </a-col>
@@ -80,51 +80,44 @@ const treeNode = ref<any>({})
 const treeData = ref<any>([])
 const dataList = ref<any>([])
 function loadTreeData() {
-  dataList.value = [
-    {
-      title: '超级管理员',
-      id: '1',
-      sn: 'super-admin',
-      ntype: 1,
-      descs: '超级管理员角色'
-    },
-    {
-      title: '租户管理员',
-      id: '2',
-      sn: 'tenant-admin',
-      ntype: 1,
-      descs: '租户管理员角色'
-    },
-    {
-      title: '开发人员',
-      id: '3',
-      sn: 'dev-user',
-      ntype: 2,
-      descs: '开发人员角色'
-    },
-    {
-      title: '设计人员',
-      id: '4',
-      sn: 'design-user',
-      ntype: 2,
-      descs: '设计人员角色'
-    }
-  ]
-  dataList.value.forEach((item: any) => {
-    treeNode.value[item.id] = item
-    item.isLeaf = true
-  })
-  searchTreeData()
+  dataList.value = []
+  axios
+    .admin({
+      url: `/api/selector/role/list/` + props.targetType,
+      method: 'post',
+      data: {
+        body: props.targetValue,
+        keywords: treeKeywords.value
+      }
+    })
+    .then((res: any) => {
+      if (!res.body) {
+        return
+      }
+      dataList.value = res.body
+      dataList.value.forEach((item: any) => {
+        treeNode.value[item.id] = item
+        item.isLeaf = true
+        if (item.checked) {
+          checkedKeys.value.push(item.id)
+        }
+      })
+      searchTreeData()
+      // 回显已有角色
+      if (checkedKeys.value.length > 0) {
+        onCheck(checkedKeys.value)
+      }
+    })
 }
 function searchTreeData() {
-  // ntype  1平台，2租户，3机构，9其他
+  // rtype  1平台，2租户，3机构，9其他
   treeData.value = []
   Object.keys(typeMap.value).forEach((type: any) => {
     typeMap.value[type].data = []
   })
   dataList.value.forEach((item: any) => {
     if (!treeKeywords.value || (treeKeywords.value && item.title.includes(treeKeywords.value))) {
-      typeMap.value[item.ntype]?.data?.push(item)
+      typeMap.value[item.rtype]?.data?.push(item)
     }
   })
   console.log('typeMap', typeMap.value)
@@ -133,7 +126,7 @@ function searchTreeData() {
       const item = {
         title: typeMap.value[type].title,
         id: 'type:' + type,
-        ntype: 0,
+        rtype: 0,
         children: typeMap.value[type].data,
         isLeaf: false
       }
@@ -145,13 +138,12 @@ function searchTreeData() {
 }
 
 const selectedTarget = ref<any>([])
-function loadSelected() {}
 function onCheck(keys: any) {
   selectedTarget.value = []
   checkedKeys.value = keys
   checkedKeys.value.forEach((key: any) => {
     const node = treeNode.value[key]
-    if (node?.ntype && node.isLeaf != false && !node.disabled) {
+    if (node?.rtype && node.isLeaf != false && !node.disabled) {
       selectedTarget.value.push(node)
     }
   })

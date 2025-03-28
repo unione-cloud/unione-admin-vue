@@ -3,7 +3,13 @@
   <div class="unione-page unione-page-list unione-system-user-permis">
     <unione-page-list ref="page" v-bind="define" @btnClick="btnClick"></unione-page-list>
 
-    <RoleSelect v-model:visible="roleSelectVisible" position="right" @ok="handelOk"></RoleSelect>
+    <RoleSelect
+      v-model:visible="roleSelectVisible"
+      targetType="permis"
+      :targetValue="targetObj?.id"
+      position="right"
+      @ok="handelOk"
+    ></RoleSelect>
   </div>
 </template>
 
@@ -107,6 +113,7 @@ function btnClick({ btn, event, row, keys }: any) {
   console.log('table btn click', btn, event, row)
   if (btn.name == 'role-assign') {
     roleSelectVisible.value = true
+    targetObj.value = row
   }
   if (btn.name == 'assignBatch') {
     const selected = rolelist.value.getSelected()
@@ -122,9 +129,10 @@ function btnClick({ btn, event, row, keys }: any) {
   }
 }
 
+const targetObj = ref<any>(null)
 const roleSelectVisible = ref(false)
 function handelOk(e: any) {
-  console.log('role select ok', e)
+  console.log('role select ok', e, targetObj.value)
   roleSelectVisible.value = false
 }
 </script>
