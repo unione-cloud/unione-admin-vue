@@ -7,7 +7,7 @@
     <UserSelect
       v-model:visible="userSelectVisible"
       position="left"
-      targetType="role"
+      targetType="roleAssign"
       :targetValue="currentRole"
       @ok="handelOk"
     ></UserSelect>

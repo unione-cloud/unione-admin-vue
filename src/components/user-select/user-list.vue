@@ -89,7 +89,7 @@ const props = defineProps({
     default: () => ['organ', 'role', 'group', 'post']
   },
   targetType: {
-    type: String // organ | role | group | post
+    type: String // organ | role | roleAssign | group | post
   },
   targetValue: {
     type: String
@@ -123,7 +123,10 @@ const userKeywords = ref<any>()
 
 const treeNode = ref<any>({})
 const treeData = ref<any>({})
-function loadTreeData(type: 'organ' | 'role' | 'group' | 'post' | 'user', pid: string) {
+function loadTreeData(
+  type: 'organ' | 'role' | 'roleAssign' | 'group' | 'post' | 'user',
+  pid: string
+) {
   if (!pid || pid == '-1') {
     if (treeData.value[type]?.length > 0) {
       return
@@ -135,16 +138,22 @@ function loadTreeData(type: 'organ' | 'role' | 'group' | 'post' | 'user', pid: s
       return
     }
   }
+  let data: any = {
+    body: pid ? pid : -1,
+    keywords: treeKeywords.value[type],
+    page: 1,
+    pageSize: 1000
+  }
+  let url = `/api/selector/${type}/${type == 'role' ? 'node' : 'tree'}/-1`
+  if (props.targetType == 'roleAssign' && type == 'role') {
+    url = `/api/selector/role/list/assign`
+    data = {}
+  }
   axios
     .admin({
-      url: `/api/selector/${type}/${type == 'role' ? 'node' : 'tree'}/-1`,
+      url,
       method: 'post',
-      data: {
-        body: pid ? pid : -1,
-        keywords: treeKeywords.value[type],
-        page: 1,
-        pageSize: 1000
-      }
+      data
     })
     .then((res: any) => {
       let target: any = []
@@ -196,7 +205,7 @@ function loadUserList(pid: string) {
         body: {
           pid: pid,
           ntype: activeType.value,
-          targetType: props.targetType,
+          targetType: props.targetType == 'roleAssign' ? 'role' : props.targetType,
           targetId: props.targetValue
         },
         keywords: userKeywords.value,
@@ -256,11 +265,15 @@ function delSelect(index: number, item: any) {
 }
 
 onMounted(() => {
+  init()
+})
+
+function init() {
   Object.keys(typeMap.value).forEach((type: any) => {
     treeData.value[type] = []
   })
   loadTreeData(activeType.value, '-1')
-})
+}
 
 function getSelected() {
   return {
@@ -279,6 +292,7 @@ function getSelectedIds() {
   })
 }
 defineExpose({
+  init,
   getSelected,
   getSelectedList,
   getSelectedIds

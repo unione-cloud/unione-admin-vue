@@ -123,7 +123,7 @@ function loadTreeData() {
     })
 }
 function searchTreeData() {
-  // rtype  1平台，2租户，3机构，9其他
+  // rtype  1平台，2租户，3机构
   treeData.value = []
   Object.keys(typeMap.value).forEach((type: any) => {
     typeMap.value[type].data = []

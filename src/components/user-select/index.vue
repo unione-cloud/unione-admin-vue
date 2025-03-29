@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useDialog } from 'unione-base-vue'
 import userList from './user-list.vue'
 
@@ -58,7 +58,7 @@ const props = defineProps({
     default: () => ['organ', 'role', 'group', 'post']
   },
   targetType: {
-    type: String // organ | role | group | post
+    type: String // organ | role | roleAssign | group | post
   },
   targetValue: {
     type: String
@@ -77,6 +77,11 @@ const props = defineProps({
   }
 })
 const visible = defineModel('visible')
+watch(visible, (val) => {
+  if (val) {
+    userListObj.value?.init()
+  }
+})
 
 const emit = defineEmits(['ok'])
 const userListObj = ref()
