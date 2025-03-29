@@ -2,14 +2,27 @@
 <template>
   <div class="unione-page unione-page-list unione-system-userlist">
     <unione-page-list ref="page" v-bind="define" @btnClick="btnClick"></unione-page-list>
+
+    <!-- 用户选择组件 -->
+    <UserSelect
+      v-model:visible="userSelectVisible"
+      position="left"
+      targetType="role"
+      :targetValue="currentRole"
+      @ok="handelOk"
+    ></UserSelect>
   </div>
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref } from 'vue'
-import { useRouter, type Router } from 'vue-router'
+import { computed, nextTick, ref } from 'vue'
+import { useRoute, useRouter, type Router, type Route } from 'vue-router'
+import { axios, useDialog } from 'unione-base-vue'
 
 const router: Router = useRouter()
+const route: Route = useRoute()
+const dialog = useDialog()
+
 const page = ref()
 const define = ref({
   storage: {
@@ -93,6 +106,38 @@ function btnClick({ btn }: any) {
   if (btn.name == 'back') {
     router.back()
   }
+  if (btn.name == 'add') {
+    if (currentRole.value) {
+      userSelectVisible.value = true
+    } else {
+      dialog.error('角色ID不能为空')
+    }
+  }
+}
+
+const currentRole = computed(() => {
+  return route.params.roleId || route.query.roleId
+})
+const userSelectVisible = ref(false)
+// 选择用户
+function handelOk(event: any) {
+  console.log('handel user selected', event)
+  axios
+    .admin({
+      url: '/api/system/userRole/save',
+      method: 'post',
+      data: {
+        roleId: event.targetValue,
+        users: event.list.map((item: any) => {
+          return {
+            id: item.id
+          }
+        })
+      }
+    })
+    .then(() => {
+      page.value.reload()
+    })
 }
 </script>
 
