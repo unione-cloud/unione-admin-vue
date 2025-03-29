@@ -210,6 +210,12 @@ export const local: Array<MenuItem> = [
             path: '/system/permis/role/users',
             hidden: true,
             component: () => import('@/views/system/permis/role/users.vue')
+          },
+          {
+            sid: '20000103004',
+            title: '资源分配',
+            path: '/system/permis/resa',
+            component: () => import('@/views/system/permis/resa/tree.vue')
           }
         ]
       },
