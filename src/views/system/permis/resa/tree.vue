@@ -15,7 +15,9 @@
         type="card"
         tabPosition="top"
       >
-        <a-tab-pane v-for="type in targetList" :key="type" :tab="type.title"> </a-tab-pane>
+        <a-tab-pane v-for="type in targetList" :key="type.value" :tab="type.title">
+          <unione-page-list v-bind="type.list"></unione-page-list>
+        </a-tab-pane>
       </a-tabs>
     </template>
   </unione-page-tree>
@@ -121,23 +123,248 @@ const targetType = ref('organ')
 const targetList = ref<any>([
   {
     title: '机构',
-    value: 'organ'
+    value: 'organ',
+    list: {
+      storage: {
+        controller: '/api/system/organ'
+      },
+      fields: [
+        {
+          title: '机构名称',
+          name: 'name',
+          isQuery: true
+        },
+        {
+          title: '机构编码',
+          name: 'sn'
+        },
+        {
+          title: '机构类型',
+          name: 'types',
+          control: 'unione-select-box',
+          value: 0,
+          convert: {
+            types: 'dict',
+            dictName: 'ORGTYPES'
+          },
+          isQuery: true
+        },
+        {
+          title: '机构状态',
+          name: 'status',
+          control: 'unione-switch-box',
+          value: 1,
+          convert: {
+            types: 'dict',
+            dictName: 'USEORNOT'
+          },
+          isQuery: true
+        }
+      ],
+      leftBtns: ['delBatch'],
+      operation: {
+        title: '操作',
+        width: 90,
+        btns: ['view', 'edit']
+      }
+    }
   },
   {
     title: '角色',
-    value: 'role'
+    value: 'role',
+    list: {
+      storage: {
+        controller: '/api/system/role'
+      },
+      fields: [
+        {
+          title: '角色名称',
+          name: 'name',
+          isQuery: true
+        },
+        {
+          title: '角色编码',
+          name: 'sn'
+        },
+        {
+          title: '角色类型',
+          name: 'types',
+          control: 'unione-select-box',
+          value: 0,
+          convert: {
+            types: 'dict',
+            dictName: 'ROLETYPE'
+          },
+          isQuery: true
+        },
+        {
+          title: '角色状态',
+          name: 'status',
+          control: 'unione-switch-box',
+          value: 1,
+          convert: {
+            types: 'dict',
+            dictName: 'USEORNOT'
+          },
+          isQuery: true
+        }
+      ],
+      leftBtns: ['delBatch'],
+      operation: {
+        title: '操作',
+        width: 90,
+        btns: ['view', 'edit']
+      }
+    }
   },
   {
     title: '岗位',
-    value: 'post'
+    value: 'post',
+    list: {
+      storage: {
+        controller: '/api/system/post'
+      },
+      fields: [
+        {
+          title: '岗位名称',
+          name: 'name',
+          isQuery: true
+        },
+        {
+          title: '岗位编码',
+          name: 'sn'
+        },
+        {
+          title: '岗位类型',
+          name: 'types',
+          control: 'unione-select-box',
+          value: 0,
+          convert: {
+            types: 'dict',
+            dictName: 'POSTTYPES'
+          },
+          isQuery: true
+        },
+        {
+          title: '岗位状态',
+          name: 'status',
+          control: 'unione-switch-box',
+          value: 1,
+          convert: {
+            types: 'dict',
+            dictName: 'USEORNOT'
+          },
+          isQuery: true
+        }
+      ],
+      leftBtns: ['delBatch'],
+      operation: {
+        title: '操作',
+        width: 90,
+        btns: ['view', 'edit']
+      }
+    }
   },
   {
     title: '分组',
-    value: 'group'
+    value: 'group',
+    list: {
+      storage: {
+        controller: '/api/system/group'
+      },
+      fields: [
+        {
+          title: '分组名称',
+          name: 'name',
+          isQuery: true
+        },
+        {
+          title: '分组编码',
+          name: 'sn'
+        },
+        {
+          title: '分组类型',
+          name: 'types',
+          control: 'unione-select-box',
+          value: 0,
+          convert: {
+            types: 'dict',
+            dictName: 'GROUPTYPES'
+          },
+          isQuery: true
+        },
+        {
+          title: '分组状态',
+          name: 'status',
+          control: 'unione-switch-box',
+          value: 1,
+          convert: {
+            types: 'dict',
+            dictName: 'USEORNOT'
+          },
+          isQuery: true
+        }
+      ],
+      leftBtns: ['delBatch'],
+      operation: {
+        title: '操作',
+        width: 90,
+        btns: ['view', 'edit']
+      }
+    }
   },
   {
     title: '用户',
-    value: 'user'
+    value: 'user',
+    list: {
+      storage: {
+        controller: '/api/system/user'
+      },
+      fields: [
+        {
+          title: '机构名称',
+          name: 'orgName',
+          isQuery: true
+        },
+        {
+          title: '用户姓名',
+          name: 'realName',
+          isQuery: true
+        },
+        {
+          title: '用户账号',
+          name: 'username'
+        },
+        {
+          title: '用户类型',
+          name: 'userType',
+          control: 'unione-select-box',
+          value: 0,
+          convert: {
+            types: 'dict',
+            dictName: 'USERTYPE'
+          },
+          isQuery: true
+        },
+        {
+          title: '用户状态',
+          name: 'status',
+          control: 'unione-switch-box',
+          value: 1,
+          convert: {
+            types: 'dict',
+            dictName: 'USERSTATUS'
+          },
+          isQuery: true
+        }
+      ],
+      leftBtns: ['delBatch'],
+      operation: {
+        title: '操作',
+        width: 90,
+        btns: ['view', 'edit']
+      }
+    }
   }
 ])
 function loadTargetData() {}
