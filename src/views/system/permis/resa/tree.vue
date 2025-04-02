@@ -42,52 +42,6 @@ const unionePage = ref<any>({
   storage: {
     controller: '/api/system/group'
   },
-  fields: [
-    {
-      title: '分组名称',
-      name: 'name',
-      required: true
-    },
-    {
-      title: '分组类型',
-      name: 'types',
-      control: 'unione-select-box',
-      value: 9,
-      convert: {
-        types: 'dict',
-        dictName: 'GROUPTYPES'
-      }
-    },
-    {
-      title: '分组图标',
-      name: 'iconFont'
-    },
-    {
-      title: '分组图片',
-      name: 'iconPic'
-    },
-    {
-      title: '显示顺序',
-      name: 'ordered',
-      control: 'a-input-number',
-      value: 1
-    },
-    {
-      title: '分组状态',
-      name: 'status',
-      control: 'unione-switch-box',
-      value: 1,
-      convert: {
-        types: 'dict',
-        dictName: 'USEORNOT'
-      }
-    },
-    {
-      title: '分组描述',
-      name: 'descs',
-      control: 'a-textarea'
-    }
-  ],
   opts: false,
   setting: {
     tree: {
