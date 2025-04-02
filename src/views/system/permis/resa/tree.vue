@@ -40,21 +40,12 @@ const page = ref() // pageTree dom ref obj
 const member = ref() // member dom ref obj
 const unionePage = ref<any>({
   storage: {
-    controller: '/api/system/group'
+    controller: '/api/system/resource'
   },
   opts: false,
   setting: {
     tree: {
       labelField: 'name'
-    },
-    form: {
-      showColumn: 1,
-      labelWidth: 4
-    }
-  },
-  event: {
-    createNode: (node: any, parent: any, params: any) => {
-      node.isLeaf = 1
     }
   }
 })
@@ -80,7 +71,7 @@ const targetList = ref<any>([
     value: 'organ',
     list: {
       storage: {
-        controller: '/api/system/organ'
+        controller: '/api/system/organPermis'
       },
       fields: [
         {
@@ -128,7 +119,7 @@ const targetList = ref<any>([
     value: 'role',
     list: {
       storage: {
-        controller: '/api/system/role'
+        controller: '/api/system/rolePermis'
       },
       fields: [
         {
@@ -176,7 +167,7 @@ const targetList = ref<any>([
     value: 'post',
     list: {
       storage: {
-        controller: '/api/system/post'
+        controller: '/api/system/postPermis'
       },
       fields: [
         {
@@ -224,7 +215,7 @@ const targetList = ref<any>([
     value: 'group',
     list: {
       storage: {
-        controller: '/api/system/group'
+        controller: '/api/system/groupPermis'
       },
       fields: [
         {
@@ -272,7 +263,7 @@ const targetList = ref<any>([
     value: 'user',
     list: {
       storage: {
-        controller: '/api/system/user'
+        controller: '/api/system/userPermis'
       },
       fields: [
         {
