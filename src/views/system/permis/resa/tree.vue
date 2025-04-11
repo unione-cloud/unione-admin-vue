@@ -4,7 +4,6 @@
     ref="page"
     v-bind="unionePage"
     class="unione-system-resource-assign"
-    @btnClick="btnClick"
     @treeClick="treeClick"
   >
     <template #form-warp>
@@ -14,9 +13,15 @@
         size="small"
         type="card"
         tabPosition="top"
+        @change="onTabChanged"
       >
         <a-tab-pane v-for="type in targetList" :key="type.value" :tab="type.title">
-          <unione-page-list v-bind="type.list"></unione-page-list>
+          <unione-page-list
+            :ref="type.value + 'List'"
+            v-bind="type.list"
+            :params="{ targetId: -1 }"
+            @btnClick="(e: any) => btnClick(type.value, e)"
+          ></unione-page-list>
         </a-tab-pane>
       </a-tabs>
     </template>
@@ -27,41 +32,78 @@
     v-model:visible="userSelectVisible"
     position="left"
     targetType="group"
-    :targetValue="currentGroup?.id"
+    :targetValue="currentRes?.id"
     @ok="handelOk"
   ></UserSelect>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { axios } from 'unione-base-vue'
+import { nextTick, ref } from 'vue'
+import { axios, useDialog } from 'unione-base-vue'
 
+const dialog = useDialog()
 const page = ref() // pageTree dom ref obj
-const member = ref() // member dom ref obj
+const organList = ref() // organ dom ref obj
+const roleList = ref() // role dom ref obj
+const postList = ref() // post dom ref obj
+const groupList = ref() // group dom ref obj
+const userList = ref() // user dom ref obj
+
 const unionePage = ref<any>({
   storage: {
-    controller: '/api/system/resource'
+    controller: '/api/system/resource',
+    findUrl: '/tree/view',
+    findParams: []
   },
   opts: false,
   setting: {
     tree: {
-      labelField: 'name'
+      labelField: 'title',
+      async: false
     }
   }
 })
 
-function btnClick({ btn, event }: any) {
-  if (btn.name == 'member') {
-    //
-  }
-}
 function treeClick({ keys, event }: any) {
-  console.log('tree click', keys, event)
-  if (event.node.id?.startsWith('new_')) {
-    return
+  currentRes.value = event.node
+  onTabChanged()
+}
+function onTabChanged() {
+  nextTick(() => {
+    if (!currentRes.value) {
+      return
+    }
+    if (targetType.value === 'group') {
+      groupList.value[0].setParams({ targetId: currentRes.value.id })
+    }
+    if (targetType.value === 'user') {
+      userList.value[0].setParams({ targetId: currentRes.value.id })
+    }
+    if (targetType.value === 'organ') {
+      organList.value[0].setParams({ targetId: currentRes.value.id })
+    }
+    if (targetType.value === 'role') {
+      roleList.value[0].setParams({ targetId: currentRes.value.id })
+    }
+    if (targetType.value === 'post') {
+      postList.value[0].setParams({ targetId: currentRes.value.id })
+    }
+  })
+}
+function btnClick(type: string, { btn }: any) {
+  console.log('btnClick', type, btn)
+  if (type === 'user') {
+    if (btn.name === 'add') {
+      if (!currentRes.value) {
+        dialog.warning({
+          title: '提示信息',
+          content: '请选择资源后再进行用户添加'
+        })
+        return
+      }
+      userSelectVisible.value = true
+    }
   }
-  currentGroup.value = event.node
-  member.value?.setParams({ groupId: currentGroup.value.id })
 }
 
 const targetType = ref('organ')
@@ -314,22 +356,22 @@ const targetList = ref<any>([
 ])
 function loadTargetData() {}
 
+const currentRes = ref<any>(null)
 const userSelectVisible = ref(false)
-const currentGroup = ref<any>(null)
 // 选择用户
 function handelOk(event: any) {
   console.log('handel user selected', event)
   axios
     .admin({
-      url: '/api/system/groupMember/save',
+      url: '/api/system/userPermis/save',
       method: 'post',
       data: {
-        groupId: event.targetValue,
+        targetId: event.targetValue,
         users: event.list
       }
     })
     .then((res: any) => {
-      member.value.reload()
+      userList.value.reload()
     })
 }
 </script>
