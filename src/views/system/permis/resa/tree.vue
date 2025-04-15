@@ -33,7 +33,7 @@
     position="left"
     targetType="group"
     :targetValue="currentRes?.id"
-    @ok="handelOk"
+    @ok="handelUserOk"
   ></UserSelect>
 </template>
 
@@ -359,19 +359,25 @@ function loadTargetData() {}
 const currentRes = ref<any>(null)
 const userSelectVisible = ref(false)
 // 选择用户
-function handelOk(event: any) {
+function handelUserOk(event: any) {
   console.log('handel user selected', event)
   axios
     .admin({
       url: '/api/system/userPermis/save',
       method: 'post',
       data: {
-        targetId: event.targetValue,
-        users: event.list
+        appId: currentRes.value.appId,
+        resId: currentRes.value.id,
+        resType: currentRes.value.ntype,
+        addPermis: event.list.map((u: any) => {
+          return { userId: u.id }
+        })
       }
     })
     .then((res: any) => {
-      userList.value.reload()
+      if (res.success) {
+        userList.value[0].reload()
+      }
     })
 }
 </script>
