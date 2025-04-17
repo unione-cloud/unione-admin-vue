@@ -31,7 +31,7 @@
   <UserSelect
     v-model:visible="userSelectVisible"
     position="left"
-    targetType="group"
+    targetType="permis"
     :targetValue="currentRes?.id"
     @ok="handelUserOk"
   ></UserSelect>

@@ -139,12 +139,12 @@ function loadTreeData(
     }
   }
   let data: any = {
-    body: pid ? pid : -1,
+    body: { pid: pid ? pid : -1 },
     keywords: treeKeywords.value[type],
     page: 1,
     pageSize: 1000
   }
-  let url = `/api/selector/${type}/${type == 'role' ? 'node' : 'tree'}/-1`
+  let url = `/api/selector/${type}/${type == 'role' ? 'node' : 'tree'}`
   if (props.targetType == 'roleAssign' && type == 'role') {
     url = `/api/selector/role/list/assign`
     data = {}
