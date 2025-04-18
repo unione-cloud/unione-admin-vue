@@ -95,10 +95,13 @@ function loadTreeData() {
   selectedTarget.value = []
   axios
     .admin({
-      url: `/api/selector/role/list/` + props.targetType,
+      url: `/api/selector/role/list`,
       method: 'post',
       data: {
-        body: props.targetValue,
+        body: {
+          targetType: props.targetType,
+          targetId: props.targetValue
+        },
         keywords: treeKeywords.value
       }
     })
