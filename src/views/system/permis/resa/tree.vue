@@ -36,6 +36,15 @@
     @ok="handelUserOk"
   ></UserSelect>
 
+  <!-- 角色选择组件 -->
+  <RoleSelect
+    v-model:visible="roleSelectVisible"
+    position="left"
+    targetType="permis"
+    :targetValue="currentRes?.id"
+    @ok="handelRoleOk"
+  ></RoleSelect>
+
   <!-- 机构选择组件 -->
   <OrganSelect
     v-model:visible="organSelectVisible"
@@ -44,6 +53,24 @@
     :targetValue="currentRes?.id"
     @ok="handelOrganOk"
   ></OrganSelect>
+
+  <!-- 分组选择组件 -->
+  <GroupSelect
+    v-model:visible="groupSelectVisible"
+    position="left"
+    targetType="permis"
+    :targetValue="currentRes?.id"
+    @ok="handelGroupOk"
+  ></GroupSelect>
+
+  <!-- 岗位选择组件 -->
+  <PostSelect
+    v-model:visible="postSelectVisible"
+    position="left"
+    targetType="permis"
+    :targetValue="currentRes?.id"
+    @ok="handelPostOk"
+  ></PostSelect>
 </template>
 
 <script setup lang="ts">
@@ -123,6 +150,42 @@ function btnClick(type: string, { btn }: any) {
         return
       }
       organSelectVisible.value = true
+    }
+  }
+  if (type === 'group') {
+    if (btn.name === 'add') {
+      if (!currentRes.value) {
+        dialog.warning({
+          title: '提示信息',
+          content: '请选择资源后再添加分组'
+        })
+        return
+      }
+      groupSelectVisible.value = true
+    }
+  }
+  if (type === 'post') {
+    if (btn.name === 'add') {
+      if (!currentRes.value) {
+        dialog.warning({
+          title: '提示信息',
+          content: '请选择资源后再添加岗位'
+        })
+        return
+      }
+      postSelectVisible.value = true
+    }
+  }
+  if (type === 'role') {
+    if (btn.name === 'add') {
+      if (!currentRes.value) {
+        dialog.warning({
+          title: '提示信息',
+          content: '请选择资源后再添加角色'
+        })
+        return
+      }
+      roleSelectVisible.value = true
     }
   }
 }
@@ -379,10 +442,78 @@ function loadTargetData() {}
 
 const currentRes = ref<any>(null)
 const userSelectVisible = ref(false)
+const roleSelectVisible = ref(false)
 const organSelectVisible = ref(false)
+const postSelectVisible = ref(false)
+const groupSelectVisible = ref(false)
+// 选择角色
+function handelRoleOk(event: any) {
+  axios
+    .admin({
+      url: '/api/system/rolePermis/save',
+      method: 'post',
+      data: {
+        appId: currentRes.value.appId,
+        resId: currentRes.value.id,
+        resType: currentRes.value.ntype,
+        addPermis: event.list.map((u: any) => {
+          return { roleId: u.id }
+        })
+      }
+    })
+    .then((res: any) => {
+      if (res.success) {
+        roleSelectVisible.value = false
+        roleList.value[0].reload()
+      }
+    })
+}
+// 选择岗位
+function handelPostOk(event: any) {
+  axios
+    .admin({
+      url: '/api/system/postPermis/save',
+      method: 'post',
+      data: {
+        appId: currentRes.value.appId,
+        resId: currentRes.value.id,
+        resType: currentRes.value.ntype,
+        addPermis: event.list.map((u: any) => {
+          return { postId: u.id }
+        })
+      }
+    })
+    .then((res: any) => {
+      if (res.success) {
+        postSelectVisible.value = false
+        postList.value[0].reload()
+      }
+    })
+}
+// 选择分组
+function handelGroupOk(event: any) {
+  axios
+    .admin({
+      url: '/api/system/groupPermis/save',
+      method: 'post',
+      data: {
+        appId: currentRes.value.appId,
+        resId: currentRes.value.id,
+        resType: currentRes.value.ntype,
+        addPermis: event.list.map((u: any) => {
+          return { groupId: u.id }
+        })
+      }
+    })
+    .then((res: any) => {
+      if (res.success) {
+        groupSelectVisible.value = false
+        groupList.value[0].reload()
+      }
+    })
+}
 // 选择机构
 function handelOrganOk(event: any) {
-  console.log('handel organ selected', event)
   axios
     .admin({
       url: '/api/system/organPermis/save',
@@ -405,7 +536,6 @@ function handelOrganOk(event: any) {
 }
 // 选择用户
 function handelUserOk(event: any) {
-  console.log('handel user selected', event)
   axios
     .admin({
       url: '/api/system/userPermis/save',

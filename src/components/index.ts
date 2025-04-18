@@ -1,6 +1,8 @@
 import UserSelect from './user-select/index.vue'
 import RoleSelect from './role-select/index.vue'
 import OrganSelect from './organ-select/index.vue'
+import GroupSelect from './group-select/index.vue'
+import PostSelect from './post-select/index.vue'
 
 export default {
   install(app: any, options: any) {
@@ -8,5 +10,7 @@ export default {
     app.component('UserSelect', UserSelect)
     app.component('RoleSelect', RoleSelect)
     app.component('OrganSelect', OrganSelect)
+    app.component('GroupSelect', GroupSelect)
+    app.component('PostSelect', PostSelect)
   }
 }
