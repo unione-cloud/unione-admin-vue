@@ -7,14 +7,9 @@
     :placement="props.position"
     :maskClosable="false"
     :bodyStyle="{ padding: 0 }"
-    class="user-select user-select-drawer"
+    class="organ-select organ-select-drawer"
   >
-    <userList
-      :typeList="typeList"
-      :targetType="targetType"
-      :targetValue="targetValue"
-      ref="userListObj"
-    ></userList>
+    <organSelect :targetType="targetType" :targetValue="targetValue" ref="selectObj"></organSelect>
 
     <template #footer>
       <a-button type="primary" @click="handelOk">确定</a-button>
@@ -28,37 +23,28 @@
     v-model:open="visible"
     :centered="props.position == 'center'"
     :maskClosable="false"
-    class="user-select user-select-dialog"
+    class="organ-select organ-select-dialog"
     @ok="handelOk"
   >
-    <userList
-      :typeList="typeList"
-      :targetType="targetType"
-      :targetValue="targetValue"
-      ref="userListObj"
-    ></userList>
+    <organSelect :targetType="targetType" :targetValue="targetValue" ref="selectObj"></organSelect>
   </a-modal>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useDialog } from 'unione-base-vue'
-import userList from './user-list.vue'
+import organSelect from './organ-select.vue'
 
 const dialog = useDialog()
 
-defineOptions({ name: 'UserSelect' })
+defineOptions({ name: 'OrganSelect' })
 const props = defineProps({
   title: {
     type: String,
-    default: '用户选择'
-  },
-  typeList: {
-    type: Array<String>,
-    default: () => ['organ', 'role', 'group', 'post']
+    default: '机构选择'
   },
   targetType: {
-    type: String // organ | role | roleAssign | group | post
+    type: String // user
   },
   targetValue: {
     type: String
@@ -79,27 +65,25 @@ const props = defineProps({
 const visible = defineModel('visible')
 watch(visible, (val) => {
   if (val) {
-    userListObj.value?.init()
+    selectObj.value?.loadTreeData()
   }
 })
 
 const emit = defineEmits(['ok'])
-const userListObj = ref()
+const selectObj = ref()
 function handelOk() {
-  const selected = userListObj.value.getSelected()
+  const selected = selectObj.value.getSelected()
   if (selected?.ids?.length > 0) {
-    // visible.value = false
-    console.log('user selcect ok', selected)
     emit('ok', { ...selected, targetType: props.targetType, targetValue: props.targetValue })
     return
   }
-  dialog.warning({ content: '请选择用户' })
+  dialog.warning({ content: '请选择机构' })
 }
 </script>
 
 <style lang="less" scoped>
-.user-select {
-  &.user-select-drawer {
+.organ-select {
+  &.organ-select-drawer {
     .ant-drawer-footer {
       .ant-btn {
         float: right;

@@ -35,6 +35,15 @@
     :targetValue="currentRes?.id"
     @ok="handelUserOk"
   ></UserSelect>
+
+  <!-- 机构选择组件 -->
+  <OrganSelect
+    v-model:visible="organSelectVisible"
+    position="left"
+    targetType="permis"
+    :targetValue="currentRes?.id"
+    @ok="handelOrganOk"
+  ></OrganSelect>
 </template>
 
 <script setup lang="ts">
@@ -97,11 +106,23 @@ function btnClick(type: string, { btn }: any) {
       if (!currentRes.value) {
         dialog.warning({
           title: '提示信息',
-          content: '请选择资源后再进行用户添加'
+          content: '请选择资源后再添加用户'
         })
         return
       }
       userSelectVisible.value = true
+    }
+  }
+  if (type === 'organ') {
+    if (btn.name === 'add') {
+      if (!currentRes.value) {
+        dialog.warning({
+          title: '提示信息',
+          content: '请选择资源后再添加机构'
+        })
+        return
+      }
+      organSelectVisible.value = true
     }
   }
 }
@@ -358,6 +379,30 @@ function loadTargetData() {}
 
 const currentRes = ref<any>(null)
 const userSelectVisible = ref(false)
+const organSelectVisible = ref(false)
+// 选择机构
+function handelOrganOk(event: any) {
+  console.log('handel organ selected', event)
+  axios
+    .admin({
+      url: '/api/system/organPermis/save',
+      method: 'post',
+      data: {
+        appId: currentRes.value.appId,
+        resId: currentRes.value.id,
+        resType: currentRes.value.ntype,
+        addPermis: event.list.map((u: any) => {
+          return { orgId: u.id }
+        })
+      }
+    })
+    .then((res: any) => {
+      if (res.success) {
+        organSelectVisible.value = false
+        organList.value[0].reload()
+      }
+    })
+}
 // 选择用户
 function handelUserOk(event: any) {
   console.log('handel user selected', event)
@@ -376,6 +421,7 @@ function handelUserOk(event: any) {
     })
     .then((res: any) => {
       if (res.success) {
+        userSelectVisible.value = false
         userList.value[0].reload()
       }
     })

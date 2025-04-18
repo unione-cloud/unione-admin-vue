@@ -1,9 +1,9 @@
 <template>
-  <a-row class="role-select-warp">
+  <a-row class="organ-select-warp">
     <a-col :span="13" class="type-list">
       <a-input
         v-model:value="treeKeywords"
-        :placeholder="'搜索角色(回车)...'"
+        :placeholder="'搜索机构(回车)...'"
         class="type-search"
         allowClear
         @change="searchTreeData()"
@@ -14,16 +14,17 @@
         showIcon
         checkable
         blockNode
-        defaultExpandAll
+        checkStrictly
         :tree-data="treeData"
         :fieldNames="{ key: 'id' }"
         v-if="treeData?.length > 0"
         v-model:selectedKeys="selectedKeys"
         v-model:checkedKeys="checkedKeys"
+        @expand="onExpand"
         @check="onCheck"
       >
-        <template #icon="{ dataRef }">
-          <component :is="dataRef.rtype == 0 ? 'FilterOutlined' : 'IdcardOutlined'"></component>
+        <template #icon>
+          <component :is="'ApartmentOutlined'"></component>
         </template>
       </a-tree>
     </a-col>
@@ -33,15 +34,6 @@
           <a-list-item>
             <a-list-item-meta>
               <template #title>
-                <a-tooltip placement="top" title="是否可传递" v-if="targetType == 'permis'">
-                  <a-switch
-                    size="small"
-                    v-model:checked="item.enDilivery"
-                    class="isDlv"
-                    checkedChildren="是"
-                    unCheckedChildren="否"
-                  ></a-switch>
-                </a-tooltip>
                 <div>名称：{{ item.title }}</div>
                 <div>编码：{{ item.sn || '--' }}</div>
                 <DeleteOutlined class="btn" @click="delSelect(index, item)" />
@@ -77,7 +69,7 @@ const props = defineProps({
 const typeMap = ref<any>({})
 const typeConvertor = new Convertor({
   types: 'dict',
-  dictName: 'ROLETYPE'
+  dictName: 'ORGTYPES'
 })
 
 // tree 选中的节点
@@ -87,85 +79,161 @@ const treeKeywords = ref<String>()
 
 const treeNode = ref<any>({})
 const treeData = ref<any>([])
-const dataList = ref<any>([])
-function loadTreeData() {
-  dataList.value = []
-  checkedKeys.value = []
-  selectedKeys.value = []
-  selectedTarget.value = []
+const treeStore = ref<any>([])
+function loadTreeData(pid: string = '-1') {
+  if (pid != '-1') {
+    if (treeNode.value[pid].children?.length > 0) {
+      return
+    }
+  } else if (treeData.value?.length > 0) {
+    return
+  }
+  // 请求远程接口
   axios
     .admin({
-      url: `/api/selector/role/list/` + props.targetType,
+      url: `/api/selector/organ/tree`,
       method: 'post',
       data: {
-        body: props.targetValue,
-        keywords: treeKeywords.value
+        body: {
+          pid,
+          targetType: props.targetType,
+          targetId: props.targetValue
+        },
+        page: 1,
+        pageSize: 1000
       }
     })
     .then((res: any) => {
       if (!res.body) {
         return
       }
-      dataList.value = res.body
-      dataList.value.forEach((item: any) => {
+      let target: any = []
+      if (!pid || pid == '-1') {
+        target = treeData.value
+      } else {
+        if (!treeNode.value[pid].children) {
+          treeNode.value[pid].children = []
+        }
+        target = treeNode.value[pid].children
+      }
+      const nmap: any = {}
+      res.body.forEach((item: any) => {
+        nmap[item.id] = item
         treeNode.value[item.id] = item
-        item.isLeaf = true
-        item.enDilivery = item.enDilivery == 1 ? true : false
+        item.isLeaf = false
         if (item.checked) {
-          checkedKeys.value.push(item.id)
+          if (!checkedKeys.value.includes(item.id)) {
+            checkedKeys.value.push(item.id)
+          }
+          item.disableCheckbox = true
+          item.disabled = true
         }
       })
-      searchTreeData()
-      // 回显已有角色
-      if (checkedKeys.value.length > 0) {
-        onCheck(checkedKeys.value)
-      }
+      res.body.forEach((item: any) => {
+        const parent = nmap[item.pid]
+        if (parent) {
+          if (!parent.children) {
+            parent.children = []
+          }
+          parent.children.push(item)
+        } else {
+          target.push(item)
+        }
+      })
     })
 }
+// 搜索
 function searchTreeData() {
-  // rtype  1平台，2租户，3机构
+  if (!treeKeywords.value || treeKeywords.value.trim() == '') {
+    treeData.value = treeStore.value
+    return
+  }
+  treeStore.value = treeData.value
   treeData.value = []
-  Object.keys(typeMap.value).forEach((type: any) => {
-    typeMap.value[type].data = []
-  })
-  dataList.value.forEach((item: any) => {
-    if (!treeKeywords.value || (treeKeywords.value && item.title.includes(treeKeywords.value))) {
-      typeMap.value[item.rtype]?.data?.push(item)
-    }
-  })
-  console.log('typeMap', typeMap.value)
-  Object.keys(typeMap.value).forEach((type: any) => {
-    if (typeMap.value[type].data.length > 0) {
-      const item = {
-        title: typeMap.value[type].title,
-        id: 'type:' + type,
-        rtype: 0,
-        children: typeMap.value[type].data,
-        isLeaf: false
+  axios
+    .admin({
+      url: `/api/selector/organ/tree`,
+      method: 'post',
+      data: {
+        body: {
+          targetType: props.targetType,
+          targetId: props.targetValue
+        },
+        keywords: treeKeywords.value,
+        page: 1,
+        pageSize: 1000
       }
-      treeData.value.push(item)
-      treeNode.value[item.id] = item
-    }
-  })
-  console.log('treeData', treeData.value)
+    })
+    .then((res: any) => {
+      if (!res.body) {
+        return
+      }
+      const nmap: any = {}
+      res.body.forEach((item: any) => {
+        nmap[item.id] = item
+        treeNode.value[item.id] = item
+        item.isLeaf = false
+        if (item.checked) {
+          if (!checkedKeys.value.includes(item.id)) {
+            checkedKeys.value.push(item.id)
+          }
+          item.disableCheckbox = true
+          item.disabled = true
+        }
+      })
+      res.body.forEach((item: any) => {
+        const parent = nmap[item.pid]
+        if (parent) {
+          if (!parent.children) {
+            parent.children = []
+          }
+          parent.children.push(item)
+        } else {
+          treeData.value.push(item)
+        }
+      })
+    })
 }
 
+function onExpand(expandedKeys: any, { expanded, node }: any) {
+  if ((expanded && !node.children) || !node.children.length) {
+    loadTreeData(node.key)
+  }
+}
 const selectedTarget = ref<any>([])
-function onCheck(keys: any) {
+function onCheck(keys: any, { node }: any) {
+  console.log('on checked keys', keys, node)
   selectedTarget.value = []
-  checkedKeys.value = keys
-  checkedKeys.value.forEach((key: any) => {
-    const node = treeNode.value[key]
-    if (node?.rtype && node.isLeaf != false && !node.disabled) {
-      selectedTarget.value.push(node)
+  checkedKeys.value = []
+  const sltcld = (node: any) => {
+    if (!node.children) {
+      return
+    }
+    node.children.forEach((item: any) => {
+      if (!keys.checked.includes(item.id)) {
+        checkedKeys.value.push(item.id)
+        if (!item.disabled) {
+          selectedTarget.value.push(item)
+        }
+      }
+      sltcld(item)
+    })
+  }
+  keys.checked.forEach((key: any) => {
+    checkedKeys.value.push(key)
+    const item = treeNode.value[key]
+    if (!item.disabled) {
+      selectedTarget.value.push(item)
     }
   })
+  if (!node.checked) {
+    sltcld(node)
+  }
 }
 function delSelect(index: number, item: any) {
   selectedTarget.value.splice(index, 1)
   checkedKeys.value = checkedKeys.value.filter((key: any) => {
-    const node = treeNode.value[key]
-    return key != item.id && node.isLeaf == true
+    return key != item.id
   })
   checkedKeys.value = [...checkedKeys.value]
 }
@@ -176,7 +244,8 @@ onMounted(() => {
     res.forEach((item: any) => {
       typeMap.value[item.dictKey] = { title: item.dictValue, data: [] }
     })
-    loadTreeData()
+
+    loadTreeData('-1')
   })
 })
 
@@ -207,7 +276,7 @@ defineExpose({
 </script>
 
 <style lang="less" scoped>
-.role-select-warp {
+.organ-select-warp {
   height: 100%;
 
   .type-list {
