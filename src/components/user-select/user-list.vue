@@ -57,7 +57,8 @@
           <a-list-item>
             <a-list-item-meta>
               <template #title>
-                姓名：{{ item.title }}
+                <a-badge class="num" :count="index + 1" size="small" />
+                <div>姓名：{{ item.title }}</div>
                 <DeleteOutlined class="btn" @click="delSelect(index, item)" />
               </template>
               <template #avatar>
@@ -329,7 +330,15 @@ defineExpose({
         display: none;
         float: right;
         cursor: pointer;
-        color: rgba(0, 0, 0, 0.88);
+        color: red;
+      }
+      .num {
+        float: right;
+        .ant-badge-count {
+          background-color: #fff;
+          color: #7d7c7c;
+          box-shadow: 0 0 0 1px #7d7c7c inset;
+        }
       }
     }
     :deep(.ant-list-item:hover) {

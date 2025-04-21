@@ -39,6 +39,7 @@
   <!-- 角色选择组件 -->
   <RoleSelect
     v-model:visible="roleSelectVisible"
+    mode="disabled"
     position="left"
     targetType="permis"
     :targetValue="currentRes?.id"

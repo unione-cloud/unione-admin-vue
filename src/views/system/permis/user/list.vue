@@ -5,7 +5,7 @@
 
     <RoleSelect
       v-model:visible="roleSelectVisible"
-      targetType="permis"
+      targetType="assign"
       :targetValue="targetObj?.id"
       position="right"
       @ok="handelOk"

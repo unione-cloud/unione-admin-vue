@@ -33,6 +33,7 @@
           <a-list-item>
             <a-list-item-meta>
               <template #title>
+                <a-badge class="num" :count="index + 1" size="small" />
                 <a-tooltip placement="top" title="是否可传递" v-if="targetType == 'permis'">
                   <a-switch
                     size="small"
@@ -47,7 +48,7 @@
                 <DeleteOutlined class="btn" @click="delSelect(index, item)" />
               </template>
               <template #description>
-                <div>{{ item.descs || '--' }}</div>
+                <div>{{ item.descs?.trim() || '--' }}</div>
               </template>
             </a-list-item-meta>
           </a-list-item>
@@ -65,6 +66,10 @@ import { Convertor } from 'unione-form-vue'
 import { useProvideKeysState } from 'ant-design-vue/es/vc-tree/contextTypes'
 
 const props = defineProps({
+  mode: {
+    type: String,
+    default: 'checked' // checked | disabled
+  },
   targetType: {
     type: String // user
   },
@@ -117,10 +122,14 @@ function loadTreeData() {
         if (item.checked) {
           checkedKeys.value.push(item.id)
         }
+        if (item.checked && props.mode == 'disabled') {
+          item.disableCheckbox = true
+          item.disabled = true
+        }
       })
       searchTreeData()
       // 回显已有角色
-      if (checkedKeys.value.length > 0) {
+      if (checkedKeys.value.length > 0 && props.mode == 'checked') {
         onCheck(checkedKeys.value)
       }
     })
@@ -240,9 +249,19 @@ defineExpose({
         float: right;
         cursor: pointer;
         color: rgba(0, 0, 0, 0.88);
+        color: red;
       }
       .isDlv {
         float: right;
+        margin-right: 5px;
+      }
+      .num {
+        float: right;
+        .ant-badge-count {
+          background-color: #fff;
+          color: #7d7c7c;
+          box-shadow: 0 0 0 1px #7d7c7c inset;
+        }
       }
     }
     :deep(.ant-list-item:hover) {

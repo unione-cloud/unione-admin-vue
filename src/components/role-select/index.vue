@@ -9,7 +9,12 @@
     :bodyStyle="{ padding: 0 }"
     class="role-select role-select-drawer"
   >
-    <roleList :targetType="targetType" :targetValue="targetValue" ref="roleListObj"></roleList>
+    <roleList
+      :targetType="targetType"
+      :targetValue="targetValue"
+      :mode="mode"
+      ref="roleListObj"
+    ></roleList>
 
     <template #footer>
       <a-button type="primary" @click="handelOk">确定</a-button>
@@ -26,7 +31,12 @@
     class="role-select role-select-dialog"
     @ok="handelOk"
   >
-    <roleList :targetType="targetType" :targetValue="targetValue" ref="roleListObj"></roleList>
+    <roleList
+      :targetType="targetType"
+      :targetValue="targetValue"
+      :mode="mode"
+      ref="roleListObj"
+    ></roleList>
   </a-modal>
 </template>
 
@@ -48,6 +58,10 @@ const props = defineProps({
   },
   targetValue: {
     type: String
+  },
+  mode: {
+    type: String,
+    default: 'checked' // checked | disabled
   },
   show: {
     type: String,

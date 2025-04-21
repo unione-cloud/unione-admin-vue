@@ -34,6 +34,7 @@
           <a-list-item>
             <a-list-item-meta>
               <template #title>
+                <a-badge class="num" :count="index + 1" size="small" />
                 <div>名称：{{ item.title }}</div>
                 <div>编码：{{ item.sn || '--' }}</div>
                 <DeleteOutlined class="btn" @click="delSelect(index, item)" />
@@ -305,10 +306,18 @@ defineExpose({
         display: none;
         float: right;
         cursor: pointer;
-        color: rgba(0, 0, 0, 0.88);
+        color: red;
       }
       .isDlv {
         float: right;
+      }
+      .num {
+        float: right;
+        .ant-badge-count {
+          background-color: #fff;
+          color: #7d7c7c;
+          box-shadow: 0 0 0 1px #7d7c7c inset;
+        }
       }
     }
     :deep(.ant-list-item:hover) {
