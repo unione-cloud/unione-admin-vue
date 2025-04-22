@@ -38,7 +38,12 @@ const unionePage = ref<any>({
     {
       title: '资源URL',
       name: 'url',
-      required: true
+      required: true,
+      event: {
+        visible: (value: any, formData: any) => {
+          return formData.types == 'menu'
+        }
+      }
     },
     {
       title: '显示顺序',
@@ -70,6 +75,11 @@ const unionePage = ref<any>({
       convert: {
         types: 'dict',
         dictName: 'TUREORFALSE'
+      },
+      event: {
+        visible: (value: any, formData: any) => {
+          return formData.types == 'menu'
+        }
       }
     },
     {
@@ -80,6 +90,11 @@ const unionePage = ref<any>({
       convert: {
         types: 'dict',
         dictName: 'TUREORFALSE'
+      },
+      event: {
+        visible: (value: any, formData: any) => {
+          return formData.types == 'menu'
+        }
       }
     },
     {
@@ -110,6 +125,11 @@ const unionePage = ref<any>({
       convert: {
         types: 'dict',
         dictName: 'SYSRESRELEASE'
+      },
+      event: {
+        visible: (value: any, formData: any) => {
+          return formData.types == 'menu'
+        }
       }
     },
     {
