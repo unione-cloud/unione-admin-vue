@@ -36,11 +36,16 @@ const unionePage = ref<any>({
       }
     },
     {
-      title: '资源URL',
+      title: '连接URL',
       name: 'url',
-      required: true,
+      required: false,
       event: {
-        visible: (value: any, formData: any) => {
+        title: (value: any, formData: any) => {
+          if (formData.types == 'menu') {
+            return '菜单URL'
+          }
+        },
+        required: (value: any, formData: any) => {
           return formData.types == 'menu'
         }
       }
@@ -78,7 +83,7 @@ const unionePage = ref<any>({
       },
       event: {
         visible: (value: any, formData: any) => {
-          return formData.types == 'menu'
+          return !!formData.url
         }
       }
     },
@@ -93,7 +98,7 @@ const unionePage = ref<any>({
       },
       event: {
         visible: (value: any, formData: any) => {
-          return formData.types == 'menu'
+          return !!formData.url
         }
       }
     },
@@ -117,21 +122,21 @@ const unionePage = ref<any>({
         dictName: 'TUREORFALSE'
       }
     },
-    {
-      title: '资源发布',
-      name: 'release',
-      control: 'unione-check-box',
-      value: 'pc',
-      convert: {
-        types: 'dict',
-        dictName: 'SYSRESRELEASE'
-      },
-      event: {
-        visible: (value: any, formData: any) => {
-          return formData.types == 'menu'
-        }
-      }
-    },
+    // {
+    //   title: '资源发布',
+    //   name: 'release',
+    //   control: 'unione-check-box',
+    //   value: 'pc',
+    //   convert: {
+    //     types: 'dict',
+    //     dictName: 'SYSRESRELEASE'
+    //   },
+    //   event: {
+    //     visible: (value: any, formData: any) => {
+    //       return formData.types == 'menu'
+    //     }
+    //   }
+    // },
     {
       title: '资源状态',
       name: 'status',
