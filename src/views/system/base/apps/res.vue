@@ -110,6 +110,11 @@ const unionePage = ref<any>({
       convert: {
         types: 'dict',
         dictName: 'TUREORFALSE'
+      },
+      event: {
+        visible: (value: any, formData: any) => {
+          return !!formData.url
+        }
       }
     },
     {
@@ -163,6 +168,12 @@ const unionePage = ref<any>({
     }
   },
   event: {
+    nodeVisible: (btn: any, node: any) => {
+      if (btn.name == 'child') {
+        return node.types == 'menu'
+      }
+      return true
+    },
     createNode: (node: any, parent: any, params: any) => {
       node.isLeaf = 1
       node.ordered = 0
