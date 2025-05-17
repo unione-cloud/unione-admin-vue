@@ -168,7 +168,7 @@ const unionePage = ref<any>({
     }
   },
   event: {
-    nodeVisible: (btn: any, node: any) => {
+    btnVisible: (btn: any, node: any) => {
       if (btn.name == 'child') {
         return node.types == 'menu'
       }
