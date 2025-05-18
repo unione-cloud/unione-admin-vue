@@ -76,7 +76,7 @@ const unionePage = ref<any>({
       title: 'iframe打开',
       name: 'isIframe',
       control: 'unione-switch-box',
-      value: 1,
+      value: 0,
       convert: {
         types: 'dict',
         dictName: 'TUREORFALSE'
@@ -127,21 +127,6 @@ const unionePage = ref<any>({
         dictName: 'TUREORFALSE'
       }
     },
-    // {
-    //   title: '资源发布',
-    //   name: 'release',
-    //   control: 'unione-check-box',
-    //   value: 'pc',
-    //   convert: {
-    //     types: 'dict',
-    //     dictName: 'SYSRESRELEASE'
-    //   },
-    //   event: {
-    //     visible: (value: any, formData: any) => {
-    //       return formData.types == 'menu'
-    //     }
-    //   }
-    // },
     {
       title: '资源状态',
       name: 'status',
