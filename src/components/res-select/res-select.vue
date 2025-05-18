@@ -302,6 +302,14 @@ function onCheck(keys: any, { node }: any) {
       selectedTarget.value.push(item)
     }
   })
+  treeStore.value.forEach((item: any) => {
+    if (
+      !checkedKeys.value.checked.includes(item.id) &&
+      !checkedKeys.value.halfChecked.includes(item.id)
+    ) {
+      item.enDilivery = false
+    }
+  })
 }
 function enDiliveryClick(node: any) {
   node.enDilivery = !node.enDilivery
