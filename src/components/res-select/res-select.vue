@@ -29,7 +29,11 @@
       <template #title="{ dataRef }">
         <div class="node-label" @click="onExpande(dataRef)">
           <span>{{ dataRef.title }}</span>
-          <div class="enDilivery" @click.stop="enDiliveryClick(dataRef)">
+          <div
+            class="enDilivery"
+            @click.stop="enDiliveryClick(dataRef)"
+            v-if="!dataRef.id.startsWith('btn_') && !dataRef.id.startsWith('tool_')"
+          >
             <span class="label">可传递:</span>
             <a-switch
               size="small"
@@ -106,6 +110,7 @@ function loadTreeData() {
         }
       })
       // 构建树结构
+      const tmpNodeIds: Array<any> = []
       treeStore.value.forEach((item: any) => {
         const parent = treeNode.value[item.pid]
         if (parent) {
@@ -124,11 +129,13 @@ function loadTreeData() {
             if (!parent.children[0]) {
               parent.children[0] = btnNode
               treeNode.value[btnNode.id] = btnNode
+              tmpNodeIds.push(btnNode.id)
             } else if (parent.children[0].ntype == 'btn') {
               btnNode = parent.children[0]
             } else {
               parent.children.splice(0, 0, btnNode)
               treeNode.value[btnNode.id] = btnNode
+              tmpNodeIds.push(btnNode.id)
             }
             treeNode.value[item.id].pid = btnNode.id
             btnNode.children.push(treeNode.value[item.id])
@@ -144,6 +151,7 @@ function loadTreeData() {
             if (!parent.children[0]) {
               parent.children[0] = toolNode
               treeNode.value[toolNode.id] = toolNode
+              tmpNodeIds.push(toolNode.id)
             } else if (parent.children[0].ntype == 'tool') {
               toolNode = parent.children[0]
             } else if (parent.children[1] && parent.children[1].ntype == 'tool') {
@@ -151,6 +159,7 @@ function loadTreeData() {
             } else {
               parent.children.splice(1, 0, toolNode)
               treeNode.value[toolNode.id] = toolNode
+              tmpNodeIds.push(toolNode.id)
             }
             treeNode.value[item.id].pid = toolNode.id
             toolNode.children.push(treeNode.value[item.id])
@@ -160,6 +169,18 @@ function loadTreeData() {
         } else {
           treeData.value.push(treeNode.value[item.id])
           expandedKeys.value.push(item.id)
+        }
+      })
+      // 按钮，工具节点处理
+      tmpNodeIds.forEach((nid: any) => {
+        const node = treeNode.value[nid]
+        const cknds = node.children.filter((item: any) => item.checked)
+        if (cknds.length > 0) {
+          if (cknds.length < node.children.length) {
+            checkedKeys.value.halfChecked.push(nid)
+          } else {
+            checkedKeys.value.checked.push(nid)
+          }
         }
       })
     })
@@ -296,7 +317,7 @@ function onCheck(keys: any, { node }: any) {
     const item = treeNode.value[key]
     if (!sltKeys.includes(key)) {
       sltKeys.push(key)
-      if (item && !item.id.startsWith('btn_') && !item.id.startsWith('toool_')) {
+      if (item && !item.id.startsWith('btn_') && !item.id.startsWith('tool_')) {
         selectedTarget.value.push(item)
       }
     }
@@ -305,7 +326,7 @@ function onCheck(keys: any, { node }: any) {
     const item = treeNode.value[key]
     if (!sltKeys.includes(key)) {
       sltKeys.push(key)
-      if (item && !item.id.startsWith('btn_') && !item.id.startsWith('toool_')) {
+      if (item && !item.id.startsWith('btn_') && !item.id.startsWith('tool_')) {
         selectedTarget.value.push(item)
       }
     }
@@ -337,7 +358,12 @@ onMounted(() => {
 function getSelected() {
   return {
     list: selectedTarget.value.map((item: any) => {
-      return { ...item, enDilivery: item.enDilivery ? 1 : 0 }
+      return {
+        appId: item.appId,
+        resId: item.id,
+        resType: item.ntype,
+        enDilivery: item.enDilivery ? 1 : 0
+      }
     }),
     ids: selectedTarget.value.map((item: any) => {
       return item.id
@@ -345,7 +371,14 @@ function getSelected() {
   }
 }
 function getSelectedList() {
-  return selectedTarget.value
+  return selectedTarget.value.map((item: any) => {
+    return {
+      appId: item.appId,
+      resId: item.id,
+      resType: item.ntype,
+      enDilivery: item.enDilivery ? 1 : 0
+    }
+  })
 }
 function getSelectedIds() {
   return selectedTarget.value.map((item: any) => {

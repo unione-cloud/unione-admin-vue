@@ -164,7 +164,20 @@ function handelUserOk(e: any) {
 
 const resSelectVisible = ref(false)
 function handelResOk(e: any) {
-  console.log('res select ok', e, targetObj.value)
+  console.log('res select ok', e)
+  const resList = e.list.map((item: any) => {
+    return { ...item, userId: targetObj.value.id }
+  })
+  axios
+    .admin({
+      url: `/api/system/userPermis/save`,
+      method: 'post',
+      data: { userId: targetObj.value.id, addPermis: resList }
+    })
+    .then(() => {
+      dialog.success('资源分配成功')
+      resSelectVisible.value = false
+    })
 }
 </script>
 
