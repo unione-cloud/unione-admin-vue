@@ -27,7 +27,7 @@
         <component :is="iconMap[dataRef.ntype]"></component>
       </template>
       <template #title="{ dataRef }">
-        <div class="node-label">
+        <div class="node-label" @click="onExpande(dataRef)">
           <span>{{ dataRef.title }}</span>
           <div class="enDilivery" @click="enDiliveryClick(dataRef)">
             <span class="label">可传递:</span>
@@ -192,6 +192,17 @@ function filterTreeNode(node: any) {
   return false
 }
 
+function onExpande(node: any) {
+  if (node.isLeaf) {
+    return
+  }
+  if (expandedKeys.value.includes(node.id)) {
+    expandedKeys.value = expandedKeys.value.filter((item: any) => item != node.id)
+  } else {
+    expandedKeys.value.push(node.id)
+  }
+}
+
 const selectedTarget = ref<any>([])
 function onCheck(keys: any, { node }: any) {
   console.log('on checked keys', keys, node)
@@ -228,11 +239,9 @@ function onCheck(keys: any, { node }: any) {
             checkedKeys.value.halfChecked.push(parent.id)
             keys.halfChecked.push(parent.id)
           }
-          let index = checkedKeys.value.checked.indexOf(parent.id)
-          while (index !== -1) {
-            checkedKeys.value.checked.splice(index, 1)
-            index = checkedKeys.value.checked.indexOf(parent.id)
-          }
+          checkedKeys.value.checked = checkedKeys.value.checked.filter(
+            (item: any) => item != parent.id
+          )
         }
       } else {
         if (halfCheckedFlag.length > 0) {
@@ -240,21 +249,24 @@ function onCheck(keys: any, { node }: any) {
             checkedKeys.value.halfChecked.push(parent.id)
             keys.halfChecked.push(parent.id)
           }
-          let index = checkedKeys.value.checked.indexOf(parent.id)
-          while (index !== -1) {
-            checkedKeys.value.checked.splice(index, 1)
-            index = checkedKeys.value.checked.indexOf(parent.id)
-          }
+          checkedKeys.value.checked = checkedKeys.value.checked.filter(
+            (item: any) => item != parent.id
+          )
         } else if (checkedFlag.length > 0 && checkedFlag.length < parent.children.length) {
           if (!checkedKeys.value.halfChecked.includes(parent.id)) {
             checkedKeys.value.halfChecked.push(parent.id)
             keys.halfChecked.push(parent.id)
           }
-          let index = checkedKeys.value.checked.indexOf(parent.id)
-          while (index !== -1) {
-            checkedKeys.value.checked.splice(index, 1)
-            index = checkedKeys.value.checked.indexOf(parent.id)
-          }
+          checkedKeys.value.checked = checkedKeys.value.checked.filter(
+            (item: any) => item != parent.id
+          )
+        } else {
+          checkedKeys.value.halfChecked = checkedKeys.value.halfChecked.filter(
+            (item: any) => item != parent.id
+          )
+          checkedKeys.value.checked = checkedKeys.value.checked.filter(
+            (item: any) => item != parent.id
+          )
         }
       }
       sltparent(parent, checked)
@@ -271,6 +283,9 @@ function onCheck(keys: any, { node }: any) {
     } else if (!childKeys.includes(key)) {
       checkedKeys.value.checked.push(key)
     }
+  })
+  keys.halfChecked.forEach((key: any) => {
+    checkedKeys.value.halfChecked.push(key)
   })
   sltparent(node, nodeSlt)
 

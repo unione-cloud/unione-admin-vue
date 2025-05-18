@@ -9,7 +9,12 @@
     :bodyStyle="{ padding: 0 }"
     class="res-select res-select-drawer"
   >
-    <ResSelect :targetType="targetType" :targetValue="targetValue" ref="selectObj"></ResSelect>
+    <ResSelect
+      :targetType="targetType"
+      :targetValue="targetValue"
+      ref="selectObj"
+      v-if="visible"
+    ></ResSelect>
 
     <template #footer>
       <a-button type="primary" @click="handelOk">确定</a-button>
@@ -26,7 +31,12 @@
     class="res-select res-select-dialog"
     @ok="handelOk"
   >
-    <ResSelect :targetType="targetType" :targetValue="targetValue" ref="selectObj"></ResSelect>
+    <ResSelect
+      :targetType="targetType"
+      :targetValue="targetValue"
+      ref="selectObj"
+      v-if="visible"
+    ></ResSelect>
   </a-modal>
 </template>
 
@@ -44,10 +54,12 @@ const props = defineProps({
     default: '资源分配'
   },
   targetType: {
-    type: String // user
+    type: String, // user
+    required: true
   },
   targetValue: {
-    type: String
+    type: String,
+    required: true
   },
   show: {
     type: String,
