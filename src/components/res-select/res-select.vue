@@ -29,7 +29,7 @@
       <template #title="{ dataRef }">
         <div class="node-label" @click="onExpande(dataRef)">
           <span>{{ dataRef.title }}</span>
-          <div class="enDilivery" @click="enDiliveryClick(dataRef)">
+          <div class="enDilivery" @click.stop="enDiliveryClick(dataRef)">
             <span class="label">可传递:</span>
             <a-switch
               size="small"
@@ -97,6 +97,7 @@ function loadTreeData() {
       treeStore.value = res.body
       treeStore.value.forEach((item: any) => {
         item.isLeaf = item.ntype == 'btn' || item.ntype == 'tool' ? true : false
+        item.enDilivery = item.enDilivery == 1 ? true : false
         treeNode.value[item.id] = item
         if (item.checked) {
           if (!checkedKeys.value.checked.includes(item.id)) {
@@ -290,16 +291,23 @@ function onCheck(keys: any, { node }: any) {
   sltparent(node, nodeSlt)
 
   // 处理选中记录
+  const sltKeys: Array<any> = []
   checkedKeys.value.checked.forEach((key: any) => {
     const item = treeNode.value[key]
-    if (item && !item.id.startsWith('btn_') && !item.id.startsWith('toool_')) {
-      selectedTarget.value.push(item)
+    if (!sltKeys.includes(key)) {
+      sltKeys.push(key)
+      if (item && !item.id.startsWith('btn_') && !item.id.startsWith('toool_')) {
+        selectedTarget.value.push(item)
+      }
     }
   })
   checkedKeys.value.halfChecked.forEach((key: any) => {
     const item = treeNode.value[key]
-    if (item && !item.id.startsWith('btn_') && !item.id.startsWith('toool_')) {
-      selectedTarget.value.push(item)
+    if (!sltKeys.includes(key)) {
+      sltKeys.push(key)
+      if (item && !item.id.startsWith('btn_') && !item.id.startsWith('toool_')) {
+        selectedTarget.value.push(item)
+      }
     }
   })
   treeStore.value.forEach((item: any) => {
@@ -313,6 +321,7 @@ function onCheck(keys: any, { node }: any) {
 }
 function enDiliveryClick(node: any) {
   node.enDilivery = !node.enDilivery
+  treeData.value = [...treeData.value]
   if (node.enDilivery) {
     if (!checkedKeys.value.checked.includes(node.id)) {
       checkedKeys.value.checked.push(node.id)

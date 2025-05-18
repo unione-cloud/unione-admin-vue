@@ -163,7 +163,9 @@ function handelUserOk(e: any) {
 }
 
 const resSelectVisible = ref(false)
-function handelResOk(e: any) {}
+function handelResOk(e: any) {
+  console.log('res select ok', e, targetObj.value)
+}
 </script>
 
 <style scoped lang="less">
