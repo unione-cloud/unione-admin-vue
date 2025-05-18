@@ -9,12 +9,12 @@
     :bodyStyle="{ padding: 0 }"
     class="role-select role-select-drawer"
   >
-    <roleList
+    <RoleList
       :targetType="targetType"
       :targetValue="targetValue"
       :mode="mode"
       ref="roleListObj"
-    ></roleList>
+    ></RoleList>
 
     <template #footer>
       <a-button type="primary" @click="handelOk">确定</a-button>
@@ -31,19 +31,19 @@
     class="role-select role-select-dialog"
     @ok="handelOk"
   >
-    <roleList
+    <RoleList
       :targetType="targetType"
       :targetValue="targetValue"
       :mode="mode"
       ref="roleListObj"
-    ></roleList>
+    ></RoleList>
   </a-modal>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useDialog } from 'unione-base-vue'
-import roleList from './role-list.vue'
+import RoleList from './role-list.vue'
 
 const dialog = useDialog()
 

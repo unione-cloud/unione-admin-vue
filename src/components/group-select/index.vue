@@ -9,7 +9,7 @@
     :bodyStyle="{ padding: 0 }"
     class="group-select group-select-drawer"
   >
-    <groupSelect :targetType="targetType" :targetValue="targetValue" ref="selectObj"></groupSelect>
+    <GroupSelect :targetType="targetType" :targetValue="targetValue" ref="selectObj"></GroupSelect>
 
     <template #footer>
       <a-button type="primary" @click="handelOk">确定</a-button>
@@ -26,14 +26,14 @@
     class="group-select group-select-dialog"
     @ok="handelOk"
   >
-    <groupSelect :targetType="targetType" :targetValue="targetValue" ref="selectObj"></groupSelect>
+    <GroupSelect :targetType="targetType" :targetValue="targetValue" ref="selectObj"></GroupSelect>
   </a-modal>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useDialog } from 'unione-base-vue'
-import groupSelect from './group-select.vue'
+import GroupSelect from './group-select.vue'
 
 const dialog = useDialog()
 

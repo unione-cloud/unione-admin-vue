@@ -9,12 +9,12 @@
     :bodyStyle="{ padding: 0 }"
     class="user-select user-select-drawer"
   >
-    <userList
+    <UserList
       :typeList="typeList"
       :targetType="targetType"
       :targetValue="targetValue"
       ref="userListObj"
-    ></userList>
+    ></UserList>
 
     <template #footer>
       <a-button type="primary" @click="handelOk">确定</a-button>
@@ -31,19 +31,19 @@
     class="user-select user-select-dialog"
     @ok="handelOk"
   >
-    <userList
+    <UserList
       :typeList="typeList"
       :targetType="targetType"
       :targetValue="targetValue"
       ref="userListObj"
-    ></userList>
+    ></UserList>
   </a-modal>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useDialog } from 'unione-base-vue'
-import userList from './user-list.vue'
+import UserList from './user-list.vue'
 
 const dialog = useDialog()
 

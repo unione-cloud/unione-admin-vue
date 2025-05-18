@@ -9,7 +9,7 @@
     :bodyStyle="{ padding: 0 }"
     class="post-select post-select-drawer"
   >
-    <postSelect :targetType="targetType" :targetValue="targetValue" ref="selectObj"></postSelect>
+    <PostSelect :targetType="targetType" :targetValue="targetValue" ref="selectObj"></PostSelect>
 
     <template #footer>
       <a-button type="primary" @click="handelOk">确定</a-button>
@@ -26,14 +26,14 @@
     class="post-select post-select-dialog"
     @ok="handelOk"
   >
-    <postSelect :targetType="targetType" :targetValue="targetValue" ref="selectObj"></postSelect>
+    <PostSelect :targetType="targetType" :targetValue="targetValue" ref="selectObj"></PostSelect>
   </a-modal>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useDialog } from 'unione-base-vue'
-import postSelect from './post-select.vue'
+import PostSelect from './post-select.vue'
 
 const dialog = useDialog()
 
@@ -77,7 +77,7 @@ function handelOk() {
     emit('ok', { ...selected, targetType: props.targetType, targetValue: props.targetValue })
     return
   }
-  dialog.warning({ content: '请选择机构' })
+  dialog.warning({ content: '请选择岗位' })
 }
 </script>
 

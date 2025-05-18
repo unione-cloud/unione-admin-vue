@@ -8,8 +8,16 @@
       targetType="assign"
       :targetValue="targetObj?.id"
       position="right"
-      @ok="handelOk"
+      @ok="handelUserOk"
     ></RoleSelect>
+
+    <ResSelect
+      v-model:visible="resSelectVisible"
+      targetType="user"
+      :targetValue="targetObj?.id"
+      position="right"
+      @ok="handelResOk"
+    ></ResSelect>
   </div>
 </template>
 
@@ -117,6 +125,10 @@ function btnClick({ btn, event, row, keys }: any) {
     roleSelectVisible.value = true
     targetObj.value = row
   }
+  if (btn.name == 'res-assign') {
+    resSelectVisible.value = true
+    targetObj.value = row
+  }
   if (btn.name == 'assignBatch') {
     const selected = rolelist.value.getSelected()
     console.log('selected', selected)
@@ -133,7 +145,7 @@ function btnClick({ btn, event, row, keys }: any) {
 
 const targetObj = ref<any>(null)
 const roleSelectVisible = ref(false)
-function handelOk(e: any) {
+function handelUserOk(e: any) {
   console.log('role select ok', e, targetObj.value)
   const roles = e.list.map((item: any) => {
     return { id: item.id, enDilivery: item.enDilivery }
@@ -149,6 +161,9 @@ function handelOk(e: any) {
       roleSelectVisible.value = false
     })
 }
+
+const resSelectVisible = ref(false)
+function handelResOk(e: any) {}
 </script>
 
 <style scoped lang="less">

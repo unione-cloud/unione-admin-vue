@@ -9,7 +9,7 @@
     :bodyStyle="{ padding: 0 }"
     class="organ-select organ-select-drawer"
   >
-    <organSelect :targetType="targetType" :targetValue="targetValue" ref="selectObj"></organSelect>
+    <OrganSelect :targetType="targetType" :targetValue="targetValue" ref="selectObj"></OrganSelect>
 
     <template #footer>
       <a-button type="primary" @click="handelOk">确定</a-button>
@@ -26,14 +26,14 @@
     class="organ-select organ-select-dialog"
     @ok="handelOk"
   >
-    <organSelect :targetType="targetType" :targetValue="targetValue" ref="selectObj"></organSelect>
+    <OrganSelect :targetType="targetType" :targetValue="targetValue" ref="selectObj"></OrganSelect>
   </a-modal>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useDialog } from 'unione-base-vue'
-import organSelect from './organ-select.vue'
+import OrganSelect from './organ-select.vue'
 
 const dialog = useDialog()
 
