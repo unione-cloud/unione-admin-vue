@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { nextTick, onMounted, ref } from 'vue'
 import { axios } from 'unione-base-vue'
 
 const props = defineProps({
@@ -182,6 +182,34 @@ function loadTreeData() {
             checkedKeys.value.checked.push(nid)
           }
         }
+      })
+
+      // 回显处理
+      nextTick(() => {
+        const process = (node: any) => {
+          const parent = treeNode.value[node.pid]
+          if (parent) {
+            parent.children?.forEach((item: any) => {
+              if (checkedKeys.value.halfChecked.includes(item.id)) {
+                if (!checkedKeys.value.halfChecked.includes(parent.id)) {
+                  checkedKeys.value.halfChecked.push(parent.id)
+                }
+                if (checkedKeys.value.checked.includes(parent.id)) {
+                  checkedKeys.value.checked = checkedKeys.value.checked.filter(
+                    (id: any) => id != parent.id
+                  )
+                }
+              }
+            })
+            process(parent)
+          }
+        }
+        const leafNodes = treeStore.value.filter(
+          (node: any) => !node.children || node.children.length == 0
+        )
+        leafNodes.forEach((node: any) => {
+          process(node)
+        })
       })
     })
 }
