@@ -164,7 +164,6 @@ function handelUserOk(e: any) {
 
 const resSelectVisible = ref(false)
 function handelResOk(e: any) {
-  console.log('res select ok', e)
   const resList = e.list.map((item: any) => {
     return { ...item, userId: targetObj.value.id }
   })
@@ -174,9 +173,13 @@ function handelResOk(e: any) {
       method: 'post',
       data: { userId: targetObj.value.id, addPermis: resList }
     })
-    .then(() => {
-      dialog.success('资源分配成功')
-      resSelectVisible.value = false
+    .then((res: any) => {
+      if (res.success) {
+        dialog.success({ content: '资源分配成功:' + res.message })
+        resSelectVisible.value = false
+      } else {
+        dialog.error({ content: '资源分配成功:' + res.message })
+      }
     })
 }
 </script>

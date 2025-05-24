@@ -106,6 +106,7 @@ function loadTreeData() {
         if (item.checked) {
           if (!checkedKeys.value.checked.includes(item.id)) {
             checkedKeys.value.checked.push(item.id)
+            selectedTarget.value.push(item)
           }
         }
       })

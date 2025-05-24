@@ -17,6 +17,7 @@
 import { nextTick, ref } from 'vue'
 import { useRouter, type Router } from 'vue-router'
 import { axios, useDialog } from 'unione-base-vue'
+import { context } from 'ant-design-vue/es/vc-image/src/PreviewGroup'
 
 const dialog = useDialog()
 const router: Router = useRouter()
@@ -111,9 +112,13 @@ function handelResOk(e: any) {
       method: 'post',
       data: { roleId: targetObj.value.id, addPermis: resList }
     })
-    .then(() => {
-      dialog.success('资源分配成功')
-      resSelectVisible.value = false
+    .then((res: any) => {
+      if (res.success) {
+        dialog.success({ content: '资源分配成功:' + res.message })
+        resSelectVisible.value = false
+      } else {
+        dialog.error({ content: '资源分配成功:' + res.message })
+      }
     })
 }
 </script>
