@@ -36,17 +36,33 @@ const unionePage = ref<any>({
       }
     },
     {
+      title: '路由PATH',
+      name: 'path',
+      required: false,
+      props: {
+        tooltip: '菜单路由path'
+      },
+      event: {
+        visible: (value: any, formData: any) => {
+          return formData.types == 'menu'
+        },
+        required: (value: any, formData: any) => {
+          return formData.types == 'menu'
+        }
+      }
+    },
+    {
       title: '连接URL',
       name: 'url',
       required: false,
       event: {
+        visible: (value: any, formData: any) => {
+          return formData.types == 'menu'
+        },
         title: (value: any, formData: any) => {
-          if (formData.types == 'menu') {
+          if (formData.isExternal == 0) {
             return '菜单URL'
           }
-        },
-        required: (value: any, formData: any) => {
-          return formData.types == 'menu'
         }
       }
     },
