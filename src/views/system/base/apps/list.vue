@@ -47,6 +47,15 @@ const define = ref({
       isQuery: true
     },
     {
+      title: '应用类型',
+      name: 'types',
+      convert: {
+        types: 'dict',
+        dictName: 'APPTYPES'
+      },
+      isQuery: true
+    },
+    {
       title: '微应用',
       name: 'isMp',
       convert: {
@@ -218,6 +227,15 @@ const drawer = ref({
         title: '应用编码',
         name: 'sn',
         required: true
+      },
+      {
+        title: '应用类型',
+        name: 'types',
+        control: 'unione-select-box',
+        convert: {
+          types: 'dict',
+          dictName: 'APPTYPES'
+        }
       },
       {
         title: '微应用',
