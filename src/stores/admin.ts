@@ -5,6 +5,7 @@ import config from '@/config/settings'
 import { local } from '@/router'
 import { useSession } from 'unione-base-vue'
 import { useRouter } from 'vue-router'
+import iframeLayout from '@/layouts/iframeLayout.vue'
 
 /**
  * Admin Store
@@ -41,13 +42,16 @@ export const useAdminStore = defineStore('unione-admin', () => {
             ...(item.meta || {}),
             url: item.url
           },
-          props: item.props,
+          props: item.props || {},
           component: item.component
         }
-        // if (item.url && item.url.startsWith('@')) {
-        //   route.component = () => import('' + item.url)
-        //   // route.component = () => import('@/views/HomeView.vue')
-        // }
+        if (item.url) {
+          if (route.meta.isIframe == 1) {
+            route.component = iframeLayout
+          } else {
+            route.component = () => import(`@${item.url}.vue`)
+          }
+        }
         if (item.children && item.children.length) {
           route.children = buildRoute(item.children)
         }
