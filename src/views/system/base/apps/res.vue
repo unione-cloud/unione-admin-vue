@@ -8,7 +8,8 @@ import { ref } from 'vue'
 
 const unionePage = ref<any>({
   storage: {
-    controller: '/api/system/resource'
+    controller: '/api/system/resource',
+    orderBy: 'ordered asc'
   },
   fields: [
     {

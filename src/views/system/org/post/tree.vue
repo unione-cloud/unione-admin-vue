@@ -35,7 +35,8 @@ const page = ref() // pageTree dom ref obj
 const member = ref() // member dom ref obj
 const unionePage = ref<any>({
   storage: {
-    controller: '/api/system/post'
+    controller: '/api/system/post',
+    orderBy: 'ordered asc'
   },
   fields: [
     {
