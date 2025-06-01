@@ -10,13 +10,13 @@ import { useAdminStore } from '@/stores/admin'
 
 export const local: Array<MenuItem> = [
   {
-    sid: 'home',
+    id: 'home',
     title: '首页',
     path: '/home',
     component: () => import('@/views/home.vue')
   },
   {
-    sid: '1000',
+    id: '1000',
     title: 'unione',
     path: '/unione',
     hidden: true,
@@ -25,25 +25,25 @@ export const local: Array<MenuItem> = [
     },
     children: [
       {
-        sid: '1001',
+        id: '1001',
         title: '新增',
         path: '/unione/page/add',
         component: UnionePageForm
       },
       {
-        sid: '1002',
+        id: '1002',
         title: '修改',
         path: '/unione/page/edit',
         component: UnionePageForm
       },
       {
-        sid: '1003',
+        id: '1003',
         title: '查看',
         path: '/unione/page/view',
         component: UnionePageForm
       },
       {
-        sid: '1004',
+        id: '1004',
         title: '列表',
         path: '/unione/page/list',
         component: UnionePageList
@@ -51,7 +51,7 @@ export const local: Array<MenuItem> = [
     ]
   },
   {
-    sid: '20000',
+    id: '20000',
     title: '系统管理',
     path: '/system',
     meta: {
@@ -59,7 +59,7 @@ export const local: Array<MenuItem> = [
     },
     children: [
       {
-        sid: '20000100',
+        id: '20000100',
         title: '数据管理',
         path: '/system/data/manage',
         meta: {
@@ -67,13 +67,13 @@ export const local: Array<MenuItem> = [
         },
         children: [
           {
-            sid: '20000100100',
+            id: '20000100100',
             title: '数据定义',
             path: '/system/data/define/list',
             component: UnioneDataDefineList
           },
           {
-            sid: '20000100101',
+            id: '20000100101',
             title: '数据定义',
             path: '/system/data/define/edit',
             hidden: true,
@@ -82,7 +82,7 @@ export const local: Array<MenuItem> = [
         ]
       },
       {
-        sid: '20000101',
+        id: '20000101',
         title: '基础管理',
         path: '/system/base',
         meta: {
@@ -90,39 +90,39 @@ export const local: Array<MenuItem> = [
         },
         children: [
           {
-            sid: '20000101100',
+            id: '20000101100',
             title: '字典管理',
             path: '/system/base/dict',
             component: () => import('@/views/system/base/dict/list.vue')
           },
           {
-            sid: '20000101101',
+            id: '20000101101',
             title: '应用管理',
             path: '/system/base/apps',
             component: () => import('@/views/system/base/apps/list.vue')
           },
           {
-            sid: '2000010110101',
+            id: '2000010110101',
             title: '接口管理',
             path: '/system/base/apps/api',
             hidden: true,
             component: () => import('@/views/system/base/apps/api.vue')
           },
           {
-            sid: '2000010110102',
+            id: '2000010110102',
             title: '资源管理',
             path: '/system/base/apps/res',
             hidden: true,
             component: () => import('@/views/system/base/apps/res.vue')
           },
           {
-            sid: '20000101102',
+            id: '20000101102',
             title: '层级树管理',
             path: '/system/base/ctree',
             component: () => import('@/views/system/base/ctree/list.vue')
           },
           {
-            sid: '2000010110201',
+            id: '2000010110201',
             title: '层级编码管理',
             path: '/system/base/ctree/lvsn',
             hidden: true,
@@ -131,7 +131,7 @@ export const local: Array<MenuItem> = [
         ]
       },
       {
-        sid: '20000102',
+        id: '20000102',
         title: '组织管理',
         path: '/system/org',
         meta: {
@@ -139,45 +139,45 @@ export const local: Array<MenuItem> = [
         },
         children: [
           {
-            sid: '20000102100',
+            id: '20000102100',
             title: '机构管理',
             path: '/system/org/organ',
             component: () => import('@/views/system/org/organ/tree.vue')
           },
           {
-            sid: '20000102101',
+            id: '20000102101',
             title: '用户管理',
             path: '/system/org/user',
             component: () => import('@/views/system/org/user/list.vue')
           },
           {
-            sid: '2000010210101',
+            id: '2000010210101',
             title: '角色列表',
             path: '/system/org/user/rolelist',
             hidden: true,
             component: () => import('@/views/system/org/user/roles.vue')
           },
           {
-            sid: '20000102102',
+            id: '20000102102',
             title: '角色管理',
             path: '/system/org/role',
             component: () => import('@/views/system/org/role/list.vue')
           },
           {
-            sid: '2000010210201',
+            id: '2000010210201',
             title: '用户列表',
             path: '/system/org/role/userlist',
             hidden: true,
             component: () => import('@/views/system/org/role/users.vue')
           },
           {
-            sid: '20000102103',
+            id: '20000102103',
             title: '分组管理',
             path: '/system/org/group',
             component: () => import('@/views/system/org/group/tree.vue')
           },
           {
-            sid: '20000102104',
+            id: '20000102104',
             title: '岗位管理',
             path: '/system/org/post',
             component: () => import('@/views/system/org/post/tree.vue')
@@ -185,7 +185,7 @@ export const local: Array<MenuItem> = [
         ]
       },
       {
-        sid: '20000103',
+        id: '20000103',
         title: '权限管理',
         path: '/system/permis',
         meta: {
@@ -193,26 +193,26 @@ export const local: Array<MenuItem> = [
         },
         children: [
           {
-            sid: '20000103001',
+            id: '20000103001',
             title: '用户权限',
             path: '/system/permis/user',
             component: () => import('@/views/system/permis/user/list.vue')
           },
           {
-            sid: '20000103002',
+            id: '20000103002',
             title: '角色权限',
             path: '/system/permis/role',
             component: () => import('@/views/system/permis/role/list.vue')
           },
           {
-            sid: '20000103003',
+            id: '20000103003',
             title: '用户列表',
             path: '/system/permis/role/users',
             hidden: true,
             component: () => import('@/views/system/permis/role/users.vue')
           },
           {
-            sid: '20000103004',
+            id: '20000103004',
             title: '资源分配',
             path: '/system/permis/resa',
             component: () => import('@/views/system/permis/resa/tree.vue')
@@ -220,7 +220,7 @@ export const local: Array<MenuItem> = [
         ]
       },
       {
-        sid: '20000900',
+        id: '20000900',
         title: '租户管理',
         path: '/system/tenant',
         meta: {
@@ -228,7 +228,7 @@ export const local: Array<MenuItem> = [
         },
         children: [
           {
-            sid: '20000900001',
+            id: '20000900001',
             title: '租户列表',
             path: '/system/tenant/list',
             component: () => import('@/views/system/tenant/list/index.vue')
@@ -236,7 +236,7 @@ export const local: Array<MenuItem> = [
         ]
       },
       {
-        sid: '20000901',
+        id: '20000901',
         title: '运维管理',
         path: '/system/ops',
         meta: {
@@ -244,7 +244,7 @@ export const local: Array<MenuItem> = [
         },
         children: [
           {
-            sid: '20000901001',
+            id: '20000901001',
             title: '日志管理',
             path: '/system/ops/logs',
             component: () => import('@/views/system/ops/logs/list.vue')

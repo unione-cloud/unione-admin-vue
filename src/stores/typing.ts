@@ -4,7 +4,7 @@ export interface MenuBtn {
   sid: string
   title: string
   name?: string
-  icon?: string | VNodeChild 
+  icon?: string | VNodeChild
   type?: string
 }
 
@@ -21,8 +21,8 @@ export interface MenuMeta {
 }
 
 export interface MenuItem {
-  sid: string | number
-  hidden?:boolean,
+  id: string | number
+  hidden?: boolean
   title: string
   path: string
   url?: string

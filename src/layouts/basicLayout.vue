@@ -54,7 +54,7 @@
       <a-layout-content class="unione-layout-content">
         <iframe
           class="unione-iframe-content"
-          v-if="$route.meta.url"
+          v-if="$route.meta.url && $route.meta.isIframe == 1"
           :src="$route.meta.url.toString()"
         ></iframe>
         <RouterView v-else :key="$route.name?.toString()"></RouterView>
