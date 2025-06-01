@@ -57,6 +57,11 @@
           v-if="$route.meta.url && $route.meta.isIframe == 1"
           :src="$route.meta.url.toString()"
         ></iframe>
+        <component
+          class="unione-page-content"
+          v-else-if="$route.meta.isIframe != 1 && viewComponent"
+          :is="viewComponent"
+        />
         <RouterView v-else :key="$route.name?.toString()"></RouterView>
       </a-layout-content>
     </a-layout>
@@ -64,8 +69,8 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, h } from 'vue'
-import { RouterView } from 'vue-router'
+import { computed, defineAsyncComponent } from 'vue'
+import { RouterView, useRoute } from 'vue-router'
 import { default as AvatarDropdown } from '@/components/avatar-dropdown.vue'
 import { default as NoticeIcon } from '@/components/notice-icon/index.vue'
 import { useSession } from 'unione-base-vue'
@@ -73,6 +78,8 @@ import { useAdminStore } from '@/stores/admin'
 
 // 会话对象
 const session = useSession()
+const route = useRoute()
+
 const principal = computed(() => {
   return session.getPrincipal()
 })
@@ -92,6 +99,14 @@ const topMenu = computed(() => {
 })
 const view: any = computed(() => {
   return admin.view
+})
+
+const viewComponent = computed(() => {
+  if (route.meta.isIframe != 1 && route.meta.url) {
+    const path = `../views${route.meta.url}.vue`
+    return defineAsyncComponent(() => import(/* @vite-ignore */ path))
+  }
+  return null
 })
 </script>
 
@@ -178,6 +193,10 @@ const view: any = computed(() => {
       width: 100%;
       height: 100%;
       border: none;
+    }
+    .unione-page-content {
+      width: 100%;
+      height: 100%;
     }
   }
 }

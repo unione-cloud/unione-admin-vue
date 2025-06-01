@@ -5,7 +5,6 @@ import config from '@/config/settings'
 import { local } from '@/router'
 import { axios, useDialog, useSession } from 'unione-base-vue'
 import { useRouter } from 'vue-router'
-import pageView from '@/layouts/pageView.vue'
 
 /**
  * Admin Store
@@ -44,7 +43,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
             url: item.url
           },
           props: item.props || {},
-          component: () => import('@/layouts/pageView.vue')
+          component: item.component
         }
         if (item.children && item.children.length) {
           route.children = buildRoute(item.children)
@@ -184,6 +183,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
                         title: m.title,
                         path: '/' + app.sn + m.path,
                         url: m.url,
+                        hidden: m.isHide == 1,
                         meta: {
                           icon: 'MailOutlined',
                           isExternal: m.isExternal,
@@ -223,8 +223,8 @@ export const useAdminStore = defineStore('unione-admin', () => {
             }
           })
       } else {
-        console.log('route local', local)
-        console.log('route menuList', menuList)
+        // console.log('route local', local)
+        // console.log('route menuList', menuList)
         process(menuList)
       }
     })
