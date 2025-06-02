@@ -57,7 +57,8 @@ const unionePage = ref<any>({
     },
     {
       title: '分组图标',
-      name: 'iconFont'
+      name: 'iconFont',
+      control: 'icon-select'
     },
     {
       title: '分组图片',

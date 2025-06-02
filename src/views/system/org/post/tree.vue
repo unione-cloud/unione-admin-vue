@@ -56,7 +56,8 @@ const unionePage = ref<any>({
     },
     {
       title: '岗位图标',
-      name: 'iconFont'
+      name: 'iconFont',
+      control: 'icon-select'
     },
     {
       title: '岗位图片',
