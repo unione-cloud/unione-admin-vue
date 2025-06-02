@@ -72,12 +72,13 @@ function toSelect() {
   visible.value = true
 }
 
-const emit = defineEmits(['ok'])
+const emit = defineEmits(['ok', 'change'])
 const listObj = ref()
 function handelOk() {
   const selected = listObj.value.getSelected()
   if (selected) {
     emit('ok', selected)
+    emit('change', selected)
     iconValue.value = selected
     visible.value = false
     return
