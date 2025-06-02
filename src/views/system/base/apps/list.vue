@@ -277,7 +277,8 @@ const drawer = ref({
       },
       {
         title: '字体图标',
-        name: 'icon'
+        name: 'icon',
+        control: 'icon-select'
       },
       {
         title: '图片图标(小)',
