@@ -8,7 +8,9 @@
       v-if="sideMenu.list && sideMenu.list.length"
     >
       <div class="logo-box">
-        <div class="logo-title" :style="view.logo.title.css">{{ view.logo.title.text }}</div>
+        <div class="logo-title" :style="view.logo.title.css">
+          {{ sideMenu.collapsed ? view.logo.title.side : view.logo.title.text }}
+        </div>
       </div>
       <a-menu
         class="unione-sider-menu"
@@ -29,7 +31,9 @@
       >
         <div class="unione-header-left">
           <div class="logo-box" v-if="!sideMenu.list || !sideMenu.list.length">
-            <div class="logo-title" :style="view.logo.title.css">{{ view.logo.title.text }}</div>
+            <div class="logo-title" :style="view.logo.title.css">
+              {{ sideMenu.collapsed ? view.logo.title.side : view.logo.title.text }}
+            </div>
           </div>
           <a-menu
             class="unione-header-menu"
@@ -119,6 +123,7 @@ const viewComponent = computed(() => {
       height: 64px;
       line-height: 64px;
       overflow: hidden;
+      cursor: pointer;
       .logo-title {
         color: #ffffff;
       }

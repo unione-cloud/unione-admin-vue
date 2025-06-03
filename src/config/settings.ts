@@ -8,6 +8,7 @@ export default {
     logo: {
       title: {
         text: 'Unione Cloud Admin',
+        side: 'UCA',
         css: 'font-size:20px;padding-left:3px;'
       }
     },

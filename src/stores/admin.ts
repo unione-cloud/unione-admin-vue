@@ -1,10 +1,10 @@
-import { ref, h, watch } from 'vue'
-import { defineStore, getActivePinia } from 'pinia'
+import { ref, h } from 'vue'
+import { defineStore } from 'pinia'
 import type { MenuItem, ViewSetting } from './typing'
 import config from '@/config/settings'
-import { local } from '@/router'
 import { axios, useDialog, useSession } from 'unione-base-vue'
 import { useRouter } from 'vue-router'
+import * as Icons from '@ant-design/icons-vue/lib/icons'
 
 /**
  * Admin Store
@@ -62,11 +62,19 @@ export const useAdminStore = defineStore('unione-admin', () => {
         const menu: any = {
           key: item.id,
           label: item.title,
-          // icon: item.meta?.icon,
+          icon: item.meta?.icon || 'UnorderedListOutlined',
           path: item.path
         }
-        if (typeof menu.icon === 'string') {
-          menu.icon = () => h(menu.icon)
+        if (menu.icon && typeof menu.icon === 'string') {
+          console.log('menu name:' + item.id + ',icon:' + menu.icon)
+          const IconComponent = Icons[menu.icon as keyof typeof Icons]
+          if (IconComponent) {
+            menu.icon = () => h(IconComponent)
+          } else {
+            // 若找不到对应图标，使用默认图标
+            menu.icon = () => h(Icons.UnorderedListOutlined)
+            console.log('menu name:' + item.name + ', 默认图标')
+          }
         }
         menuMap.value[menu.key] = menu
         menuMap.value[menu.path] = menu
@@ -185,7 +193,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
                         url: m.url,
                         hidden: m.isHide == 1,
                         meta: {
-                          icon: 'MailOutlined',
+                          icon: m.icon || 'UnorderedListOutlined',
                           isExternal: m.isExternal,
                           isHide: m.isHide,
                           isIframe: m.isIframe
@@ -203,7 +211,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
                     path: '/' + app.sn,
                     url: app.url,
                     meta: {
-                      icon: 'MailOutlined',
+                      icon: app.icon || 'UnorderedListOutlined',
                       isMp: app.isMp,
                       versNo: app.versNo,
                       welcome: app.welcome
