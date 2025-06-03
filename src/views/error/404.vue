@@ -8,8 +8,8 @@
         <div class="tip-item">检查网络连接</div>
         <div class="tip-item">检查代理服务</div>
         <div class="tip-btns">
-          <a-button type="primary" class="tip-btn">刷新页面</a-button>
-          <a-button type="primary" class="tip-btn">返回首页</a-button>
+          <a-button type="primary" class="tip-btn" @click="goback">返回</a-button>
+          <a-button type="primary" class="tip-btn" @click="gohome">首页</a-button>
         </div>
       </div>
     </div>
@@ -18,6 +18,15 @@
 
 <script setup lang="ts">
 import Img404 from '@/assets/error/404.png'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+function gohome() {
+  router.push('/')
+}
+function goback() {
+  router.go(-1)
+}
 </script>
 
 <style lang="less" scoped>
