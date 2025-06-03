@@ -210,6 +210,7 @@ function loadTreeData() {
         )
         leafNodes.forEach((node: any) => {
           process(node)
+          node.isLeaf = true
         })
       })
     })
