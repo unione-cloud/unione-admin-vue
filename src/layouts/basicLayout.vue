@@ -79,6 +79,20 @@ import { default as AvatarDropdown } from '@/components/avatar-dropdown.vue'
 import { default as NoticeIcon } from '@/components/notice-icon/index.vue'
 import { useSession } from 'unione-base-vue'
 import { useAdminStore } from '@/stores/admin'
+import {
+  UnioneDataDefineList,
+  UnioneDataDefineEdit,
+  UnionePageForm,
+  UnionePageList
+} from 'unione-form-vue'
+
+// 页面组件集合
+const pageComponents: any = {
+  UnioneDataDefineList,
+  UnioneDataDefineEdit,
+  UnionePageForm,
+  UnionePageList
+}
 
 // 会话对象
 const session = useSession()
@@ -107,6 +121,10 @@ const view: any = computed(() => {
 
 const viewComponent = computed(() => {
   if (route.meta.isIframe != 1 && route.meta.url) {
+    if (route.meta.url.toString().startsWith('@')) {
+      return pageComponents[route.meta.url.toString().replace('@', '')]
+    }
+
     const path = `../views${route.meta.url}.vue`
     return defineAsyncComponent(() => import(/* @vite-ignore */ path))
   }
