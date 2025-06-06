@@ -202,6 +202,7 @@ const drawer = ref({
       {
         title: '长度',
         name: 'lvLen',
+        value: 3,
         control: 'a-input-number',
         required: true
       },

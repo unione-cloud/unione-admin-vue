@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <div class="unione-page unione-page-list unione-system-dict">
+  <div class="unione-page unione-page-list unione-system-config">
     <unione-page-list ref="page" v-bind="define" @btnClick="btnClick"></unione-page-list>
 
     <a-drawer
@@ -19,7 +19,7 @@
     </a-drawer>
 
     <a-drawer
-      title="字典管理"
+      title="配置管理"
       :width="850"
       v-model:visible="manage.visible"
       placement="right"
@@ -38,7 +38,7 @@ const dialog = useDialog()
 const page = ref()
 const define = ref({
   storage: {
-    controller: '/api/system/dict'
+    controller: '/api/system/configDefine'
   },
   params: {
     pid: -1
@@ -49,28 +49,29 @@ const define = ref({
       name: 'appName',
       isQuery: true
     },
+
     {
-      title: '字典名称',
-      name: 'dictName',
+      title: '配置标题',
+      name: 'title',
       isQuery: true
     },
     {
-      title: '字典标题',
-      name: 'dictValue',
-      isQuery: true
-    },
-    {
-      title: '字典类型',
-      name: 'dictType',
+      title: '配置类型',
+      name: 'types',
       convert: {
-        types: 'option',
-        options: [
-          { value: 0, label: '平台' },
-          { value: 1, label: '租户' },
-          { value: 2, label: '机构' }
-        ]
+        types: 'dict',
+        dictName: 'IUCONFTYPE'
       },
       isQuery: true
+    },
+    {
+      title: '配置name',
+      name: 'name',
+      isQuery: true
+    },
+    {
+      title: '配置value',
+      name: 'valueDefault'
     },
     {
       title: '状态',
@@ -126,7 +127,7 @@ function btnClick({ btn, event, row, keys }: any) {
   console.log('table btn click', btn, event, row)
   if (btn.name == 'add') {
     drawer.value.visible = true
-    drawer.value.title = '新增字典'
+    drawer.value.title = '新增配置'
     drawer.value.placement = 'left'
     drawer.value.row = {}
     nextTick(() => {
@@ -135,7 +136,7 @@ function btnClick({ btn, event, row, keys }: any) {
   }
   if (btn.name == 'edit') {
     drawer.value.visible = true
-    drawer.value.title = '编辑字典'
+    drawer.value.title = '编辑配置'
     drawer.value.placement = 'right'
     drawer.value.row = row
     nextTick(() => {
@@ -146,7 +147,7 @@ function btnClick({ btn, event, row, keys }: any) {
     manage.value.visible = true
     manage.value.target = row
     manage.value.params = {
-      dictName: row.dictName
+      pid: row.id
     }
   }
   if (btn.name == 'status') {
@@ -156,11 +157,11 @@ function btnClick({ btn, event, row, keys }: any) {
 
 function setStatus(id: string, status: number) {
   dialog.confirm({
-    content: '确定要' + (status == 1 ? '启用' : '停用') + '该字典么?',
+    content: '确定要' + (status == 1 ? '启用' : '停用') + '该配置么?',
     onOk: () => {
       axios.admin
         .request({
-          url: '/api/system/dict/status',
+          url: '/api/system/configDefine/status',
           method: 'post',
           data: { id, status }
         })
@@ -173,7 +174,7 @@ function setStatus(id: string, status: number) {
 
 const form = ref() //form ref obj
 const drawer = ref({
-  title: '新增字典',
+  title: '新增配置',
   placement: 'left',
   visible: false,
   row: {},
@@ -187,49 +188,34 @@ const drawer = ref({
         }
       },
       {
-        title: '字典名称',
-        name: 'dictName',
+        title: '配置类型',
+        name: 'types',
+        control: 'unione-select-box',
+        value: '0',
+        convert: {
+          types: 'dict',
+          dictName: 'IUCONFTYPE'
+        }
+      },
+      {
+        title: '配置标题',
+        name: 'title',
         props: {
           required: true
-        },
-        event: {
-          visible: (value: string, ctx: any) => {
-            return !ctx.id
-          }
         }
       },
       {
-        title: '字典标题',
-        name: 'dictValue',
+        title: '配置name',
+        name: 'name',
         props: {
           required: true
         }
       },
       {
-        title: '字典类型',
-        name: 'dictType',
-        control: 'unione-select-box',
-        value: 2,
-        convert: {
-          types: 'option',
-          options: [
-            { value: 0, label: '平台' },
-            { value: 1, label: '租户' },
-            { value: 2, label: '机构' }
-          ]
-        }
-      },
-      {
-        title: '显示方式',
-        name: 'showType',
-        control: 'unione-select-box',
-        value: 'text',
-        convert: {
-          types: 'option',
-          options: [
-            { value: 'text', label: '文本' },
-            { value: 'tag', label: '标签' }
-          ]
+        title: '配置value',
+        name: 'valueDefault',
+        props: {
+          required: true
         }
       },
       {
@@ -239,7 +225,7 @@ const drawer = ref({
         control: 'a-input-number'
       },
       {
-        title: '字典状态',
+        title: '配置状态',
         name: 'status',
         control: 'unione-switch-box',
         value: 1,
@@ -247,6 +233,11 @@ const drawer = ref({
           types: 'dict',
           dictName: 'USEORNOT'
         }
+      },
+      {
+        title: '配置说明',
+        name: 'descs',
+        control: 'a-textarea'
       }
     ],
     setting: {
@@ -256,19 +247,13 @@ const drawer = ref({
   },
   tosave: () => {
     form.value.validate().then((data: any) => {
-      const type = data.showType || 'text'
-      delete data.showType
       data.ordered = data.ordered || 0
-
+      data.appId = -1
       data = {
         ...drawer.value.row,
         ...data,
-        dictKey: data.dictName,
-        parentId: -1,
-        isLeaf: 0,
-        dictShow: JSON.stringify({ type })
+        pid: -1
       }
-
       page.value
         .storage()
         .save({ data })
@@ -280,83 +265,55 @@ const drawer = ref({
   }
 })
 
-// 字典项管理
+// 配置项管理
 const manage = ref<any>({
   visible: false,
   target: {},
   params: {},
   page: {
     storage: {
-      controller: '/api/system/dict'
+      controller: '/api/system/configDefine'
     },
     fields: [
       {
-        title: '应用名称',
-        name: 'appName',
-        event: {
-          visible: {
-            enable: true,
-            scriptText: 'return ctx.parentId==-1'
-          }
-        }
-      },
-      {
-        title: '字典类型',
-        name: 'dictType',
+        title: '配置类型',
+        name: 'types',
         control: 'unione-select-box',
-        value: 0,
+        value: '0',
         convert: {
-          types: 'option',
-          options: [
-            { value: 0, label: '平台' },
-            { value: 1, label: '租户' },
-            { value: 2, label: '机构' }
-          ]
-        },
-        event: {
-          visible: {
-            enable: true,
-            scriptText: 'return ctx.parentId==-1'
-          }
+          types: 'dict',
+          dictName: 'IUCONFTYPE'
         }
       },
       {
-        title: '字典名称',
-        name: 'dictName',
-        event: {
-          visible: {
-            enable: true,
-            scriptText: 'return ctx.parentId==-1'
-          }
+        title: '配置标题',
+        name: 'title',
+        props: {
+          required: true
         }
       },
       {
-        title: '字典key',
-        name: 'dictKey',
-        event: {
-          visible: {
-            enable: true,
-            scriptText: 'return ctx.parentId!=-1'
-          }
+        title: '配置name',
+        name: 'name',
+        props: {
+          required: true
         }
       },
       {
-        title: '字典Value',
-        name: 'dictValue',
-        event: {
-          title: {
-            enable: true,
-            scriptText: "return ctx.parentId==-1?'字典标题':'字典Value'"
-          }
+        title: '配置value',
+        name: 'valueDefault',
+        props: {
+          required: true
         }
       },
       {
         title: '显示顺序',
         name: 'ordered',
+        value: 1,
         control: 'a-input-number'
       },
       {
-        title: '字典状态',
+        title: '配置状态',
         name: 'status',
         control: 'unione-switch-box',
         value: 1,
@@ -364,34 +321,30 @@ const manage = ref<any>({
           types: 'dict',
           dictName: 'USEORNOT'
         }
+      },
+      {
+        title: '配置说明',
+        name: 'descs',
+        control: 'a-textarea'
       }
     ],
     setting: {
-      tree: {
-        labelField: 'dictValue'
-      },
       form: {
         showColumn: 1,
         labelWidth: 4
       }
     },
     event: {
-      preSave: (data: any) => {
-        if (data.parentId == -1) {
-          data.dictKey = data.dictName
-        }
-      },
       createNode: (node: any, parent: any, params: any) => {
         if (parent) {
           node.appName = parent.appName
-          node.dictName = parent.dictName
-          node.dictType = parent.dictType
+          node.pid = parent.id
+          node.types = parent.types
         } else {
-          node.parentId = manage.value.target.id
-          node.appName = manage.value.target.appName
-          node.dictType = manage.value.target.dictType
-          node.dictName = manage.value.target.dictName
+          node.pid = manage.value.target.id
+          node.types = manage.value.target.types
         }
+        node.appId = -1
       }
     }
   }
