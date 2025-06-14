@@ -298,10 +298,7 @@ const manage = ref<any>({
       },
       {
         title: '配置value',
-        name: 'valueDefault',
-        props: {
-          required: true
-        }
+        name: 'valueDefault'
       },
       {
         title: '显示顺序',
