@@ -41,6 +41,7 @@
             v-model:openKeys="topMenu.openKeys"
             v-model:selectedKeys="topMenu.selectedKeys"
             :items="topMenu.list"
+            v-if="topMenu.list && topMenu.list.length"
             @click="({ key }: any) => admin.topMenuClick(key)"
           >
             <!-- <a-menu-item v-for="menu in topMenu.list" :key="menu.key">
@@ -189,10 +190,6 @@ const viewComponent = computed(() => {
 
       .unione-header-menu {
         display: inline-flex;
-
-        /deep/.ant-menu-item {
-          top: -3px;
-        }
       }
     }
 

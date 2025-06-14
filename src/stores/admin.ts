@@ -1,4 +1,4 @@
-import { ref, h } from 'vue'
+import { ref, h, computed, nextTick } from 'vue'
 import { defineStore } from 'pinia'
 import type { MenuItem, ViewSetting } from './typing'
 import config from '@/config/settings'
@@ -25,7 +25,8 @@ export const useAdminStore = defineStore('unione-admin', () => {
     list: []
   })
   // view配置
-  const view = ref<ViewSetting>({ ...config.view })
+  const view = ref<ViewSetting>(config.view)
+  // const view = computed(() => config.view)
   const router = useRouter()
   const dialog = useDialog()
 
@@ -239,6 +240,42 @@ export const useAdminStore = defineStore('unione-admin', () => {
   }
   // 加载Admin 菜单END
 
+  function rebuildMenu() {
+    // 构建菜单
+    let menuList: Array<MenuItem> = []
+    if (session.getStorage('menuList')) {
+      menuList = JSON.parse(session.getStorage('menuList'))
+    }
+    if (!menuList.length) {
+      return
+    }
+    console.log('view.value.layout:' + view.value.layout)
+    topMenu.value.list = []
+    sideMenu.value.list = []
+    nextTick(() => {
+      const menus = buildMenu(menuList)
+      if (view.value.layout == 'topmenu') {
+        topMenu.value.list = menus
+      } else if (view.value.layout == 'sidemenu') {
+        sideMenu.value.list = menus
+      } else if (view.value.layout == 'topside') {
+        topMenu.value.list = []
+        menus.forEach((menu: any) => {
+          topMenu.value.list.push({
+            key: menu.key,
+            label: menu.label,
+            title: menu.title,
+            icon: menu.icon,
+            path: menu.path
+          })
+        })
+      }
+      topMenu.value = { ...topMenu.value }
+      sideMenu.value = { ...sideMenu.value }
+    })
+    // 构建菜单 END
+  }
+
   function initRoute(to?: any) {
     return new Promise((resolve, reject) => {
       if (!menuMap.value || !Object.keys(menuMap.value).length) {
@@ -318,6 +355,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
     sideMenuClick,
     view,
     setView,
-    isLogin
+    isLogin,
+    rebuildMenu
   }
 })
