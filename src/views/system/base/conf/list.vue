@@ -213,10 +213,7 @@ const drawer = ref({
       },
       {
         title: '配置value',
-        name: 'valueDefault',
-        props: {
-          required: true
-        }
+        name: 'valueDefault'
       },
       {
         title: '显示顺序',
@@ -279,7 +276,7 @@ const manage = ref<any>({
         title: '配置类型',
         name: 'types',
         control: 'unione-select-box',
-        value: '0',
+        value: 1,
         convert: {
           types: 'dict',
           dictName: 'IUCONFTYPE'
@@ -337,14 +334,14 @@ const manage = ref<any>({
     event: {
       createNode: (node: any, parent: any, params: any) => {
         if (parent) {
-          node.appName = parent.appName
           node.pid = parent.id
           node.types = parent.types
         } else {
           node.pid = manage.value.target.id
           node.types = manage.value.target.types
         }
-        node.appId = -1
+        node.appId = manage.value.target.appId || -1
+        node.appName = manage.value.target.appName
       }
     }
   }

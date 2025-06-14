@@ -211,6 +211,7 @@ const viewComponent = computed(() => {
     background: #ffffff;
     height: 100%;
     overflow: hidden;
+    border-radius: 4px;
 
     .unione-iframe-content {
       width: 100%;
