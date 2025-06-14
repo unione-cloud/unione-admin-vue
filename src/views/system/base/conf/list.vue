@@ -273,6 +273,19 @@ const manage = ref<any>({
     },
     fields: [
       {
+        title: '配置编码',
+        name: 'sn',
+        view: 'html',
+        event: {
+          showFormat: (value: string, ctx: any) => {
+            if (!value) {
+              return '--'
+            }
+            return value.substring(0, value.lastIndexOf('.')) + '.' + ctx.form.name
+          }
+        }
+      },
+      {
         title: '配置类型',
         name: 'types',
         control: 'unione-select-box',

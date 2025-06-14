@@ -13,10 +13,10 @@
     </span>
     <template v-slot:overlay>
       <a-menu class="unione-dropdown-menu" :selected-keys="[]">
-        <a-menu-item v-if="menu" key="center" @click="handleToCenter">
+        <!-- <a-menu-item v-if="menu" key="center" @click="handleToCenter">
           <template #icon><user-outlined /></template>
           个人中心
-        </a-menu-item>
+        </a-menu-item> -->
         <a-menu-item v-if="menu" key="settings" @click="handleToSettings">
           <template #icon><setting-outlined /></template>
           个人设置
@@ -62,7 +62,7 @@ export default defineComponent({
       router.push({ path: '/account/center' })
     }
     const handleToSettings = () => {
-      router.push({ path: '/account/settings' })
+      router.push({ path: '/ucenter' })
     }
     const handleLogout = () => {
       session.doLogout().then(() => {

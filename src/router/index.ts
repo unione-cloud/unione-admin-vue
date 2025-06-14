@@ -268,6 +268,11 @@ export const router = createRouter({
           path: '/home',
           name: 'home',
           component: () => import('@/views/home.vue')
+        },
+        {
+          path: '/ucenter',
+          name: 'ucenter',
+          component: () => import('@/views/portal/ucenter/index.vue')
         }
       ]
     },
