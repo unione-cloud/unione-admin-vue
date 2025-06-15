@@ -76,7 +76,7 @@
 <script lang="ts" setup>
 import { computed, defineAsyncComponent } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
-import { default as AvatarDropdown } from '@/components/avatar-dropdown.vue'
+import { default as AvatarDropdown } from '@/components/avatar/avatar-dropdown.vue'
 import { default as NoticeIcon } from '@/components/notice-icon/index.vue'
 import { useSession } from 'unione-base-vue'
 import { useAdminStore } from '@/stores/admin'

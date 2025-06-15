@@ -43,24 +43,13 @@
       </a-form>
     </div>
     <div class="view-right">
-      <div class="avatar">
-        <img src="/avatar.png" alt="avatar" />
-      </div>
-      <a-upload>
-        <div class="button-view">
-          <a-button>
-            <upload-outlined />
-            Change
-          </a-button>
-        </div>
-      </a-upload>
+      <unione-avatar :avatar="profile.avatar" />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { reactive, ref, onMounted } from 'vue'
-import { UploadOutlined } from '@ant-design/icons-vue'
 import { Form } from 'ant-design-vue'
 import { axios, useDialog } from 'unione-base-vue'
 
@@ -70,7 +59,7 @@ const rulesRef = reactive({
   realName: [{ required: true, message: '请输入真实姓名' }],
   aliasName: [{ required: true, message: '请输入昵称' }]
 })
-const profile = ref({ sex: 1 })
+const profile = ref<any>({ sex: 1 })
 const { validateInfos, validate } = Form.useForm(profile, rulesRef)
 
 function loadProfile() {
