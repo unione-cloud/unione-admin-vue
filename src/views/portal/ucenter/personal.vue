@@ -19,7 +19,7 @@
               { value: 'topside', label: '混合菜单' }
             ]
           }"
-          @change="setConfig(layout)"
+          @change="toSetConfig(layout)"
           v-model:value="layout.value"
         ></unione-radio-box>
       </template>
@@ -42,6 +42,7 @@
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { axios, useDialog } from 'unione-base-vue'
 import { useAdminStore } from '@/stores/admin'
+import { loadConfig, setConfig } from '@/config'
 
 const dialog = useDialog()
 const admin = useAdminStore()
@@ -61,33 +62,20 @@ const theme = ref<any>({
 })
 
 function loadConfigs() {
-  axios
-    .admin({
-      method: 'POST',
-      url: '/api/system/configDefine/tree/personal/-1'
-    })
-    .then((res: any) => {
-      if (res.success) {
-        const map: any = {}
-        res.body.forEach((conf: any) => {
-          map[conf.sn] = conf
-        })
-        layout.value = map[layout.value.sn] || layout.value
-        layout.value.value = layout.value.valueUsed || layout.value.valueDefault
-        theme.value = map[theme.value.sn] || theme.value
-        theme.value.value = theme.value.valueUsed || theme.value.valueDefault
-      } else {
-        dialog.error({
-          content: res.message
-        })
-      }
-    })
+  loadConfig('personal').then((configs: any) => {
+    console.log('loaded config', configs)
+    layout.value = configs[layout.value.sn] || layout.value
+    layout.value.value = layout.value.valueUsed || layout.value.valueDefault
+    theme.value = configs[theme.value.sn] || theme.value
+    theme.value.value = theme.value.valueUsed || theme.value.valueDefault
+  })
 }
 
-function setConfig(conf: any) {
+function toSetConfig(conf: any) {
   if (conf.sn == 'personal.layout') {
     admin.setView({ layout: conf.value })
     admin.rebuildMenu()
+    setConfig(conf.sn, conf.value)
   }
 }
 
