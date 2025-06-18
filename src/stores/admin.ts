@@ -1,7 +1,7 @@
-import { ref, h, computed, nextTick } from 'vue'
+import { ref, h, computed, nextTick, watch } from 'vue'
 import { defineStore } from 'pinia'
-import type { MenuItem, ViewSetting } from './typing'
-import config from '@/config/settings'
+import type { MenuItem, ViewSetting, Personal } from './typing'
+import { useConfigStore } from '@/config'
 import { axios, useDialog, useSession } from 'unione-base-vue'
 import { useRouter } from 'vue-router'
 import * as Icons from '@ant-design/icons-vue/lib/icons'
@@ -10,6 +10,7 @@ import * as Icons from '@ant-design/icons-vue/lib/icons'
  * Admin Store
  */
 export const useAdminStore = defineStore('unione-admin', () => {
+  const configObj = useConfigStore()
   // 菜单数据集合
   const menuData = ref<Array<MenuItem>>([])
   const menuMap = ref<any>({})
@@ -25,7 +26,9 @@ export const useAdminStore = defineStore('unione-admin', () => {
     list: []
   })
   // view配置
-  const view = ref<ViewSetting>(config.view)
+  const view = ref<ViewSetting>(configObj.config.view)
+  // personal配置
+  const personal = ref<Personal>(configObj.config.personal)
   // const view = computed(() => config.view)
   const router = useRouter()
   const dialog = useDialog()
@@ -111,11 +114,11 @@ export const useAdminStore = defineStore('unione-admin', () => {
 
         // 构建菜单
         const menus = buildMenu(menuList)
-        if (view.value.layout == 'topmenu') {
+        if (personal.value.layout == 'topmenu') {
           topMenu.value.list = menus
-        } else if (view.value.layout == 'sidemenu') {
+        } else if (personal.value.layout == 'sidemenu') {
           sideMenu.value.list = menus
-        } else if (view.value.layout == 'topside') {
+        } else if (personal.value.layout == 'topside') {
           topMenu.value.list = []
           menus.forEach((menu: any) => {
             topMenu.value.list.push({
@@ -146,7 +149,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
         } else {
           const menu = menuMap.value[to.path]
           if (menu) {
-            if (view.value.layout == 'topside') {
+            if (personal.value.layout == 'topside') {
               let parent = menuMap.value[menu.parent]
               if (parent) {
                 sideMenu.value.selectedKeys = [menu.key]
@@ -249,16 +252,16 @@ export const useAdminStore = defineStore('unione-admin', () => {
     if (!menuList.length) {
       return
     }
-    console.log('view.value.layout:' + view.value.layout)
+    console.log('personal.value.layout:' + personal.value.layout)
     topMenu.value.list = []
     sideMenu.value.list = []
     nextTick(() => {
       const menus = buildMenu(menuList)
-      if (view.value.layout == 'topmenu') {
+      if (personal.value.layout == 'topmenu') {
         topMenu.value.list = menus
-      } else if (view.value.layout == 'sidemenu') {
+      } else if (personal.value.layout == 'sidemenu') {
         sideMenu.value.list = menus
-      } else if (view.value.layout == 'topside') {
+      } else if (personal.value.layout == 'topside') {
         topMenu.value.list = []
         menus.forEach((menu: any) => {
           topMenu.value.list.push({
@@ -275,6 +278,13 @@ export const useAdminStore = defineStore('unione-admin', () => {
     })
     // 构建菜单 END
   }
+
+  watch(
+    () => personal.value.layout,
+    (newVal) => {
+      rebuildMenu()
+    }
+  )
 
   function initRoute(to?: any) {
     return new Promise((resolve, reject) => {
@@ -301,7 +311,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
     if (!menu) {
       return
     }
-    if (view.value.layout == 'topside') {
+    if (personal.value.layout == 'topside') {
       sideMenu.value.selectedKeys = []
       sideMenu.value.openKeys = []
       sideMenu.value.list = menu.children
@@ -336,11 +346,6 @@ export const useAdminStore = defineStore('unione-admin', () => {
     router.push(menu.path)
   }
 
-  // 设置view
-  function setView(setting: ViewSetting) {
-    view.value = { ...view.value, ...setting }
-  }
-
   const session = useSession()
   function isLogin() {
     return session.isLogin()
@@ -354,7 +359,6 @@ export const useAdminStore = defineStore('unione-admin', () => {
     topMenuClick,
     sideMenuClick,
     view,
-    setView,
     isLogin,
     rebuildMenu
   }

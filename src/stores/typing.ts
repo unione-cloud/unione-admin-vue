@@ -72,3 +72,8 @@ export interface ViewSetting {
   colorWeak?: boolean
   multiTab?: boolean
 }
+
+export interface Personal {
+  theme?: string
+  layout?: string
+}

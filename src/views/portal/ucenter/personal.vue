@@ -42,10 +42,11 @@
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { axios, useDialog } from 'unione-base-vue'
 import { useAdminStore } from '@/stores/admin'
-import { loadConfig, setConfig } from '@/config'
+import { useConfigStore } from '@/config'
 
 const dialog = useDialog()
 const admin = useAdminStore()
+const config = useConfigStore()
 
 const layout = ref<any>({
   sn: 'personal.layout',
@@ -62,7 +63,7 @@ const theme = ref<any>({
 })
 
 function loadConfigs() {
-  loadConfig('personal').then((configs: any) => {
+  config.loadConfig('personal').then((configs: any) => {
     console.log('loaded config', configs)
     layout.value = configs[layout.value.sn] || layout.value
     layout.value.value = layout.value.valueUsed || layout.value.valueDefault
@@ -73,9 +74,7 @@ function loadConfigs() {
 
 function toSetConfig(conf: any) {
   if (conf.sn == 'personal.layout') {
-    admin.setView({ layout: conf.value })
-    admin.rebuildMenu()
-    setConfig(conf.sn, conf.value)
+    config.setConfig(conf.sn, conf.value)
   }
 }
 

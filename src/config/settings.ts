@@ -1,3 +1,5 @@
+import Personal from '@/views/portal/ucenter/personal.vue'
+
 /**
  * 默认配置项
  */
@@ -27,6 +29,10 @@ export default {
     showsetting: true,
     colorWeak: false,
     multiTab: false
+  },
+  personal: {
+    layout: 'topside', // sidemenu | topmenu | topside
+    theme: 'light' // light | dark
   },
   // security 配置
   security: {
