@@ -65,9 +65,9 @@ const define = ref({
       convert: {
         types: 'option',
         options: [
-          { value: 0, label: '平台' },
-          { value: 1, label: '租户' },
-          { value: 2, label: '机构' }
+          { value: 1, label: '平台' },
+          { value: 2, label: '租户' },
+          { value: 3, label: '机构' }
         ]
       },
       isQuery: true
@@ -172,7 +172,7 @@ function setStatus(id: string, status: number) {
 }
 
 const form = ref() //form ref obj
-const drawer = ref({
+const drawer = ref<any>({
   title: '新增字典',
   placement: 'left',
   visible: false,
@@ -209,13 +209,13 @@ const drawer = ref({
         title: '字典类型',
         name: 'dictType',
         control: 'unione-select-box',
-        value: 2,
+        value: 1,
         convert: {
           types: 'option',
           options: [
-            { value: 0, label: '平台' },
-            { value: 1, label: '租户' },
-            { value: 2, label: '机构' }
+            { value: 1, label: '平台' },
+            { value: 2, label: '租户' },
+            { value: 3, label: '机构' }
           ]
         }
       },
@@ -263,7 +263,7 @@ const drawer = ref({
       data = {
         ...drawer.value.row,
         ...data,
-        dictKey: data.dictName,
+        dictKey: drawer.value.row.dictName || data.dictName,
         parentId: -1,
         isLeaf: 0,
         dictShow: JSON.stringify({ type })
@@ -308,9 +308,9 @@ const manage = ref<any>({
         convert: {
           types: 'option',
           options: [
-            { value: 0, label: '平台' },
-            { value: 1, label: '租户' },
-            { value: 2, label: '机构' }
+            { value: 1, label: '平台' },
+            { value: 2, label: '租户' },
+            { value: 3, label: '机构' }
           ]
         },
         event: {
