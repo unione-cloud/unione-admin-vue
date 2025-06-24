@@ -171,6 +171,31 @@ const drawer = ref({
         }
       },
       {
+        title: '手动确认',
+        name: 'isConfirm',
+        control: 'unione-switch-box',
+        value: 1,
+        convert: {
+          types: 'dict',
+          dictName: 'TRUEORFALSE'
+        }
+      },
+      {
+        title: '确认方式',
+        name: 'confirmType',
+        control: 'unione-radio-box',
+        value: 1,
+        convert: {
+          types: 'dict',
+          dictName: 'UMSCONFIRMTYPE'
+        },
+        event: {
+          visible: (value: any, formData: any) => {
+            return formData.isConfirm == 1
+          }
+        }
+      },
+      {
         title: '使用级别',
         name: 'usel',
         control: 'unione-radio-box',

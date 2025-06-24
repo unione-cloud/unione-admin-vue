@@ -61,11 +61,11 @@ const define = ref({
       isQuery: true
     },
     {
-      title: '状态',
-      name: 'status',
+      title: '来源',
+      name: 'fromId',
       convert: {
         types: 'dict',
-        dictName: 'USEORNOT'
+        dictName: 'UMSMSGFROM'
       },
       isQuery: true
     },
@@ -129,7 +129,7 @@ const drawer = ref({
         name: 'types',
         required: true,
         control: 'unione-radio-box',
-        value: 'site',
+        value: 'notice',
         convert: {
           types: 'dict',
           dictName: 'UMSTYPES'
@@ -161,24 +161,29 @@ const drawer = ref({
         value: 1,
         convert: {
           types: 'dict',
-          dictName: 'USEORNOT'
+          dictName: 'TRUEORFALSE'
         }
       },
       {
-        title: '确认类型',
+        title: '确认方式',
         name: 'confirmType',
-        control: 'unione-switch-box',
+        control: 'unione-radio-box',
         value: 1,
         convert: {
           types: 'dict',
           dictName: 'UMSCONFIRMTYPE'
+        },
+        event: {
+          visible: (value: any, formData: any) => {
+            return formData.isConfirm == 1
+          }
         }
       },
       {
         title: '优先级',
         name: 'priority',
         control: 'unione-radio-box',
-        value: 'normal',
+        value: 4,
         convert: {
           types: 'dict',
           dictName: 'UMSMSGPRIORITY'
@@ -189,9 +194,11 @@ const drawer = ref({
         name: 'publicDate',
         control: 'a-date-picker',
         props: {
+          placeholder: '发布时间',
           showTime: true,
           format: 'YYYY-MM-DD HH:mm:ss',
-          valueFormat: 'YYYY-MM-DD HH:mm:ss'
+          valueFormat: 'YYYY-MM-DD HH:mm:ss',
+          style: { width: '100%' }
         }
       }
     ],
@@ -205,6 +212,9 @@ const drawer = ref({
       data = {
         ...drawer.value.row,
         ...data
+      }
+      if (!data.fromId) {
+        data.fromId = 'portal'
       }
       page.value
         .storage()
