@@ -202,12 +202,18 @@ const drawer = ref({
       {
         title: 'html模版',
         name: 'bodyHtml',
-        control: 'a-textarea'
+        control: 'a-textarea',
+        props: {
+          help: '应用于站内信，邮件等支持富文本的消息'
+        }
       },
       {
         title: 'text模版',
         name: 'bodyText',
-        control: 'a-textarea'
+        control: 'a-textarea',
+        props: {
+          help: '应用于短信，推送等不支持富文本的消息'
+        }
       },
       {
         title: '状态',

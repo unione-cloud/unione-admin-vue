@@ -146,6 +146,12 @@ const drawer = ref({
           labelField: 'title',
           search: true,
           refValue: 'types'
+        },
+        event: {
+          select: (value: any, ctx: any) => {
+            ctx.formValue.isConfirm = ctx.option.isConfirm
+            ctx.formValue.confirmType = ctx.option.confirmType
+          }
         }
       },
       {
@@ -156,7 +162,18 @@ const drawer = ref({
           types: 'local',
           url: '/api/ums/tmpl/find',
           labelField: 'title',
-          search: true
+          search: true,
+          params: {
+            types: 'normal'
+          }
+        },
+        props: {
+          allowClear: true
+        },
+        event: {
+          select: (value: any, ctx: any) => {
+            ctx.formValue.ways = ctx.option.ways
+          }
         }
       },
       {
@@ -195,6 +212,15 @@ const drawer = ref({
         }
       },
       {
+        title: '通知方式',
+        name: 'ways',
+        control: 'unione-check-box',
+        convert: {
+          types: 'dict',
+          dictName: 'UMSMESSAGEWAY'
+        }
+      },
+      {
         title: '优先级',
         name: 'priority',
         control: 'unione-radio-box',
@@ -204,18 +230,6 @@ const drawer = ref({
           dictName: 'UMSMSGPRIORITY'
         }
       }
-      // {
-      //   title: '发布时间',
-      //   name: 'publicDate',
-      //   control: 'a-date-picker',
-      //   props: {
-      //     placeholder: '发布时间',
-      //     showTime: true,
-      //     format: 'YYYY-MM-DD HH:mm:ss',
-      //     valueFormat: 'YYYY-MM-DD HH:mm:ss',
-      //     style: { width: '100%' }
-      //   }
-      // }
     ],
     setting: {
       showColumn: 1,
