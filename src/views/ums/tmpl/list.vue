@@ -194,7 +194,6 @@ const drawer = ref({
         title: '通知方式',
         name: 'ways',
         control: 'unione-check-box',
-        value: 'site',
         convert: {
           types: 'dict',
           dictName: 'UMSMESSAGEWAY'

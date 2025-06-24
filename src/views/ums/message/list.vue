@@ -138,11 +138,26 @@ const drawer = ref({
       {
         title: '分类',
         name: 'categoryId',
-        required: true
+        required: true,
+        control: 'unione-select-box',
+        convert: {
+          types: 'local',
+          url: '/api/ums/category/find',
+          labelField: 'title',
+          search: true,
+          refValue: 'types'
+        }
       },
       {
         title: '模版',
-        name: 'tmplId'
+        name: 'tmplId',
+        control: 'unione-select-box',
+        convert: {
+          types: 'local',
+          url: '/api/ums/tmpl/find',
+          labelField: 'title',
+          search: true
+        }
       },
       {
         title: '标题',
@@ -188,19 +203,19 @@ const drawer = ref({
           types: 'dict',
           dictName: 'UMSMSGPRIORITY'
         }
-      },
-      {
-        title: '发布时间',
-        name: 'publicDate',
-        control: 'a-date-picker',
-        props: {
-          placeholder: '发布时间',
-          showTime: true,
-          format: 'YYYY-MM-DD HH:mm:ss',
-          valueFormat: 'YYYY-MM-DD HH:mm:ss',
-          style: { width: '100%' }
-        }
       }
+      // {
+      //   title: '发布时间',
+      //   name: 'publicDate',
+      //   control: 'a-date-picker',
+      //   props: {
+      //     placeholder: '发布时间',
+      //     showTime: true,
+      //     format: 'YYYY-MM-DD HH:mm:ss',
+      //     valueFormat: 'YYYY-MM-DD HH:mm:ss',
+      //     style: { width: '100%' }
+      //   }
+      // }
     ],
     setting: {
       showColumn: 1,
