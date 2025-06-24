@@ -183,7 +183,7 @@ const drawer = ref({
       },
       {
         title: '内容',
-        name: 'content',
+        name: 'bodyText',
         control: 'a-textarea'
       },
       {
