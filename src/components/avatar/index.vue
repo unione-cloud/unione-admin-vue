@@ -42,9 +42,10 @@
 import { computed, ref } from 'vue'
 import { Cropper } from 'vue-advanced-cropper'
 import 'vue-advanced-cropper/dist/style.css'
-import config from '@/config/settings'
+import { useConfigStore } from '@/config/index'
 import { axios, useDialog } from 'unione-base-vue'
 
+const config = useConfigStore().config
 const dialog = useDialog()
 const emit = defineEmits(['ok', 'cancel'])
 
