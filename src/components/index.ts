@@ -6,6 +6,7 @@ import PostSelect from './post-select/index.vue'
 import ResSelect from './res-select/index.vue'
 import IconSelect from './icon-select/index.vue'
 import UnioneAvatar from './avatar/index.vue'
+import UnioneTargetList from './target-list/index.vue'
 
 export default {
   install(app: any, options: any) {
@@ -18,5 +19,6 @@ export default {
     app.component('ResSelect', ResSelect)
     app.component('IconSelect', IconSelect)
     app.component('UnioneAvatar', UnioneAvatar)
+    app.component('UnioneTargetList', UnioneTargetList)
   }
 }

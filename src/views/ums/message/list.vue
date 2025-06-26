@@ -221,6 +221,11 @@ const drawer = ref({
         }
       },
       {
+        title: '通知目标',
+        name: 'targets',
+        control: 'unione-target-list'
+      },
+      {
         title: '优先级',
         name: 'priority',
         control: 'unione-radio-box',
