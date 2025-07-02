@@ -6,14 +6,17 @@
         <a-tab-pane :tab="type.title">
           <div class="view-card" v-if="showType == 'card' && showField"></div>
           <div class="view-tag" v-if="showType == 'tag'">
-            <template v-if="type.name != 'all'">
+            <template v-if="type.name != 'all' && type.name != 'tenant'">
               <template v-for="(target, j) in type.list" :key="j">
                 <a-tag :closable="!disabled">{{ target.targetName }}</a-tag>
               </template>
               <a-tag v-if="!disabled" class="btn-add"><PlusOutlined /></a-tag>
             </template>
-            <template v-else>
+            <template v-else-if="type.name == 'all'">
               <a-checkbox v-model:checked="type.checked">平台所有用户</a-checkbox>
+            </template>
+            <template v-else-if="type.name == 'tenant'">
+              <a-checkbox v-model:checked="type.checked">系统所有用户</a-checkbox>
             </template>
           </div>
           <a-empty
@@ -26,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import type { PropType } from 'vue'
 import { useDialog } from 'unione-base-vue'
 import type { DataStorage, WidgetModel } from 'unione-form-vue/dist/typing'
@@ -76,12 +79,12 @@ const props = defineProps({
     type: Array<Target>,
     default: () => {
       return [
-        {
-          title: '全部',
-          name: 'all',
-          value: '-1'
-        },
-        //  {
+        // {
+        //   title: '全部',
+        //   name: 'all',
+        //   value: '-1'
+        // },
+        // {
         //   title: '租户',
         //   name: 'tenant',
         //   value: '1'
@@ -112,7 +115,7 @@ const props = defineProps({
   // 保存模式，sync:同步,async:异步
   model: {
     type: String,
-    default: 'async'
+    default: 'sync'
   },
   // 关联字段名称，formValue中的属性名称，支持user.id方式
   refField: {
@@ -124,7 +127,7 @@ const props = defineProps({
     type: String,
     required: true
   },
-  //目标显示字段：默认显示目标名称，通过该属性可以扩展更多字段，多个字段逗号分隔
+  //目标显示字段：默认显示目标名称
   showField: {
     type: Array<ShowField>,
     required: false
@@ -137,58 +140,57 @@ const props = defineProps({
 })
 
 const activeKey = ref(0)
-const value = defineModel<Array<any>>('value')
-const dataList = ref<Array<any>>([
-  {
-    title: '全局',
-    name: 'all',
-    list: []
-  },
-  {
-    title: '机构',
-    name: 'organ',
-    page: 1,
-    pageSize: 6,
-    list: [
-      {
-        targetType: '2',
-        targetId: '1',
-        targetName: '百度',
-        linkMan: '张三',
-        linkPhone: '13800000000'
-      },
-      {
-        targetType: '2',
-        targetId: '2',
-        targetName: '阿狸',
-        linkMan: '码云',
-        linkPhone: '13800000001'
-      }
-    ]
-  },
-  {
-    title: '角色',
-    name: 'role',
-    page: 1,
-    pageSize: 6,
-    list: [
-      {
-        targetType: '3',
-        targetId: '21',
-        targetName: '管理员',
-        linkMan: '杨九',
-        linkPhone: '18688498615'
-      }
-    ]
-  },
-  {
-    title: '用户',
-    name: 'user',
-    page: 1,
-    pageSize: 6,
-    list: []
+const modelValue = defineModel<Array<any>>('value')
+const dataList = ref<Array<any>>([])
+
+function processInput(data: Array<any>) {
+  data = [
+    {
+      targetType: '3',
+      targetId: '21',
+      targetName: '管理员',
+      linkMan: '杨九',
+      linkPhone: '18688498615'
+    },
+    {
+      targetType: '2',
+      targetId: '1',
+      targetName: '百度',
+      linkMan: '张三',
+      linkPhone: '13800000000'
+    },
+    {
+      targetType: '2',
+      targetId: '2',
+      targetName: '阿狸',
+      linkMan: '码云',
+      linkPhone: '13800000001'
+    }
+  ]
+  dataList.value = []
+  const tmap: any = {}
+  props.typeList.forEach((type: Target) => {
+    tmap[type.value] = { ...type, list: [], checked: false }
+    dataList.value.push(tmap[type.value])
+  })
+  data.forEach((row: any) => {
+    if (tmap[row.targetType]) {
+      tmap[row.targetType].list.push(row)
+    }
+  })
+}
+
+onMounted(() => {
+  if (props.model == 'sync') {
+    processInput(modelValue.value || [])
   }
-])
+})
+
+watch(modelValue, (val: Array<any>) => {
+  if (props.model == 'sync') {
+    processInput(val || [])
+  }
+})
 
 const emit = defineEmits(['change'])
 </script>
