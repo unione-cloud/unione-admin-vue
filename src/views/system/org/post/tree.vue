@@ -18,13 +18,13 @@
   </unione-page-tree>
 
   <!-- 用户选择组件 -->
-  <UserSelect
+  <UnioneUserSelect
     v-model:visible="userSelectVisible"
     position="left"
     targetType="post"
     :targetValue="currentPost?.id"
     @ok="handelOk"
-  ></UserSelect>
+  ></UnioneUserSelect>
 </template>
 
 <script setup lang="ts">
@@ -34,77 +34,31 @@ import { axios } from 'unione-base-vue'
 const page = ref() // pageTree dom ref obj
 const member = ref() // member dom ref obj
 const unionePage = ref<any>({
-  storage: {
-    controller: '/api/system/post',
-    orderBy: 'ordered asc'
-  },
+  storage: { controller: '/api/system/post', orderBy: 'ordered asc' },
   fields: [
-    {
-      title: '岗位名称',
-      name: 'name',
-      required: true
-    },
+    { title: '岗位名称', name: 'name', required: true },
     {
       title: '岗位类型',
       name: 'types',
       control: 'unione-select-box',
       value: 9,
-      convert: {
-        types: 'dict',
-        dictName: 'POSTTYPES'
-      }
+      convert: { types: 'dict', dictName: 'POSTTYPES' }
     },
-    {
-      title: '岗位图标',
-      name: 'iconFont',
-      control: 'icon-select'
-    },
-    {
-      title: '岗位图片',
-      name: 'iconPic'
-    },
-    {
-      title: '显示顺序',
-      name: 'ordered',
-      control: 'a-input-number',
-      value: 1
-    },
+    { title: '岗位图标', name: 'iconFont', control: 'icon-select' },
+    { title: '岗位图片', name: 'iconPic' },
+    { title: '显示顺序', name: 'ordered', control: 'a-input-number', value: 1 },
     {
       title: '岗位状态',
       name: 'status',
       control: 'unione-switch-box',
       value: 1,
-      convert: {
-        types: 'dict',
-        dictName: 'USEORNOT'
-      }
+      convert: { types: 'dict', dictName: 'USEORNOT' }
     },
-    {
-      title: '岗位职责',
-      name: 'duty',
-      control: 'a-textarea'
-    },
-    {
-      title: '岗位描述',
-      name: 'descs',
-      control: 'a-textarea'
-    }
+    { title: '岗位职责', name: 'duty', control: 'a-textarea' },
+    { title: '岗位描述', name: 'descs', control: 'a-textarea' }
   ],
-  btns: [
-    {
-      name: 'member',
-      title: '成员管理'
-    }
-  ],
-  setting: {
-    tree: {
-      labelField: 'name'
-    },
-    form: {
-      showColumn: 1,
-      labelWidth: 4
-    }
-  },
+  btns: [{ name: 'member', title: '成员管理' }],
+  setting: { tree: { labelField: 'name' }, form: { showColumn: 1, labelWidth: 4 } },
   event: {
     createNode: (node: any, parent: any, params: any) => {
       node.isLeaf = 1
@@ -138,31 +92,17 @@ const memberVisible = ref(false)
 const userSelectVisible = ref(false)
 const currentPost = ref<any>(null)
 const defineMember = ref({
-  storage: {
-    controller: '/api/system/userPost'
-  },
+  storage: { controller: '/api/system/userPost' },
   fields: [
-    {
-      title: '机构名称',
-      name: 'orgName'
-    },
-    {
-      title: '用户帐号',
-      name: 'username'
-    },
-    {
-      title: '成员姓名',
-      name: 'realName'
-    },
+    { title: '机构名称', name: 'orgName' },
+    { title: '用户帐号', name: 'username' },
+    { title: '成员姓名', name: 'realName' },
     {
       title: '成员状态',
       name: 'status',
       control: 'unione-switch-box',
       defaultValue: 1,
-      convert: {
-        types: 'dict',
-        dictName: 'MENBERSTATUS'
-      },
+      convert: { types: 'dict', dictName: 'MENBERSTATUS' },
       isQuery: true
     },
     {
@@ -170,39 +110,18 @@ const defineMember = ref({
       name: 'sex',
       control: 'unione-switch-box',
       value: 1,
-      convert: {
-        types: 'dict',
-        dictName: 'SEX'
-      }
+      convert: { types: 'dict', dictName: 'SEX' }
     },
-    {
-      title: '加入时间',
-      name: 'timeJoin'
-    },
-    {
-      title: '加入时间',
-      name: 'timeLeave'
-    }
+    { title: '加入时间', name: 'timeJoin' },
+    { title: '离开时间', name: 'timeLeave' }
   ],
-  queryBtns: [
-    {
-      name: 'back',
-      title: '返回',
-      index: 4
-    }
-  ],
+  queryBtns: [{ name: 'back', title: '返回', index: 4 }],
   operation: {
     title: '操作',
     width: 100,
     btns: [
-      {
-        name: 'view',
-        visible: false
-      },
-      {
-        name: 'edit',
-        visible: false
-      }
+      { name: 'view', visible: false },
+      { name: 'edit', visible: false }
     ],
     count: 4
   }
@@ -214,10 +133,7 @@ function handelOk(event: any) {
     .admin({
       url: '/api/system/userPost/save',
       method: 'post',
-      data: {
-        postId: event.targetValue,
-        users: event.userList
-      }
+      data: { postId: event.targetValue, users: event.list }
     })
     .then((res: any) => {
       member.value.reload()

@@ -61,17 +61,12 @@ const props = defineProps({
   targetType: {
     type: String // user
   },
-  targetValue: {
-    type: String
-  }
+  targetValue: { type: String }
 })
 
 // sex Convertor
 const typeMap = ref<any>({})
-const typeConvertor = new Convertor({
-  types: 'dict',
-  dictName: 'ORGTYPES'
-})
+const typeConvertor = new Convertor({ types: 'dict', dictName: 'ORGTYPES' })
 
 // tree 选中的节点
 const checkedKeys = ref<any>([])
@@ -92,14 +87,10 @@ function loadTreeData(pid: string = '-1') {
   // 请求远程接口
   axios
     .admin({
-      url: `/api/selector/organ/tree`,
+      url: `/api/common/selector/organ/tree`,
       method: 'post',
       data: {
-        body: {
-          pid,
-          targetType: props.targetType,
-          targetId: props.targetValue
-        },
+        body: { pid, targetType: props.targetType, targetId: props.targetValue },
         page: 1,
         pageSize: 1000
       }
@@ -153,13 +144,10 @@ function searchTreeData() {
   treeData.value = []
   axios
     .admin({
-      url: `/api/selector/organ/tree`,
+      url: `/api/common/selector/organ/tree`,
       method: 'post',
       data: {
-        body: {
-          targetType: props.targetType,
-          targetId: props.targetValue
-        },
+        body: { targetType: props.targetType, targetId: props.targetValue },
         keywords: treeKeywords.value,
         page: 1,
         pageSize: 1000
@@ -268,12 +256,7 @@ function getSelectedIds() {
     return item.id
   })
 }
-defineExpose({
-  loadTreeData,
-  getSelected,
-  getSelectedList,
-  getSelectedIds
-})
+defineExpose({ loadTreeData, getSelected, getSelectedList, getSelectedIds })
 </script>
 
 <style lang="less" scoped>

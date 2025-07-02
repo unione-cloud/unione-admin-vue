@@ -85,16 +85,11 @@ import { Convertor } from 'unione-form-vue'
 import useTarget from 'ant-design-vue/es/vc-tour/hooks/useTarget'
 
 const props = defineProps({
-  typeList: {
-    type: Array<String>,
-    default: () => ['organ', 'role', 'group', 'post']
-  },
+  typeList: { type: Array<String>, default: () => ['organ', 'role', 'group', 'post'] },
   targetType: {
     type: String // organ | role | roleAssign | group | post
   },
-  targetValue: {
-    type: String
-  }
+  targetValue: { type: String }
 })
 const typeMap = ref<any>({
   user: ['用户', 'UserOutlined'],
@@ -108,10 +103,7 @@ function getTypeLabel(type: any) {
   return typeMap.value[type][0]
 }
 // sex Convertor
-const sexConvertor = new Convertor({
-  types: 'dict',
-  dictName: 'SEX'
-})
+const sexConvertor = new Convertor({ types: 'dict', dictName: 'SEX' })
 
 // tab 当前选中的类型
 const activeType = ref<'organ' | 'role' | 'group' | 'post' | 'user'>('organ')
@@ -145,53 +137,47 @@ function loadTreeData(
     page: 1,
     pageSize: 1000
   }
-  let url = `/api/selector/${type}/${type == 'role' ? 'node' : 'tree'}`
+  let url = `/api/common/selector/${type}/${type == 'role' ? 'node' : 'tree'}`
   if (props.targetType == 'roleAssign' && type == 'role') {
-    url = `/api/selector/role/list/assign`
+    url = `/api/common/selector/role/list/assign`
     data = {}
   }
-  axios
-    .admin({
-      url,
-      method: 'post',
-      data
-    })
-    .then((res: any) => {
-      let target: any = []
-      if (!pid || pid == '-1') {
-        target = treeData.value[type]
-      } else {
-        if (!treeNode.value[pid].children) {
-          treeNode.value['userList-' + pid] = {
-            title: '用户列表',
-            ntype: 'user',
-            pid: pid,
-            id: 'userList-' + pid,
-            isLeaf: false
-          }
-          treeNode.value[pid].children = []
-          treeNode.value[pid].children[0] = treeNode.value['userList-' + pid]
+  axios.admin({ url, method: 'post', data }).then((res: any) => {
+    let target: any = []
+    if (!pid || pid == '-1') {
+      target = treeData.value[type]
+    } else {
+      if (!treeNode.value[pid].children) {
+        treeNode.value['userList-' + pid] = {
+          title: '用户列表',
+          ntype: 'user',
+          pid: pid,
+          id: 'userList-' + pid,
+          isLeaf: false
         }
-        target = treeNode.value[pid].children
+        treeNode.value[pid].children = []
+        treeNode.value[pid].children[0] = treeNode.value['userList-' + pid]
       }
-      const nmap: any = {}
-      res.body?.forEach((item: any) => {
-        nmap[item.id] = item
-        treeNode.value[item.id] = item
-        item.isLeaf = false
-      })
-      res.body?.forEach((item: any) => {
-        const parent = nmap[item.pid]
-        if (parent) {
-          if (!parent.children) {
-            parent.children = []
-          }
-          parent.children.push(item)
-        } else {
-          target.push(item)
-        }
-      })
+      target = treeNode.value[pid].children
+    }
+    const nmap: any = {}
+    res.body?.forEach((item: any) => {
+      nmap[item.id] = item
+      treeNode.value[item.id] = item
+      item.isLeaf = false
     })
+    res.body?.forEach((item: any) => {
+      const parent = nmap[item.pid]
+      if (parent) {
+        if (!parent.children) {
+          parent.children = []
+        }
+        parent.children.push(item)
+      } else {
+        target.push(item)
+      }
+    })
+  })
 }
 function loadUserList(pid: string) {
   const parent = treeNode.value[pid]
@@ -200,7 +186,7 @@ function loadUserList(pid: string) {
   }
   axios
     .admin({
-      url: `/api/selector/user/node`,
+      url: `/api/common/selector/user/node`,
       method: 'post',
       data: {
         body: {
@@ -292,12 +278,7 @@ function getSelectedIds() {
     return item.id
   })
 }
-defineExpose({
-  init,
-  getSelected,
-  getSelectedList,
-  getSelectedIds
-})
+defineExpose({ init, getSelected, getSelectedList, getSelectedIds })
 </script>
 
 <style lang="less" scoped>

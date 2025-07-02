@@ -1,23 +1,23 @@
-import UserSelect from './user-select/index.vue'
-import RoleSelect from './role-select/index.vue'
-import OrganSelect from './organ-select/index.vue'
-import GroupSelect from './group-select/index.vue'
-import PostSelect from './post-select/index.vue'
-import ResSelect from './res-select/index.vue'
-import IconSelect from './icon-select/index.vue'
+import UnioneUserSelect from './user-select/index.vue'
+import UnioneRoleSelect from './role-select/index.vue'
+import UnioneOrganSelect from './organ-select/index.vue'
+import UnioneGroupSelect from './group-select/index.vue'
+import UnionePostSelect from './post-select/index.vue'
+import UnioneResSelect from './res-select/index.vue'
+import UnioneIconSelect from './icon-select/index.vue'
 import UnioneAvatar from './avatar/index.vue'
 import UnioneTargetList from './target-list/index.vue'
 
 export default {
   install(app: any, options: any) {
     // 配置此应用
-    app.component('UserSelect', UserSelect)
-    app.component('RoleSelect', RoleSelect)
-    app.component('OrganSelect', OrganSelect)
-    app.component('GroupSelect', GroupSelect)
-    app.component('PostSelect', PostSelect)
-    app.component('ResSelect', ResSelect)
-    app.component('IconSelect', IconSelect)
+    app.component('UnioneUserSelect', UnioneUserSelect)
+    app.component('UnioneRoleSelect', UnioneRoleSelect)
+    app.component('UnioneOrganSelect', UnioneOrganSelect)
+    app.component('UnioneGroupSelect', UnioneGroupSelect)
+    app.component('UnionePostSelect', UnionePostSelect)
+    app.component('UnioneResSelect', UnioneResSelect)
+    app.component('UnioneIconSelect', UnioneIconSelect)
     app.component('UnioneAvatar', UnioneAvatar)
     app.component('UnioneTargetList', UnioneTargetList)
   }

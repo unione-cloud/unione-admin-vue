@@ -28,50 +28,50 @@
   </unione-page-tree>
 
   <!-- 用户选择组件 -->
-  <UserSelect
+  <UnioneUserSelect
     v-model:visible="userSelectVisible"
     position="left"
     targetType="permis"
     :targetValue="currentRes?.id"
     @ok="handelUserOk"
-  ></UserSelect>
+  ></UnioneUserSelect>
 
   <!-- 角色选择组件 -->
-  <RoleSelect
+  <UnioneRoleSelect
     v-model:visible="roleSelectVisible"
     mode="disabled"
     position="left"
     targetType="permis"
     :targetValue="currentRes?.id"
     @ok="handelRoleOk"
-  ></RoleSelect>
+  ></UnioneRoleSelect>
 
   <!-- 机构选择组件 -->
-  <OrganSelect
+  <UnioneOrganSelect
     v-model:visible="organSelectVisible"
     position="left"
     targetType="permis"
     :targetValue="currentRes?.id"
     @ok="handelOrganOk"
-  ></OrganSelect>
+  ></UnioneOrganSelect>
 
   <!-- 分组选择组件 -->
-  <GroupSelect
+  <UnioneGroupSelect
     v-model:visible="groupSelectVisible"
     position="left"
     targetType="permis"
     :targetValue="currentRes?.id"
     @ok="handelGroupOk"
-  ></GroupSelect>
+  ></UnioneGroupSelect>
 
   <!-- 岗位选择组件 -->
-  <PostSelect
+  <UnionePostSelect
     v-model:visible="postSelectVisible"
     position="left"
     targetType="permis"
     :targetValue="currentRes?.id"
     @ok="handelPostOk"
-  ></PostSelect>
+  ></UnionePostSelect>
 </template>
 
 <script setup lang="ts">
@@ -87,18 +87,9 @@ const groupList = ref() // group dom ref obj
 const userList = ref() // user dom ref obj
 
 const unionePage = ref<any>({
-  storage: {
-    controller: '/api/system/resource',
-    findUrl: '/tree/view',
-    findParams: []
-  },
+  storage: { controller: '/api/system/resource', findUrl: '/tree/view', findParams: [] },
   opts: false,
-  setting: {
-    tree: {
-      labelField: 'title',
-      async: false
-    }
-  }
+  setting: { tree: { labelField: 'title', async: false } }
 })
 
 function treeClick({ keys, event }: any) {
@@ -132,10 +123,7 @@ function btnClick(type: string, { btn }: any) {
   if (type === 'user') {
     if (btn.name === 'add') {
       if (!currentRes.value) {
-        dialog.warning({
-          title: '提示信息',
-          content: '请选择资源后再添加用户'
-        })
+        dialog.warning({ title: '提示信息', content: '请选择资源后再添加用户' })
         return
       }
       userSelectVisible.value = true
@@ -144,10 +132,7 @@ function btnClick(type: string, { btn }: any) {
   if (type === 'organ') {
     if (btn.name === 'add') {
       if (!currentRes.value) {
-        dialog.warning({
-          title: '提示信息',
-          content: '请选择资源后再添加机构'
-        })
+        dialog.warning({ title: '提示信息', content: '请选择资源后再添加机构' })
         return
       }
       organSelectVisible.value = true
@@ -156,10 +141,7 @@ function btnClick(type: string, { btn }: any) {
   if (type === 'group') {
     if (btn.name === 'add') {
       if (!currentRes.value) {
-        dialog.warning({
-          title: '提示信息',
-          content: '请选择资源后再添加分组'
-        })
+        dialog.warning({ title: '提示信息', content: '请选择资源后再添加分组' })
         return
       }
       groupSelectVisible.value = true
@@ -168,10 +150,7 @@ function btnClick(type: string, { btn }: any) {
   if (type === 'post') {
     if (btn.name === 'add') {
       if (!currentRes.value) {
-        dialog.warning({
-          title: '提示信息',
-          content: '请选择资源后再添加岗位'
-        })
+        dialog.warning({ title: '提示信息', content: '请选择资源后再添加岗位' })
         return
       }
       postSelectVisible.value = true
@@ -180,10 +159,7 @@ function btnClick(type: string, { btn }: any) {
   if (type === 'role') {
     if (btn.name === 'add') {
       if (!currentRes.value) {
-        dialog.warning({
-          title: '提示信息',
-          content: '请选择资源后再添加角色'
-        })
+        dialog.warning({ title: '提示信息', content: '请选择资源后再添加角色' })
         return
       }
       roleSelectVisible.value = true
@@ -197,28 +173,16 @@ const targetList = ref<any>([
     title: '机构',
     value: 'organ',
     list: {
-      storage: {
-        controller: '/api/system/organPermis'
-      },
+      storage: { controller: '/api/system/organPermis' },
       fields: [
-        {
-          title: '机构名称',
-          name: 'name',
-          isQuery: true
-        },
-        {
-          title: '机构编码',
-          name: 'sn'
-        },
+        { title: '机构名称', name: 'name', isQuery: true },
+        { title: '机构编码', name: 'sn' },
         {
           title: '机构类型',
           name: 'types',
           control: 'unione-select-box',
           value: 0,
-          convert: {
-            types: 'dict',
-            dictName: 'ORGTYPES'
-          },
+          convert: { types: 'dict', dictName: 'ORGTYPES' },
           isQuery: true
         },
         {
@@ -226,47 +190,28 @@ const targetList = ref<any>([
           name: 'status',
           control: 'unione-switch-box',
           value: 1,
-          convert: {
-            types: 'dict',
-            dictName: 'USEORNOT'
-          },
+          convert: { types: 'dict', dictName: 'USEORNOT' },
           isQuery: true
         }
       ],
       leftBtns: ['delBatch'],
-      operation: {
-        title: '操作',
-        width: 90,
-        btns: ['view', 'edit']
-      }
+      operation: { title: '操作', width: 90, btns: ['view', 'edit'] }
     }
   },
   {
     title: '角色',
     value: 'role',
     list: {
-      storage: {
-        controller: '/api/system/rolePermis'
-      },
+      storage: { controller: '/api/system/rolePermis' },
       fields: [
-        {
-          title: '角色名称',
-          name: 'name',
-          isQuery: true
-        },
-        {
-          title: '角色编码',
-          name: 'sn'
-        },
+        { title: '角色名称', name: 'name', isQuery: true },
+        { title: '角色编码', name: 'sn' },
         {
           title: '角色类型',
           name: 'types',
           control: 'unione-select-box',
           value: 0,
-          convert: {
-            types: 'dict',
-            dictName: 'ROLETYPE'
-          },
+          convert: { types: 'dict', dictName: 'ROLETYPE' },
           isQuery: true
         },
         {
@@ -274,47 +219,28 @@ const targetList = ref<any>([
           name: 'status',
           control: 'unione-switch-box',
           value: 1,
-          convert: {
-            types: 'dict',
-            dictName: 'USEORNOT'
-          },
+          convert: { types: 'dict', dictName: 'USEORNOT' },
           isQuery: true
         }
       ],
       leftBtns: ['delBatch'],
-      operation: {
-        title: '操作',
-        width: 90,
-        btns: ['view', 'edit']
-      }
+      operation: { title: '操作', width: 90, btns: ['view', 'edit'] }
     }
   },
   {
     title: '岗位',
     value: 'post',
     list: {
-      storage: {
-        controller: '/api/system/postPermis'
-      },
+      storage: { controller: '/api/system/postPermis' },
       fields: [
-        {
-          title: '岗位名称',
-          name: 'name',
-          isQuery: true
-        },
-        {
-          title: '岗位编码',
-          name: 'sn'
-        },
+        { title: '岗位名称', name: 'name', isQuery: true },
+        { title: '岗位编码', name: 'sn' },
         {
           title: '岗位类型',
           name: 'types',
           control: 'unione-select-box',
           value: 0,
-          convert: {
-            types: 'dict',
-            dictName: 'POSTTYPES'
-          },
+          convert: { types: 'dict', dictName: 'POSTTYPES' },
           isQuery: true
         },
         {
@@ -322,47 +248,28 @@ const targetList = ref<any>([
           name: 'status',
           control: 'unione-switch-box',
           value: 1,
-          convert: {
-            types: 'dict',
-            dictName: 'USEORNOT'
-          },
+          convert: { types: 'dict', dictName: 'USEORNOT' },
           isQuery: true
         }
       ],
       leftBtns: ['delBatch'],
-      operation: {
-        title: '操作',
-        width: 90,
-        btns: ['view', 'edit']
-      }
+      operation: { title: '操作', width: 90, btns: ['view', 'edit'] }
     }
   },
   {
     title: '分组',
     value: 'group',
     list: {
-      storage: {
-        controller: '/api/system/groupPermis'
-      },
+      storage: { controller: '/api/system/groupPermis' },
       fields: [
-        {
-          title: '分组名称',
-          name: 'name',
-          isQuery: true
-        },
-        {
-          title: '分组编码',
-          name: 'sn'
-        },
+        { title: '分组名称', name: 'name', isQuery: true },
+        { title: '分组编码', name: 'sn' },
         {
           title: '分组类型',
           name: 'types',
           control: 'unione-select-box',
           value: 0,
-          convert: {
-            types: 'dict',
-            dictName: 'GROUPTYPES'
-          },
+          convert: { types: 'dict', dictName: 'GROUPTYPES' },
           isQuery: true
         },
         {
@@ -370,52 +277,29 @@ const targetList = ref<any>([
           name: 'status',
           control: 'unione-switch-box',
           value: 1,
-          convert: {
-            types: 'dict',
-            dictName: 'USEORNOT'
-          },
+          convert: { types: 'dict', dictName: 'USEORNOT' },
           isQuery: true
         }
       ],
       leftBtns: ['delBatch'],
-      operation: {
-        title: '操作',
-        width: 90,
-        btns: ['view', 'edit']
-      }
+      operation: { title: '操作', width: 90, btns: ['view', 'edit'] }
     }
   },
   {
     title: '用户',
     value: 'user',
     list: {
-      storage: {
-        controller: '/api/system/userPermis'
-      },
+      storage: { controller: '/api/system/userPermis' },
       fields: [
-        {
-          title: '机构名称',
-          name: 'orgName',
-          isQuery: true
-        },
-        {
-          title: '用户姓名',
-          name: 'realName',
-          isQuery: true
-        },
-        {
-          title: '用户账号',
-          name: 'username'
-        },
+        { title: '机构名称', name: 'orgName', isQuery: true },
+        { title: '用户姓名', name: 'realName', isQuery: true },
+        { title: '用户账号', name: 'username' },
         {
           title: '用户类型',
           name: 'userType',
           control: 'unione-select-box',
           value: 0,
-          convert: {
-            types: 'dict',
-            dictName: 'USERTYPE'
-          },
+          convert: { types: 'dict', dictName: 'USERTYPE' },
           isQuery: true
         },
         {
@@ -423,19 +307,12 @@ const targetList = ref<any>([
           name: 'status',
           control: 'unione-switch-box',
           value: 1,
-          convert: {
-            types: 'dict',
-            dictName: 'USERSTATUS'
-          },
+          convert: { types: 'dict', dictName: 'USERSTATUS' },
           isQuery: true
         }
       ],
       leftBtns: ['delBatch'],
-      operation: {
-        title: '操作',
-        width: 90,
-        btns: ['view', 'edit']
-      }
+      operation: { title: '操作', width: 90, btns: ['view', 'edit'] }
     }
   }
 ])

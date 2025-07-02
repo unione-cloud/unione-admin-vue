@@ -73,17 +73,12 @@ const props = defineProps({
   targetType: {
     type: String // user
   },
-  targetValue: {
-    type: String
-  }
+  targetValue: { type: String }
 })
 
 // sex Convertor
 const typeMap = ref<any>({})
-const typeConvertor = new Convertor({
-  types: 'dict',
-  dictName: 'ROLETYPE'
-})
+const typeConvertor = new Convertor({ types: 'dict', dictName: 'ROLETYPE' })
 
 // tree 选中的节点
 const checkedKeys = ref<any>([])
@@ -100,13 +95,10 @@ function loadTreeData() {
   selectedTarget.value = []
   axios
     .admin({
-      url: `/api/selector/role/list`,
+      url: `/api/common/selector/role/list`,
       method: 'post',
       data: {
-        body: {
-          targetType: props.targetType,
-          targetId: props.targetValue
-        },
+        body: { targetType: props.targetType, targetId: props.targetValue },
         keywords: treeKeywords.value
       }
     })
@@ -210,12 +202,7 @@ function getSelectedIds() {
     return item.id
   })
 }
-defineExpose({
-  loadTreeData,
-  getSelected,
-  getSelectedList,
-  getSelectedIds
-})
+defineExpose({ loadTreeData, getSelected, getSelectedList, getSelectedIds })
 </script>
 
 <style lang="less" scoped>

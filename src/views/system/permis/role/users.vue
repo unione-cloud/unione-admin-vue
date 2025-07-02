@@ -4,62 +4,41 @@
     <unione-page-list ref="page" v-bind="define" @btnClick="btnClick"></unione-page-list>
 
     <!-- 用户选择组件 -->
-    <UserSelect
+    <UnioneUserSelect
       v-model:visible="userSelectVisible"
       position="left"
       targetType="roleAssign"
       :targetValue="currentRole"
       @ok="handelOk"
-    ></UserSelect>
+    ></UnioneUserSelect>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref } from 'vue'
-import { useRoute, useRouter, type Router, type Route } from 'vue-router'
+import { computed, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import type { Router } from 'vue-router'
 import { axios, useDialog } from 'unione-base-vue'
 
 const router: Router = useRouter()
-const route: Route = useRoute()
+const route: any = useRoute()
 const dialog = useDialog()
 
 const page = ref()
 const define = ref({
-  storage: {
-    controller: '/api/system/userRole'
-  },
+  storage: { controller: '/api/system/userRole' },
   fields: [
-    {
-      title: '角色名称',
-      name: 'roleName'
-    },
-    {
-      title: '角色编码',
-      name: 'roleSn'
-    },
-    {
-      title: '机构名称',
-      name: 'orgName'
-    },
-    {
-      title: '用户帐号',
-      name: 'username',
-      isQuery: true
-    },
-    {
-      title: '用户姓名',
-      name: 'realName',
-      isQuery: true
-    },
+    { title: '角色名称', name: 'roleName' },
+    { title: '角色编码', name: 'roleSn' },
+    { title: '机构名称', name: 'orgName' },
+    { title: '用户帐号', name: 'username', isQuery: true },
+    { title: '用户姓名', name: 'realName', isQuery: true },
     {
       title: '用户状态',
       name: 'status',
       control: 'unione-switch-box',
       defaultValue: 1,
-      convert: {
-        types: 'dict',
-        dictName: 'USEORNOT'
-      },
+      convert: { types: 'dict', dictName: 'USEORNOT' },
       isQuery: true
     },
     {
@@ -67,36 +46,18 @@ const define = ref({
       name: 'sex',
       control: 'unione-switch-box',
       value: 1,
-      convert: {
-        types: 'dict',
-        dictName: 'SEX'
-      }
+      convert: { types: 'dict', dictName: 'SEX' }
     },
-    {
-      title: '分配时间',
-      name: 'created'
-    }
+    { title: '分配时间', name: 'created' }
   ],
   rightBtns: false,
-  queryBtns: [
-    {
-      name: 'back',
-      title: '返回',
-      index: 4
-    }
-  ],
+  queryBtns: [{ name: 'back', title: '返回', index: 4 }],
   operation: {
     title: '操作',
     width: 100,
     btns: [
-      {
-        name: 'view',
-        visible: false
-      },
-      {
-        name: 'edit',
-        visible: false
-      }
+      { name: 'view', visible: false },
+      { name: 'edit', visible: false }
     ],
     count: 4
   }
@@ -129,9 +90,7 @@ function handelOk(event: any) {
       data: {
         roleId: event.targetValue,
         users: event.list.map((item: any) => {
-          return {
-            id: item.id
-          }
+          return { id: item.id }
         })
       }
     })

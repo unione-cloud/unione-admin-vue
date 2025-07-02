@@ -18,89 +18,46 @@
   </unione-page-tree>
 
   <!-- 用户选择组件 -->
-  <UserSelect
+  <UnioneUserSelect
     v-model:visible="userSelectVisible"
     position="left"
     targetType="group"
     :targetValue="currentGroup?.id"
     @ok="handelOk"
-  ></UserSelect>
+  ></UnioneUserSelect>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import { axios } from 'unione-base-vue'
-import { validateSearch } from 'ant-design-vue/es/vc-mentions/src/util'
 
 const page = ref() // pageTree dom ref obj
 const member = ref() // member dom ref obj
 const unionePage = ref<any>({
-  storage: {
-    controller: '/api/system/group',
-    orderBy: 'ordered asc'
-  },
+  storage: { controller: '/api/system/group', orderBy: 'ordered asc' },
   fields: [
-    {
-      title: '分组名称',
-      name: 'name',
-      required: true
-    },
+    { title: '分组名称', name: 'name', required: true },
     {
       title: '分组类型',
       name: 'types',
       control: 'unione-select-box',
       value: 9,
-      convert: {
-        types: 'dict',
-        dictName: 'GROUPTYPES'
-      }
+      convert: { types: 'dict', dictName: 'GROUPTYPES' }
     },
-    {
-      title: '分组图标',
-      name: 'iconFont',
-      control: 'icon-select'
-    },
-    {
-      title: '分组图片',
-      name: 'iconPic'
-    },
-    {
-      title: '显示顺序',
-      name: 'ordered',
-      control: 'a-input-number',
-      value: 1
-    },
+    { title: '分组图标', name: 'iconFont', control: 'icon-select' },
+    { title: '分组图片', name: 'iconPic' },
+    { title: '显示顺序', name: 'ordered', control: 'a-input-number', value: 1 },
     {
       title: '分组状态',
       name: 'status',
       control: 'unione-switch-box',
       value: 1,
-      convert: {
-        types: 'dict',
-        dictName: 'USEORNOT'
-      }
+      convert: { types: 'dict', dictName: 'USEORNOT' }
     },
-    {
-      title: '分组描述',
-      name: 'descs',
-      control: 'a-textarea'
-    }
+    { title: '分组描述', name: 'descs', control: 'a-textarea' }
   ],
-  btns: [
-    {
-      name: 'member',
-      title: '成员管理'
-    }
-  ],
-  setting: {
-    tree: {
-      labelField: 'name'
-    },
-    form: {
-      showColumn: 1,
-      labelWidth: 4
-    }
-  },
+  btns: [{ name: 'member', title: '成员管理' }],
+  setting: { tree: { labelField: 'name' }, form: { showColumn: 1, labelWidth: 4 } },
   event: {
     createNode: (node: any, parent: any, params: any) => {
       node.isLeaf = 1
@@ -135,32 +92,17 @@ const memberVisible = ref(false)
 const userSelectVisible = ref(false)
 const currentGroup = ref<any>(null)
 const defineMember = ref({
-  storage: {
-    controller: '/api/system/groupMember',
-    findParams: [{ name: 'groupId' }]
-  },
+  storage: { controller: '/api/system/groupMember', findParams: [{ name: 'groupId' }] },
   fields: [
-    {
-      title: '机构名称',
-      name: 'orgName'
-    },
-    {
-      title: '用户帐号',
-      name: 'username'
-    },
-    {
-      title: '成员姓名',
-      name: 'realName'
-    },
+    { title: '机构名称', name: 'orgName' },
+    { title: '用户帐号', name: 'username' },
+    { title: '成员姓名', name: 'realName' },
     {
       title: '成员状态',
       name: 'status',
       control: 'unione-switch-box',
       defaultValue: 1,
-      convert: {
-        types: 'dict',
-        dictName: 'MENBERSTATUS'
-      },
+      convert: { types: 'dict', dictName: 'MENBERSTATUS' },
       isQuery: true
     },
     {
@@ -168,39 +110,18 @@ const defineMember = ref({
       name: 'sex',
       control: 'unione-switch-box',
       value: 1,
-      convert: {
-        types: 'dict',
-        dictName: 'SEX'
-      }
+      convert: { types: 'dict', dictName: 'SEX' }
     },
-    {
-      title: '加入时间',
-      name: 'timeJoin'
-    },
-    {
-      title: '离开时间',
-      name: 'timeLeave'
-    }
+    { title: '加入时间', name: 'timeJoin' },
+    { title: '离开时间', name: 'timeLeave' }
   ],
-  queryBtns: [
-    {
-      name: 'back',
-      title: '返回',
-      index: 4
-    }
-  ],
+  queryBtns: [{ name: 'back', title: '返回', index: 4 }],
   operation: {
     title: '操作',
     width: 100,
     btns: [
-      {
-        name: 'view',
-        visible: false
-      },
-      {
-        name: 'edit',
-        visible: false
-      }
+      { name: 'view', visible: false },
+      { name: 'edit', visible: false }
     ],
     count: 4
   }
@@ -212,10 +133,7 @@ function handelOk(event: any) {
     .admin({
       url: '/api/system/groupMember/save',
       method: 'post',
-      data: {
-        groupId: event.targetValue,
-        users: event.list
-      }
+      data: { groupId: event.targetValue, users: event.list }
     })
     .then((res: any) => {
       member.value.reload()

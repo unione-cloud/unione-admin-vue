@@ -3,21 +3,21 @@
   <div class="unione-page unione-page-list unione-system-user-permis">
     <unione-page-list ref="page" v-bind="define" @btnClick="btnClick"></unione-page-list>
 
-    <RoleSelect
+    <UnioneRoleSelect
       v-model:visible="roleSelectVisible"
       targetType="assign"
       :targetValue="targetObj?.id"
       position="right"
       @ok="handelUserOk"
-    ></RoleSelect>
+    ></UnioneRoleSelect>
 
-    <ResSelect
+    <UnioneResSelect
       v-model:visible="resSelectVisible"
       targetType="user"
       :targetValue="targetObj?.id"
       position="right"
       @ok="handelResOk"
-    ></ResSelect>
+    ></UnioneResSelect>
   </div>
 </template>
 
@@ -32,66 +32,33 @@ const page = ref()
 const rolelist = ref()
 
 const define = ref({
-  storage: {
-    controller: '/api/system/user'
-  },
+  storage: { controller: '/api/system/user' },
   fields: [
-    {
-      title: '机构名称',
-      name: 'orgName',
-      isQuery: true
-    },
-    {
-      title: '用户姓名',
-      name: 'realName',
-      isQuery: true
-    },
-    {
-      title: '用户帐号',
-      name: 'username',
-      isQuery: true
-    },
-    {
-      title: '手机号',
-      name: 'tel',
-      isQuery: true
-    },
+    { title: '机构名称', name: 'orgName', isQuery: true },
+    { title: '用户姓名', name: 'realName', isQuery: true },
+    { title: '用户帐号', name: 'username', isQuery: true },
+    { title: '手机号', name: 'tel', isQuery: true },
     {
       title: '性别',
       name: 'sex',
-      convert: {
-        types: 'dict',
-        dictName: 'SEX'
-      },
+      convert: { types: 'dict', dictName: 'SEX' },
       control: 'unione-select-box',
       isQuery: true
     },
     {
       title: '用户类型',
       name: 'userType',
-      convert: {
-        types: 'dict',
-        dictName: 'USERTYPE'
-      },
+      convert: { types: 'dict', dictName: 'USERTYPE' },
       isQuery: true
     },
     {
       title: '用户状态',
       name: 'status',
-      convert: {
-        types: 'dict',
-        dictName: 'USERSTATUS'
-      },
+      convert: { types: 'dict', dictName: 'USERSTATUS' },
       isQuery: true
     },
-    {
-      title: '创建时间',
-      name: 'created'
-    },
-    {
-      title: '修改时间',
-      name: 'lastUpdated'
-    }
+    { title: '创建时间', name: 'created' },
+    { title: '修改时间', name: 'lastUpdated' }
   ],
   leftBtns: false,
   rightBtns: false,
@@ -103,19 +70,11 @@ const define = ref({
       'view',
       'edit',
       'delete',
-      {
-        name: 'role-assign',
-        title: '角色分配'
-      },
-      {
-        name: 'res-assign',
-        title: '资源分配'
-      }
+      { name: 'role-assign', title: '角色分配' },
+      { name: 'res-assign', title: '资源分配' }
     ],
     count: 2,
-    more: {
-      layout: 'vertical'
-    }
+    more: { layout: 'vertical' }
   }
 })
 
@@ -134,12 +93,7 @@ function btnClick({ btn, event, row, keys }: any) {
     console.log('selected', selected)
   }
   if (btn.name == 'rolelist') {
-    router.push({
-      path: '/system/org/user/rolelist',
-      query: {
-        userId: row.id
-      }
-    })
+    router.push({ path: '/system/org/user/rolelist', query: { userId: row.id } })
   }
 }
 
