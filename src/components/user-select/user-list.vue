@@ -80,11 +80,17 @@
 import { onMounted, provide, ref, watch } from 'vue'
 import { CarryOutOutlined, UserOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 import type { TreeProps } from 'ant-design-vue'
-import { axios } from 'unione-base-vue'
+import { axios, useDialog } from 'unione-base-vue'
 import { Convertor } from 'unione-form-vue'
 import useTarget from 'ant-design-vue/es/vc-tour/hooks/useTarget'
 
+const dialog = useDialog()
+
 const props = defineProps({
+  limit: {
+    type: Number,
+    default: 1
+  },
   typeList: { type: Array<String>, default: () => ['organ', 'role', 'group', 'post'] },
   targetType: {
     type: String // organ | role | roleAssign | group | post
@@ -122,6 +128,8 @@ function loadTreeData(
 ) {
   if (!pid || pid == '-1') {
     if (treeData.value[type]?.length > 0) {
+      const addKey = selectedUids.value.filter((id: any) => !checkedKeys.value.includes(id))
+      checkedKeys.value = [...checkedKeys.value, ...addKey]
       return
     }
   } else {
@@ -212,6 +220,9 @@ function loadUserList(pid: string) {
         sexConvertor.convert(item.sex).then((label: any) => {
           item.sexLabel = label
         })
+        if (selectedUids.value.includes[item.id]) {
+          item.checked = true
+        }
         if (item.checked) {
           if (!checkedKeys.value.includes(item.id)) {
             checkedKeys.value.push(item.id)
@@ -233,12 +244,31 @@ function onSelect(sltKeys: any, { node }: any) {
   selectedKeys.value[activeType.value] = [node.id]
 }
 const selectedUsers = ref<any>([])
-function onCheck(checkedKeys: any) {
-  selectedUsers.value = []
-  checkedKeys.forEach((key: any) => {
+const selectedUids = ref<any>([])
+function onCheck(cKeys: any, { checked, node }: any) {
+  if (!checked) {
+    selectedUsers.value = selectedUsers.value.filter((item: any) => item.id != node.id)
+    selectedUids.value = selectedUids.value.filter((id: any) => id != node.id)
+    return
+  }
+  if (props.limit == 1) {
+    selectedUsers.value = []
+    selectedUids.value = []
+  } else if (props.limit > 1) {
+    if (selectedUsers.value.length >= props.limit) {
+      dialog.warning({
+        content: '最多选择' + props.limit + '人'
+      })
+      return
+    }
+  }
+  cKeys.forEach((key: any) => {
     const node = treeNode.value[key]
     if (node.ntype == 'user' && node.isLeaf != false && !node.disabled) {
-      selectedUsers.value.push(node)
+      if (!selectedUids.value.includes(key)) {
+        selectedUsers.value.push(node)
+        selectedUids.value.push(node.id)
+      }
     }
   })
 }
@@ -249,6 +279,7 @@ function delSelect(index: number, item: any) {
     return key != item.id && node.isLeaf == true
   })
   checkedKeys.value = [...checkedKeys.value]
+  selectedUids.value = selectedUids.value.filter((id: any) => id != item.id)
 }
 
 onMounted(() => {

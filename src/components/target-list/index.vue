@@ -137,10 +137,10 @@ const organSelect = ref({
       e.list
         .filter((item: any) => !dataIds.value.includes(item.id))
         .forEach((item: any) => {
+          dataIds.value.push(item.id)
           modelValue.value?.push({ targetType: '2', targetId: item.id, targetName: item.title })
         })
       emit('change', modelValue.value)
-      processInput(modelValue.value)
     }
     organSelect.value.visible = false
   }
@@ -149,12 +149,34 @@ const roleSelect = ref({
   visible: false,
   ok: (e: any) => {
     console.log('role ok', e)
+    if (props.model == 'sync') {
+      modelValue.value = modelValue.value || []
+      e.list
+        .filter((item: any) => !dataIds.value.includes(item.id))
+        .forEach((item: any) => {
+          dataIds.value.push(item.id)
+          modelValue.value?.push({ targetType: '3', targetId: item.id, targetName: item.title })
+        })
+      emit('change', modelValue.value)
+    }
+    roleSelect.value.visible = false
   }
 })
 const userSelect = ref({
   visible: false,
   ok: (e: any) => {
     console.log('user ok', e)
+    if (props.model == 'sync') {
+      modelValue.value = modelValue.value || []
+      e.list
+        .filter((item: any) => !dataIds.value.includes(item.id))
+        .forEach((item: any) => {
+          dataIds.value.push(item.id)
+          modelValue.value?.push({ targetType: '4', targetId: item.id, targetName: item.title })
+        })
+      emit('change', modelValue.value)
+    }
+    userSelect.value.visible = false
   }
 })
 
@@ -172,7 +194,6 @@ function toDel(target: any) {
     modelValue.value = modelValue.value?.filter((item: any) => item.targetId != target.targetId)
     dataIds.value = dataIds.value?.filter((item: any) => item != target.targetId)
     emit('change', modelValue.value || [])
-    processInput(modelValue.value || [])
   }
 }
 
@@ -188,7 +209,8 @@ watch(
     if (props.model == 'sync') {
       processInput(modelValue.value || [])
     }
-  }
+  },
+  { deep: true }
 )
 
 const emit = defineEmits(['change'])

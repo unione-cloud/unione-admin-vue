@@ -10,6 +10,7 @@
     class="user-select user-select-drawer"
   >
     <UserList
+      :limit="limit"
       :typeList="typeList"
       :targetType="targetType"
       :targetValue="targetValue"
@@ -32,6 +33,7 @@
     @ok="handelOk"
   >
     <UserList
+      :limit="limit"
       :typeList="typeList"
       :targetType="targetType"
       :targetValue="targetValue"
@@ -52,6 +54,10 @@ const props = defineProps({
   title: {
     type: String,
     default: '用户选择'
+  },
+  limit: {
+    type: Number,
+    default: -1
   },
   typeList: {
     type: Array<String>,
