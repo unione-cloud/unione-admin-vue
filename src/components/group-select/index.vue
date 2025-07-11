@@ -9,7 +9,12 @@
     :bodyStyle="{ padding: 0 }"
     class="group-select group-select-drawer"
   >
-    <GroupSelect :targetType="targetType" :targetValue="targetValue" ref="selectObj"></GroupSelect>
+    <GroupSelect
+      :targetType="targetType"
+      :targetValue="targetValue"
+      :selected="selected"
+      ref="selectObj"
+    ></GroupSelect>
 
     <template #footer>
       <a-button type="primary" @click="handelOk">确定</a-button>
@@ -26,7 +31,12 @@
     class="group-select group-select-dialog"
     @ok="handelOk"
   >
-    <GroupSelect :targetType="targetType" :targetValue="targetValue" ref="selectObj"></GroupSelect>
+    <GroupSelect
+      :targetType="targetType"
+      :targetValue="targetValue"
+      :selected="selected"
+      ref="selectObj"
+    ></GroupSelect>
   </a-modal>
 </template>
 
@@ -48,6 +58,12 @@ const props = defineProps({
   },
   targetValue: {
     type: String
+  },
+  selected: {
+    type: Array<any>,
+    default() {
+      return []
+    }
   },
   show: {
     type: String,

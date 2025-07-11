@@ -12,6 +12,7 @@
     <RoleList
       :targetType="targetType"
       :targetValue="targetValue"
+      :selected="selected"
       :mode="mode"
       ref="roleListObj"
     ></RoleList>
@@ -34,6 +35,7 @@
     <RoleList
       :targetType="targetType"
       :targetValue="targetValue"
+      :selected="selected"
       :mode="mode"
       ref="roleListObj"
     ></RoleList>
@@ -58,6 +60,12 @@ const props = defineProps({
   },
   targetValue: {
     type: String
+  },
+  selected: {
+    type: Array<any>,
+    default() {
+      return []
+    }
   },
   mode: {
     type: String,

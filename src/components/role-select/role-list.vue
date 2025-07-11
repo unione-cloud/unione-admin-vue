@@ -73,7 +73,13 @@ const props = defineProps({
   targetType: {
     type: String // user
   },
-  targetValue: { type: String }
+  targetValue: { type: String },
+  selected: {
+    type: Array<any>,
+    default() {
+      return []
+    }
+  }
 })
 
 // sex Convertor
@@ -111,10 +117,11 @@ function loadTreeData() {
         treeNode.value[item.id] = item
         item.isLeaf = true
         item.enDilivery = item.enDilivery == 1 ? true : false
-        if (item.checked) {
+        if (item.checked || props.selected?.includes(item.id)) {
           checkedKeys.value.push(item.id)
+          selectedTarget.value.push(item)
         }
-        if (item.checked && props.mode == 'disabled') {
+        if ((item.checked || props.selected?.includes(item.id)) && props.mode == 'disabled') {
           item.disableCheckbox = true
           item.disabled = true
         }

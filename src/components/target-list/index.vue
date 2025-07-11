@@ -29,6 +29,7 @@
     <!-- 机构选择组件 -->
     <UnioneOrganSelect
       v-model:visible="organSelect.visible"
+      :selected="dataIds"
       position="left"
       @ok="organSelect.ok"
     ></UnioneOrganSelect>
@@ -36,6 +37,7 @@
     <!-- 用户选择组件 -->
     <UnioneUserSelect
       v-model:visible="userSelect.visible"
+      :selected="dataIds"
       position="left"
       @ok="userSelect.ok"
     ></UnioneUserSelect>
@@ -43,6 +45,7 @@
     <!-- 角色选择组件 -->
     <UnioneRoleSelect
       v-model:visible="roleSelect.visible"
+      :selected="dataIds"
       mode="disabled"
       position="left"
       @ok="roleSelect.ok"
@@ -51,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { nextTick, onMounted, ref, watch } from 'vue'
 import type { PropType } from 'vue'
 import { useDialog } from 'unione-base-vue'
 import type { DataStorage, WidgetModel } from 'unione-form-vue/dist/typing'
@@ -67,7 +70,7 @@ declare type Target = {
 
 declare type ShowField = { title?: String; name: String }
 
-defineOptions({ name: 'UserSelect' })
+defineOptions({ name: 'TargetSelect' })
 const props = defineProps({
   wid: { type: String, required: false },
   editor: { type: Object, required: false },
@@ -96,7 +99,7 @@ const props = defineProps({
   // 关联字段名称，formValue中的属性名称，支持user.id方式
   refField: { type: String, default: 'id' },
   //业务字段名称：中间关联表的业务字段名称
-  bizField: { type: String, required: true },
+  bizField: { type: String, required: false },
   //目标显示字段：默认显示目标名称
   showField: { type: Array<ShowField>, required: false },
   //目标显示方式：tag标签，card卡片，list列表，table表格
@@ -124,23 +127,22 @@ function processInput(data: Array<any>) {
       }
     }
   })
-  console.log('processInput data', data)
-  console.log('processInput list', dataList.value)
+  console.log('process data', data)
 }
 
 const organSelect = ref({
   visible: false,
   ok: (e: any) => {
-    console.log('organ ok', e)
     if (props.model == 'sync') {
-      modelValue.value = modelValue.value || []
-      e.list
-        .filter((item: any) => !dataIds.value.includes(item.id))
-        .forEach((item: any) => {
+      const valueList = modelValue.value || []
+      e.list.forEach((item: any) => {
+        if (!dataIds.value.includes(item.id)) {
           dataIds.value.push(item.id)
-          modelValue.value?.push({ targetType: '2', targetId: item.id, targetName: item.title })
-        })
-      emit('change', modelValue.value)
+          valueList.push({ targetType: '2', targetId: item.id, targetName: item.title })
+        }
+      })
+      modelValue.value = valueList
+      processInput(valueList)
     }
     organSelect.value.visible = false
   }
@@ -148,16 +150,16 @@ const organSelect = ref({
 const roleSelect = ref({
   visible: false,
   ok: (e: any) => {
-    console.log('role ok', e)
     if (props.model == 'sync') {
-      modelValue.value = modelValue.value || []
-      e.list
-        .filter((item: any) => !dataIds.value.includes(item.id))
-        .forEach((item: any) => {
+      const valueList = modelValue.value || []
+      e.list.forEach((item: any) => {
+        if (!dataIds.value.includes(item.id)) {
           dataIds.value.push(item.id)
-          modelValue.value?.push({ targetType: '3', targetId: item.id, targetName: item.title })
-        })
-      emit('change', modelValue.value)
+          valueList.push({ targetType: '3', targetId: item.id, targetName: item.title })
+        }
+      })
+      modelValue.value = valueList
+      processInput(valueList)
     }
     roleSelect.value.visible = false
   }
@@ -165,16 +167,16 @@ const roleSelect = ref({
 const userSelect = ref({
   visible: false,
   ok: (e: any) => {
-    console.log('user ok', e)
     if (props.model == 'sync') {
-      modelValue.value = modelValue.value || []
-      e.list
-        .filter((item: any) => !dataIds.value.includes(item.id))
-        .forEach((item: any) => {
+      const valueList = modelValue.value || []
+      e.list.forEach((item: any) => {
+        if (!dataIds.value.includes(item.id)) {
           dataIds.value.push(item.id)
-          modelValue.value?.push({ targetType: '4', targetId: item.id, targetName: item.title })
-        })
-      emit('change', modelValue.value)
+          valueList.push({ targetType: '4', targetId: item.id, targetName: item.title })
+        }
+      })
+      modelValue.value = valueList
+      processInput(valueList)
     }
     userSelect.value.visible = false
   }
@@ -193,25 +195,29 @@ function toDel(target: any) {
   if (props.model == 'sync') {
     modelValue.value = modelValue.value?.filter((item: any) => item.targetId != target.targetId)
     dataIds.value = dataIds.value?.filter((item: any) => item != target.targetId)
+    processInput(modelValue.value || [])
     emit('change', modelValue.value || [])
   }
 }
 
 onMounted(() => {
   if (props.model == 'sync') {
-    processInput(modelValue.value || [])
+    if (!modelValue.value) {
+      modelValue.value = []
+    }
+    processInput(modelValue.value)
   }
 })
 
-watch(
-  () => modelValue,
-  () => {
-    if (props.model == 'sync') {
-      processInput(modelValue.value || [])
-    }
-  },
-  { deep: true }
-)
+// watch(
+//   () => modelValue,
+//   () => {
+//     if (props.model == 'sync') {
+//       processInput(modelValue.value || [])
+//     }
+//   },
+//   { deep: true }
+// )
 
 const emit = defineEmits(['change'])
 </script>

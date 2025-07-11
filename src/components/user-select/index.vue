@@ -14,6 +14,7 @@
       :typeList="typeList"
       :targetType="targetType"
       :targetValue="targetValue"
+      :selected="selected"
       ref="userListObj"
     ></UserList>
 
@@ -37,6 +38,7 @@
       :typeList="typeList"
       :targetType="targetType"
       :targetValue="targetValue"
+      :selected="selected"
       ref="userListObj"
     ></UserList>
   </a-modal>
@@ -68,6 +70,12 @@ const props = defineProps({
   },
   targetValue: {
     type: String
+  },
+  selected: {
+    type: Array<any>,
+    default() {
+      return []
+    }
   },
   show: {
     type: String,

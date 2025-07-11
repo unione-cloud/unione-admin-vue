@@ -9,7 +9,12 @@
     :bodyStyle="{ padding: 0 }"
     class="post-select post-select-drawer"
   >
-    <PostSelect :targetType="targetType" :targetValue="targetValue" ref="selectObj"></PostSelect>
+    <PostSelect
+      :targetType="targetType"
+      :targetValue="targetValue"
+      :selected="selected"
+      ref="selectObj"
+    ></PostSelect>
 
     <template #footer>
       <a-button type="primary" @click="handelOk">确定</a-button>
@@ -26,7 +31,12 @@
     class="post-select post-select-dialog"
     @ok="handelOk"
   >
-    <PostSelect :targetType="targetType" :targetValue="targetValue" ref="selectObj"></PostSelect>
+    <PostSelect
+      :targetType="targetType"
+      :targetValue="targetValue"
+      :selected="selected"
+      ref="selectObj"
+    ></PostSelect>
   </a-modal>
 </template>
 
@@ -48,6 +58,12 @@ const props = defineProps({
   },
   targetValue: {
     type: String
+  },
+  selected: {
+    type: Array<any>,
+    default() {
+      return []
+    }
   },
   show: {
     type: String,

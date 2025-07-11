@@ -61,7 +61,13 @@ const props = defineProps({
   targetType: {
     type: String // user
   },
-  targetValue: { type: String }
+  targetValue: { type: String },
+  selected: {
+    type: Array<any>,
+    default() {
+      return []
+    }
+  }
 })
 
 // sex Convertor
@@ -113,7 +119,7 @@ function loadTreeData(pid: string = '-1') {
         nmap[item.id] = item
         treeNode.value[item.id] = item
         item.isLeaf = false
-        if (item.checked) {
+        if (item.checked || props.selected?.includes(item.id)) {
           if (!checkedKeys.value.includes(item.id)) {
             checkedKeys.value.push(item.id)
           }

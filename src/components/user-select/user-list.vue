@@ -95,7 +95,13 @@ const props = defineProps({
   targetType: {
     type: String // organ | role | roleAssign | group | post
   },
-  targetValue: { type: String }
+  targetValue: { type: String },
+  selected: {
+    type: Array<any>,
+    default() {
+      return []
+    }
+  }
 })
 const typeMap = ref<any>({
   user: ['用户', 'UserOutlined'],
@@ -223,7 +229,7 @@ function loadUserList(pid: string) {
         if (selectedUids.value.includes[item.id]) {
           item.checked = true
         }
-        if (item.checked) {
+        if (item.checked || props.selected?.includes(item.id)) {
           if (!checkedKeys.value.includes(item.id)) {
             checkedKeys.value.push(item.id)
           }

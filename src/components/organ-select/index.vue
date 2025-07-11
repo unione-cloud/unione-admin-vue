@@ -9,7 +9,12 @@
     :bodyStyle="{ padding: 0 }"
     class="organ-select organ-select-drawer"
   >
-    <OrganSelect :targetType="targetType" :targetValue="targetValue" ref="selectObj"></OrganSelect>
+    <OrganSelect
+      :targetType="targetType"
+      :targetValue="targetValue"
+      :selected="selected"
+      ref="selectObj"
+    ></OrganSelect>
 
     <template #footer>
       <a-button type="primary" @click="handelOk">确定</a-button>
@@ -26,7 +31,12 @@
     class="organ-select organ-select-dialog"
     @ok="handelOk"
   >
-    <OrganSelect :targetType="targetType" :targetValue="targetValue" ref="selectObj"></OrganSelect>
+    <OrganSelect
+      :targetType="targetType"
+      :targetValue="targetValue"
+      :selected="selected"
+      ref="selectObj"
+    ></OrganSelect>
   </a-modal>
 </template>
 
@@ -48,6 +58,12 @@ const props = defineProps({
   },
   targetValue: {
     type: String
+  },
+  selected: {
+    type: Array<any>,
+    default() {
+      return []
+    }
   },
   show: {
     type: String,
