@@ -30,7 +30,8 @@ const dialog = useDialog()
 const page = ref()
 const define = ref({
   storage: {
-    controller: '/api/ums/message'
+    controller: '/api/ums/message',
+    saveUrl: '/send'
   },
   fields: [
     {
@@ -172,7 +173,9 @@ const drawer = ref({
         },
         event: {
           select: (value: any, ctx: any) => {
-            ctx.formValue.ways = ctx.option.ways
+            if (ctx.option.ways) {
+              ctx.formValue.ways = ctx.option.ways.split(',')
+            }
           }
         }
       },
@@ -215,6 +218,10 @@ const drawer = ref({
         title: '通知方式',
         name: 'ways',
         control: 'unione-check-box',
+        value: ['site'],
+        props: {
+          returnType: 'array'
+        },
         convert: {
           types: 'dict',
           dictName: 'UMSMESSAGEWAY'
