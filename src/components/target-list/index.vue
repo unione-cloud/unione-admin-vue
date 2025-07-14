@@ -13,7 +13,11 @@
               <a-tag v-if="!disabled" class="btn-add" @click="toAdd(type)"><PlusOutlined /></a-tag>
             </template>
             <template v-else-if="type.name == 'all'">
-              <a-checkbox v-model:checked="type.checked">平台所有用户</a-checkbox>
+              <a-checkbox
+                v-model:checked="type.checked"
+                @change="(e: boolean) => onAllChanged(type, e)"
+                >平台所有用户</a-checkbox
+              >
             </template>
             <template v-else-if="type.name == 'tenant'">
               <a-checkbox v-model:checked="type.checked">系统所有用户</a-checkbox>
@@ -85,7 +89,7 @@ const props = defineProps({
     default: () => {
       return [
         { title: '全部', name: 'all', value: '-1' },
-        { title: '租户', name: 'tenant', value: '1' },
+        // { title: '租户', name: 'tenant', value: '1' },
         { title: '机构', name: 'organ', value: '2' },
         { title: '角色', name: 'role', value: '3' },
         { title: '用户', name: 'user', value: '4' }
@@ -197,6 +201,25 @@ function toDel(target: any) {
     dataIds.value = dataIds.value?.filter((item: any) => item != target.targetId)
     processInput(modelValue.value || [])
     emit('change', modelValue.value || [])
+  }
+}
+function onAllChanged(type: any, e: boolean) {
+  if (e) {
+    dialog.confirm({
+      content: '确定要发送给所有用户么？',
+      onOk: () => {
+        if (e) {
+          dataList.value.forEach((item: any) => {
+            item.list = []
+          })
+        }
+      },
+      onCancel: () => {
+        type.checked = !type.checked
+      }
+    })
+  } else {
+    type.checked = e
   }
 }
 
