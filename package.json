@@ -44,6 +44,7 @@
     "npm-run-all2": "^6.1.2",
     "pinia": "^2.1.7",
     "prettier": "^3.2.5",
+    "prismjs": "^1.30.0",
     "sm-crypto": "^0.3.13",
     "start-server-and-test": "^2.0.3",
     "typescript": "~5.4.0",
