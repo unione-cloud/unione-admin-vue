@@ -3,14 +3,9 @@
   <div class="unione-page unione-page-list unione-ums-message">
     <unione-page-list ref="page" v-bind="define" @btnClick="btnClick"></unione-page-list>
 
-    <a-drawer
-      :title="drawer.title"
-      :width="550"
-      v-model:visible="drawer.visible"
-      :placement="drawer.placement"
-      class="drawer-form"
-    >
-      <unione-form :form="drawer.form" ref="form"></unione-form>
+    <a-drawer :title="drawer.title" :width="850" v-model:visible="drawer.visible" :placement="drawer.placement"
+      class="drawer-form">
+      <unione-form :form="drawer.form" ref="form" v-if="drawer.visible"></unione-form>
 
       <div class="btns">
         <a-button type="primary" @click="drawer.tosave">保存</a-button>
@@ -110,15 +105,18 @@ async function btnClick({ btn, event, row, keys }: any) {
     drawer.value.visible = true
     drawer.value.title = '编辑消息'
     drawer.value.placement = 'right'
-    drawer.value.row = row
+    drawer.value.row = { ...row }
+    if (drawer.value.row.bodyText) {
+      drawer.value.row.bodyText = JSON.parse(drawer.value.row.bodyText)
+    }
     nextTick(() => {
-      form.value.setValue(row)
+      form.value.setValue(drawer.value.row)
     })
   }
 }
 
 const form = ref() //form ref obj
-const drawer = ref({
+const drawer = ref<any>({
   title: '新增消息',
   placement: 'left',
   visible: false,
@@ -134,6 +132,11 @@ const drawer = ref({
         convert: {
           types: 'dict',
           dictName: 'UMSTYPES'
+        },
+        event: {
+          change: (value: any, formValue: any) => {
+            formValue.categoryId = ''
+          }
         }
       },
       {
@@ -187,7 +190,8 @@ const drawer = ref({
       {
         title: '内容',
         name: 'bodyText',
-        control: 'a-textarea'
+        value: {},
+        control: 'unione-rich-text'
       },
       {
         title: '手动确认',
@@ -245,7 +249,7 @@ const drawer = ref({
     ],
     setting: {
       showColumn: 1,
-      labelWidth: 5
+      labelWidth: 3
     }
   },
   tosave: () => {
@@ -257,6 +261,7 @@ const drawer = ref({
       if (!data.fromId) {
         data.fromId = 'portal'
       }
+      data.bodyText = JSON.stringify(data.bodyText)
       page.value
         .storage()
         .save({ data })
