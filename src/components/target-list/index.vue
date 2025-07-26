@@ -71,10 +71,10 @@ const props = defineProps({
     type: Array<Target>,
     default: () => {
       return [
-        { title: '全部', name: 'all', value: '-1' },
-        // { title: '租户', name: 'tenant', value: '1' },
-        { title: '机构', name: 'organ', value: '2' },
-        { title: '角色', name: 'role', value: '3' },
+        { title: '全部', name: 'all', value: '1' },
+        // { title: '租户', name: 'tenant', value: '2' },
+        { title: '机构', name: 'organ', value: '3' },
+        { title: '角色', name: 'role', value: '5' },
         { title: '用户', name: 'user', value: '4' }
       ]
     }
@@ -125,7 +125,7 @@ const organSelect = ref({
       e.list.forEach((item: any) => {
         if (!dataIds.value.includes(item.id)) {
           dataIds.value.push(item.id)
-          valueList.push({ targetType: '2', targetId: item.id, targetName: item.title })
+          valueList.push({ targetType: '3', targetId: item.id, targetName: item.title })
         }
       })
       modelValue.value = valueList
@@ -142,7 +142,7 @@ const roleSelect = ref({
       e.list.forEach((item: any) => {
         if (!dataIds.value.includes(item.id)) {
           dataIds.value.push(item.id)
-          valueList.push({ targetType: '3', targetId: item.id, targetName: item.title })
+          valueList.push({ targetType: '5', targetId: item.id, targetName: item.title })
         }
       })
       modelValue.value = valueList
@@ -194,7 +194,7 @@ function onAllChanged(type: any) {
         dataList.value.forEach((item: any) => {
           item.list = []
         })
-        modelValue.value = [{ targetType: '-1', targetId: '-1', targetName: '平台用户' }]
+        modelValue.value = [{ targetType: '1', targetId: '1', targetName: '平台用户' }]
         emit('change', modelValue.value || [])
       },
       onCancel: () => {
@@ -211,7 +211,7 @@ function onTenantChanged(type: any) {
         dataList.value.forEach((item: any) => {
           item.list = []
         })
-        modelValue.value = [{ targetType: '1', targetId: '1', targetName: '当前租户用户' }]
+        modelValue.value = [{ targetType: '2', targetId: '2', targetName: '当前租户用户' }]
         emit('change', modelValue.value || [])
       },
       onCancel: () => {
