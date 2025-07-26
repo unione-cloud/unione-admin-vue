@@ -67,7 +67,12 @@ const define = ref({
     },
     {
       title: '发布时间',
-      name: 'publicDate'
+      name: 'publicDate',
+      sort: {
+        enable: true,
+        defoult: true,
+        asc: false
+      }
     },
     {
       title: '修改时间',

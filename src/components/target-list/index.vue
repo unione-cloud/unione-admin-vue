@@ -10,50 +10,33 @@
               <template v-for="(target, j) in type.list" :key="j">
                 <a-tag :closable="!disabled" @close="toDel(target)">{{ target.targetName }}</a-tag>
               </template>
-              <a-tag v-if="!disabled" class="btn-add" @click="toAdd(type)"><PlusOutlined /></a-tag>
+              <a-tag v-if="!disabled" class="btn-add" @click="toAdd(type)">
+                <PlusOutlined />
+              </a-tag>
             </template>
             <template v-else-if="type.name == 'all'">
-              <a-checkbox
-                v-model:checked="type.checked"
-                @change="(e: boolean) => onAllChanged(type, e)"
-                >平台所有用户</a-checkbox
-              >
+              <a-checkbox v-model:checked="type.checked" @change="() => onAllChanged(type)">平台所有用户</a-checkbox>
             </template>
             <template v-else-if="type.name == 'tenant'">
-              <a-checkbox v-model:checked="type.checked">系统所有用户</a-checkbox>
+              <a-checkbox v-model:checked="type.checked" @change="() => onTenantChanged(type)">系统所有用户</a-checkbox>
             </template>
           </div>
-          <a-empty
-            v-if="type.name != 'all' && (!type.list || !type.list.length) && disabled"
-          ></a-empty>
+          <a-empty v-if="type.name != 'all' && (!type.list || !type.list.length) && disabled"></a-empty>
         </a-tab-pane>
       </template>
     </a-tabs>
 
     <!-- 机构选择组件 -->
-    <UnioneOrganSelect
-      v-model:visible="organSelect.visible"
-      :selected="dataIds"
-      position="left"
-      @ok="organSelect.ok"
-    ></UnioneOrganSelect>
+    <UnioneOrganSelect v-model:visible="organSelect.visible" :selected="dataIds" position="left" @ok="organSelect.ok">
+    </UnioneOrganSelect>
 
     <!-- 用户选择组件 -->
-    <UnioneUserSelect
-      v-model:visible="userSelect.visible"
-      :selected="dataIds"
-      position="left"
-      @ok="userSelect.ok"
-    ></UnioneUserSelect>
+    <UnioneUserSelect v-model:visible="userSelect.visible" :selected="dataIds" position="left" @ok="userSelect.ok">
+    </UnioneUserSelect>
 
     <!-- 角色选择组件 -->
-    <UnioneRoleSelect
-      v-model:visible="roleSelect.visible"
-      :selected="dataIds"
-      mode="disabled"
-      position="left"
-      @ok="roleSelect.ok"
-    ></UnioneRoleSelect>
+    <UnioneRoleSelect v-model:visible="roleSelect.visible" :selected="dataIds" mode="disabled" position="left"
+      @ok="roleSelect.ok"></UnioneRoleSelect>
   </div>
 </template>
 
@@ -203,23 +186,38 @@ function toDel(target: any) {
     emit('change', modelValue.value || [])
   }
 }
-function onAllChanged(type: any, e: boolean) {
-  if (e) {
+function onAllChanged(type: any) {
+  if (type.checked) {
     dialog.confirm({
       content: '确定要发送给所有用户么？',
       onOk: () => {
-        if (e) {
-          dataList.value.forEach((item: any) => {
-            item.list = []
-          })
-        }
+        dataList.value.forEach((item: any) => {
+          item.list = []
+        })
+        modelValue.value = [{ targetType: '-1', targetId: '-1', targetName: '平台用户' }]
+        emit('change', modelValue.value || [])
       },
       onCancel: () => {
         type.checked = !type.checked
       }
     })
-  } else {
-    type.checked = e
+  }
+}
+function onTenantChanged(type: any) {
+  if (type.checked) {
+    dialog.confirm({
+      content: '确定要发送给所有用户么？',
+      onOk: () => {
+        dataList.value.forEach((item: any) => {
+          item.list = []
+        })
+        modelValue.value = [{ targetType: '1', targetId: '1', targetName: '当前租户用户' }]
+        emit('change', modelValue.value || [])
+      },
+      onCancel: () => {
+        type.checked = !type.checked
+      }
+    })
   }
 }
 
@@ -254,6 +252,7 @@ const emit = defineEmits(['change'])
     .btn-add {
       cursor: pointer;
     }
+
     .btn-add:hover {
       .anticon {
         transform: rotate(135deg);

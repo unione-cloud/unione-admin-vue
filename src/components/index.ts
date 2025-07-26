@@ -6,6 +6,7 @@ import UnionePostSelect from './post-select/index.vue'
 import UnioneResSelect from './res-select/index.vue'
 import UnioneIconSelect from './icon-select/index.vue'
 import UnioneAvatar from './avatar/index.vue'
+import UnioneNoticeView from './notice-icon/noticeView.vue'
 import UnioneTargetList from './target-list/index.vue'
 
 export default {
@@ -20,5 +21,6 @@ export default {
     app.component('UnioneIconSelect', UnioneIconSelect)
     app.component('UnioneAvatar', UnioneAvatar)
     app.component('UnioneTargetList', UnioneTargetList)
+    app.component('UnioneNoticeView', UnioneNoticeView)
   }
 }

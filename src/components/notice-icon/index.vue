@@ -18,7 +18,7 @@
 
         <a-list class="notice-list" item-layout="horizontal" :data-source="messageList">
           <template #renderItem="{ item, index }">
-            <a-list-item>
+            <a-list-item @click="onNoticeClick(item)">
               <a-list-item-meta>
                 <template #title>
                   <div class="msg-index">{{ index + 1 }}、</div>
@@ -29,14 +29,19 @@
                   <div class="msg-category">{{ umstypeMap[item.types]?.label }}/{{ umsCategory[item.categoryId]?.title
                   }}
                   </div>
-                  <div class="msg-isConfirm" v-if="item.isConfirm == 1">
-                    <a-switch v-if="item.confirmType == 1" v-model:checked="item.confirmStatus" :checkedValue="1"
-                      checked-children="已确认" un-checked-children="待确认" />
+                  <div class="msg-isConfirm" v-if="item.isConfirm == 1" @click.stop>
+                    <a-tag v-if="item.confirmType == 1" :checked="item.confirmStatus == 1"
+                      @click="onConfirmChange(item)" :color="item.confirmStatus == 1 && 'success'">{{ item.confirmStatus
+                        ==
+                        1 ? '已确认' : '待确认' }}
+                    </a-tag>
                     <template v-else>
-                      <a-switch v-model:checked="item.confirmResult" :checkedValue="1" checked-children="接收"
-                        un-checked-children="接收" />
-                      <a-switch v-model:checked="item.confirmResult" :checkedValue="2" checked-children="拒绝"
-                        un-checked-children="拒绝" />
+                      <a-tag :checked="item.confirmResult == 1" @click="onConfirmResult(item, 'accept')"
+                        :color="item.confirmResult == 1 && 'success'"> 接受
+                      </a-tag>
+                      <a-tag :checked="item.confirmResult == 2" @click="onConfirmResult(item, 'reject')"
+                        :color="item.confirmResult == 2 && 'error'"> 拒绝
+                      </a-tag>
                     </template>
                   </div>
                 </template>
@@ -50,6 +55,7 @@
           :show-total="pagination.showtotal" />
       </a-card>
     </draggable-resizable-vue>
+    <unione-notice-view ref="noticeView"></unione-notice-view>
   </a-badge>
 </template>
 
@@ -70,6 +76,7 @@ const umstypes = new Convertor({ types: 'dict', dictName: 'UMSTYPES' })
 const umstypeList = ref([])
 const umstypeMap = ref<any>({})
 const messageList = ref([])
+const noticeView = ref()
 const visible = ref(false)
 const keywords = ref('')
 
@@ -139,6 +146,52 @@ function loadUmsCategory() {
       session.setStorage('unione_ums_category', JSON.stringify(umsCategory.value))
     })
   }
+}
+
+function onNoticeClick(notice: any) {
+  noticeView.value.open(notice)
+}
+
+function onConfirmChange(notice: any) {
+  notice.confirmStatus = !notice.confirmStatus;
+  axios.admin({
+    url: '/api/ums/message/confirm',
+    method: 'post',
+    data: {
+      id: notice.mineId,
+      messageId: notice.id,
+      confirmStatus: notice.confirmStatus ? 1 : 0
+    }
+  }).then((res: any) => {
+    if (!res.success) {
+      notice.confirmStatus = !notice.confirmStatus
+      dialog.error(res.message)
+    }
+  })
+}
+function onConfirmResult(notice: any, type: string) {
+  if (type == 'accept') {
+    notice.confirmResult = 1
+  } else {
+    notice.confirmResult = 2
+  }
+  notice.confirmStatus = true
+  axios.admin({
+    url: '/api/ums/message/confirm',
+    method: 'post',
+    data: {
+      id: notice.mineId,
+      messageId: notice.id,
+      confirmStatus: notice.confirmStatus ? 1 : 0,
+      confirmResult: notice.confirmResult
+    }
+  }).then((res: any) => {
+    if (!res.success) {
+      notice.confirmStatus = !notice.confirmStatus
+      notice.confirmResult = 0
+      dialog.error(res.message)
+    }
+  })
 }
 
 onMounted(() => {
@@ -242,6 +295,10 @@ onMounted(() => {
       .msg-isConfirm {
         display: inline-block;
         float: right;
+      }
+
+      :deep(.ant-tag) {
+        cursor: pointer;
       }
     }
   }

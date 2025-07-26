@@ -1,8 +1,8 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <div class="unione-page unione-page-list unione-ums-message-mine">
+    <unione-notice-view ref="noticeView"></unione-notice-view>
     <unione-page-list ref="page" v-bind="define" @btnClick="btnClick"></unione-page-list>
-
   </div>
 </template>
 
@@ -57,8 +57,8 @@ const define = ref({
       isQuery: true
     },
     {
-      title: '接收时间',
-      name: 'viewTime'
+      title: '发送时间',
+      name: 'created'
     },
     {
       title: '查阅状态',
@@ -136,9 +136,10 @@ const define = ref({
   }
 })
 
+const noticeView = ref()
 async function btnClick({ btn, event, row, keys }: any) {
   if (btn.name == 'view') {
-    //
+    noticeView.value.open(row)
   }
   if (btn.name == 'remove') {
     //
@@ -148,12 +149,10 @@ async function btnClick({ btn, event, row, keys }: any) {
 </script>
 
 <style scoped lang="less">
-.drawer-form {
-  .btns {
-    text-align: center;
-
-    :deep(.ant-btn) {
-      margin: 5px 10px;
+.unione-ums-message-mine {
+  :deep(.unione-notice-view) {
+    .notice-panel {
+      height: calc(100vh - 95px);
     }
   }
 }
