@@ -79,7 +79,7 @@ const unionePage = ref<any>({
     {
       title: '字体图标',
       name: 'iconName',
-      control: 'icon-select'
+      control: 'unione-icon-select'
     },
     {
       title: '图片图标(小)',

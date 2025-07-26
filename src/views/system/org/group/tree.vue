@@ -1,30 +1,16 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <unione-page-tree
-    ref="page"
-    v-bind="unionePage"
-    class="unione-system-group"
-    @btnClick="btnClick"
-    @treeClick="treeClick"
-  >
+  <unione-page-tree ref="page" v-bind="unionePage" class="unione-system-group" @btnClick="btnClick"
+    @treeClick="treeClick">
     <template #form-warp v-if="memberVisible && currentGroup?.id">
-      <unione-page-list
-        v-bind="defineMember"
-        :params="{ groupId: currentGroup.id }"
-        @btnClick="memberClick"
-        ref="member"
-      ></unione-page-list>
+      <unione-page-list v-bind="defineMember" :params="{ groupId: currentGroup.id }" @btnClick="memberClick"
+        ref="member"></unione-page-list>
     </template>
   </unione-page-tree>
 
   <!-- 用户选择组件 -->
-  <UnioneUserSelect
-    v-model:visible="userSelectVisible"
-    position="left"
-    targetType="group"
-    :targetValue="currentGroup?.id"
-    @ok="handelOk"
-  ></UnioneUserSelect>
+  <UnioneUserSelect v-model:visible="userSelectVisible" position="left" targetType="group"
+    :targetValue="currentGroup?.id" @ok="handelOk"></UnioneUserSelect>
 </template>
 
 <script setup lang="ts">
@@ -44,7 +30,7 @@ const unionePage = ref<any>({
       value: 9,
       convert: { types: 'dict', dictName: 'GROUPTYPES' }
     },
-    { title: '分组图标', name: 'iconFont', control: 'icon-select' },
+    { title: '分组图标', name: 'iconFont', control: 'unione-icon-select' },
     { title: '分组图片', name: 'iconPic' },
     { title: '显示顺序', name: 'ordered', control: 'a-input-number', value: 1 },
     {

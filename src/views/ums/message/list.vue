@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <div class="unione-page unione-page-list unione-ums-message">
+  <div class="unione-page unione-page-list unione-ums-message-list">
     <unione-page-list ref="page" v-bind="define" @btnClick="btnClick"></unione-page-list>
 
     <a-drawer :title="drawer.title" :width="850" v-model:visible="drawer.visible" :placement="drawer.placement"
@@ -34,17 +34,17 @@ const define = ref({
       name: 'categoryName'
     },
     {
-      title: '标题',
-      name: 'title',
-      isQuery: true
-    },
-    {
       title: '类别',
       name: 'types',
       convert: {
         types: 'dict',
         dictName: 'UMSTYPES'
       },
+      isQuery: true
+    },
+    {
+      title: '标题',
+      name: 'title',
       isQuery: true
     },
     {
