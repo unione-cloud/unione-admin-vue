@@ -346,6 +346,28 @@ export const useAdminStore = defineStore('unione-admin', () => {
     router.push(menu.path)
   }
 
+  /**
+   * 加载面包屑
+   * @param route
+   * @returns
+   */
+  function loadBreadcrumbList(route: any) {
+    const breadcrumbList = []
+    let menu: any = menuMap.value[route.name]
+    console.log('meun', menu)
+    while (menu && menu.key) {
+      breadcrumbList.unshift({
+        key: menu.key,
+        label: menu.label,
+        path: menu.path,
+        icon: menu.icon,
+        redirect: menu.redirect
+      })
+      menu = menuMap.value[menu.parent]
+    }
+    return breadcrumbList
+  }
+
   const session = useSession()
   function isLogin() {
     return session.isLogin()
@@ -360,6 +382,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
     sideMenuClick,
     view,
     isLogin,
-    rebuildMenu
+    rebuildMenu,
+    loadBreadcrumbList
   }
 })
