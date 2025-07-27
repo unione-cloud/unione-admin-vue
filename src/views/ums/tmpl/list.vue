@@ -121,9 +121,12 @@ async function btnClick({ btn, event, row, keys }: any) {
     drawer.value.visible = true
     drawer.value.title = '编辑模版'
     drawer.value.placement = 'right'
-    drawer.value.row = row
+    drawer.value.row = { ...row }
+    if (drawer.value.row.bodyText) {
+      drawer.value.row.bodyText = JSON.parse(drawer.value.row.bodyText)
+    }
     nextTick(() => {
-      form.value.setValue(row)
+      form.value.setValue(drawer.value.row)
     })
   }
   if (btn.name == 'status') {
@@ -148,7 +151,7 @@ function setStatus(id: string, status: number) {
 }
 
 const form = ref() //form ref obj
-const drawer = ref({
+const drawer = ref<any>({
   title: '新增模版',
   placement: 'left',
   visible: false,
@@ -241,6 +244,9 @@ const drawer = ref({
       data = {
         ...drawer.value.row,
         ...data
+      }
+      if (data.bodyText) {
+        data.bodyText = JSON.stringify(data.bodyText)
       }
       page.value
         .storage()

@@ -184,6 +184,9 @@ const drawer = ref<any>({
             if (ctx.option.ways) {
               ctx.formValue.ways = ctx.option.ways.split(',')
             }
+            if (ctx.option.bodyText) {
+              ctx.formValue.bodyText = JSON.parse(ctx.option.bodyText)
+            }
           }
         }
       },
