@@ -96,6 +96,14 @@ async function btnClick({ btn, event, row, keys }: any) {
     drawer.value.title = '新增消息'
     drawer.value.placement = 'left'
     drawer.value.row = {}
+    drawer.value.form.model = 'run'
+    drawer.value.form.fields.forEach((field: any) => {
+      if (field.name == 'bodyText') {
+        field.props = {
+          options: { margins: [10, 10, 10, 10] }
+        }
+      }
+    })
     nextTick(() => {
       form.value.reset()
     })
@@ -109,6 +117,13 @@ async function btnClick({ btn, event, row, keys }: any) {
     if (drawer.value.row.bodyText) {
       drawer.value.row.bodyText = JSON.parse(drawer.value.row.bodyText)
     }
+    drawer.value.form.fields.forEach((field: any) => {
+      if (field.name == 'bodyText') {
+        field.props = {
+          options: { margins: [10, 10, 10, 10] }
+        }
+      }
+    })
     nextTick(() => {
       form.value.setValue(drawer.value.row)
     })
@@ -122,6 +137,13 @@ async function btnClick({ btn, event, row, keys }: any) {
     if (drawer.value.row.bodyText) {
       drawer.value.row.bodyText = JSON.parse(drawer.value.row.bodyText)
     }
+    drawer.value.form.fields.forEach((field: any) => {
+      if (field.name == 'bodyText') {
+        field.props = {
+          options: { margins: [0, 0, 0, 0] }
+        }
+      }
+    })
     nextTick(() => {
       form.value.setValue(drawer.value.row)
     })
@@ -206,8 +228,12 @@ const drawer = ref<any>({
       {
         title: '内容',
         name: 'bodyText',
+        view: 'self',
         value: {},
-        control: 'unione-rich-text'
+        control: 'unione-rich-text',
+        props: {
+          options: { margins: [0, 0, 0, 0] }
+        }
       },
       {
         title: '手动确认',

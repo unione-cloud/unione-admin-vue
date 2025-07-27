@@ -24,40 +24,26 @@
               <span class="username" v-if="notice.userName">
                 <UserOutlined />{{ notice.userName }}
               </span>
-              <span class="time"> <FieldTimeOutlined />{{ notice.created }} </span>
+              <span class="time">
+                <FieldTimeOutlined />{{ notice.created }}
+              </span>
             </div>
 
-            <unione-rich-text
-              class="body-text"
-              :value="notice.bodyText"
-              model="view"
-              :options="{ margins: [0, 0, 0, 0] }"
-            ></unione-rich-text>
+            <unione-rich-text class="body-text" :value="notice.bodyText" model="view"
+              :options="{ margins: [0, 0, 0, 0] }"></unione-rich-text>
 
             <div class="notice-actions">
               <span v-if="notice.isConfirm" class="confirm-tips">当前消息需要确认</span>
-              <a-tag
-                class="confirm-opt"
-                v-if="notice.confirmType == 1"
-                @click="onConfirmChange"
-                :color="notice.confirmStatus ? 'success' : ''"
-                >{{ notice.confirmStatus ? '已确认' : '待确认' }}
+              <a-tag class="confirm-opt" v-if="notice.confirmType == 1" @click="onConfirmChange"
+                :color="notice.confirmStatus ? 'success' : ''">{{ notice.confirmStatus ? '已确认' : '待确认' }}
               </a-tag>
               <template v-else>
-                <a-tag
-                  class="confirm-opt"
-                  :checked="notice.confirmResult == 1"
-                  @click="onConfirmResult(notice, 'accept')"
-                  :color="notice.confirmResult == 1 ? 'success' : ''"
-                >
+                <a-tag class="confirm-opt" :checked="notice.confirmResult == 1"
+                  @click="onConfirmResult(notice, 'accept')" :color="notice.confirmResult == 1 ? 'success' : ''">
                   接受
                 </a-tag>
-                <a-tag
-                  class="confirm-opt"
-                  :checked="notice.confirmResult == 2"
-                  @click="onConfirmResult(notice, 'reject')"
-                  :color="notice.confirmResult == 2 ? 'error' : ''"
-                >
+                <a-tag class="confirm-opt" :checked="notice.confirmResult == 2"
+                  @click="onConfirmResult(notice, 'reject')" :color="notice.confirmResult == 2 ? 'error' : ''">
                   拒绝
                 </a-tag>
               </template>
@@ -221,7 +207,7 @@ defineExpose({
   top: 5px;
   right: calc(40vw + 10px);
 
-  & > div {
+  &>div {
     border: none !important;
   }
 
@@ -264,10 +250,6 @@ defineExpose({
           margin-right: 5px;
         }
       }
-    }
-
-    .body-text {
-      border: none;
     }
 
     .notice-actions {
