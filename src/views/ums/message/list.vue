@@ -276,7 +276,8 @@ const drawer = ref<any>({
       {
         title: '通知目标',
         name: 'targets',
-        control: 'unione-target-list'
+        control: 'unione-target-list',
+        view: 'self'
       },
       {
         title: '优先级',
