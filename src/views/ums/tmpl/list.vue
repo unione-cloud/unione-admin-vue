@@ -3,13 +3,8 @@
   <div class="unione-page unione-page-list unione-ums-tmpl">
     <unione-page-list ref="page" v-bind="define" @btnClick="btnClick"></unione-page-list>
 
-    <a-drawer
-      :title="drawer.title"
-      :width="550"
-      v-model:visible="drawer.visible"
-      :placement="drawer.placement"
-      class="drawer-form"
-    >
+    <a-drawer :title="drawer.title" :width="800" v-model:visible="drawer.visible" :placement="drawer.placement"
+      class="drawer-form">
       <unione-form :form="drawer.form" ref="form"></unione-form>
 
       <div class="btns">
@@ -193,27 +188,26 @@ const drawer = ref({
       {
         title: '通知方式',
         name: 'ways',
+        value: '',
         control: 'unione-check-box',
         convert: {
           types: 'dict',
           dictName: 'UMSMESSAGEWAY'
         }
       },
+      // {
+      //   title: 'html模版',
+      //   name: 'bodyHtml',
+      //   control: 'a-textarea',
+      //   props: {
+      //     help: '应用于站内信，邮件等支持富文本的消息'
+      //   }
+      // },
       {
-        title: 'html模版',
-        name: 'bodyHtml',
-        control: 'a-textarea',
-        props: {
-          help: '应用于站内信，邮件等支持富文本的消息'
-        }
-      },
-      {
-        title: 'text模版',
+        title: '消息模版',
         name: 'bodyText',
-        control: 'a-textarea',
-        props: {
-          help: '应用于短信，推送等不支持富文本的消息'
-        }
+        value: {},
+        control: 'unione-rich-text'
       },
       {
         title: '状态',
@@ -239,7 +233,7 @@ const drawer = ref({
     ],
     setting: {
       showColumn: 1,
-      labelWidth: 5
+      labelWidth: 3
     }
   },
   tosave: () => {
