@@ -5,9 +5,10 @@ import UnioneGroupSelect from './group-select/index.vue'
 import UnionePostSelect from './post-select/index.vue'
 import UnioneResSelect from './res-select/index.vue'
 import UnioneIconSelect from './icon-select/index.vue'
-import UnioneAvatar from './avatar/index.vue'
 import UnioneNoticeView from './notice-icon/noticeView.vue'
 import UnioneTargetList from './target-list/index.vue'
+import UnioneAvatar from './avatar/index.vue'
+import UnioneBreadcrumb from './breadcrumb/index.vue'
 
 export default {
   install(app: any, options: any) {
@@ -22,5 +23,6 @@ export default {
     app.component('UnioneAvatar', UnioneAvatar)
     app.component('UnioneTargetList', UnioneTargetList)
     app.component('UnioneNoticeView', UnioneNoticeView)
+    app.component('UnioneBreadcrumb', UnioneBreadcrumb)
   }
 }

@@ -1,49 +1,28 @@
 <template>
   <a-layout class="unione-basic-layout">
-    <a-layout-sider
-      v-model:collapsed="sideMenu.collapsed"
-      :collapsedWidth="50"
-      collapsible
-      class="unione-layout-sider"
-      v-if="sideMenu.list && sideMenu.list.length"
-    >
+    <a-layout-sider v-model:collapsed="sideMenu.collapsed" :collapsedWidth="50" collapsible class="unione-layout-sider"
+      v-if="sideMenu.list && sideMenu.list.length">
       <div class="logo-box">
         <div class="logo-title" :style="view.logo.title.css">
           {{ sideMenu.collapsed ? view.logo.title.side : view.logo.title.text }}
         </div>
       </div>
-      <a-menu
-        class="unione-sider-menu"
-        v-model:openKeys="sideMenu.openKeys"
-        v-model:selectedKeys="sideMenu.selectedKeys"
-        mode="inline"
-        theme="dark"
-        :inline-collapsed="sideMenu.collapsed"
-        :items="sideMenu.list"
-        @click="({ key }: any) => admin.sideMenuClick(key)"
-      ></a-menu>
+      <a-menu class="unione-sider-menu" v-model:openKeys="sideMenu.openKeys"
+        v-model:selectedKeys="sideMenu.selectedKeys" mode="inline" theme="dark" :inline-collapsed="sideMenu.collapsed"
+        :items="sideMenu.list" @click="({ key }: any) => admin.sideMenuClick(key)"></a-menu>
     </a-layout-sider>
     <a-layout>
-      <a-layout-header
-        style="background: #fff; padding: 0"
-        class="unione-layout-header"
-        v-if="(sideMenu.list && sideMenu.list.length) || (topMenu.list && topMenu.list.length)"
-      >
+      <a-layout-header style="background: #fff; padding: 0" class="unione-layout-header"
+        v-if="(sideMenu.list && sideMenu.list.length) || (topMenu.list && topMenu.list.length)">
         <div class="unione-header-left">
           <div class="logo-box" v-if="!sideMenu.list || !sideMenu.list.length">
             <div class="logo-title" :style="view.logo.title.css">
               {{ sideMenu.collapsed ? view.logo.title.side : view.logo.title.text }}
             </div>
           </div>
-          <a-menu
-            class="unione-header-menu"
-            mode="horizontal"
-            v-model:openKeys="topMenu.openKeys"
-            v-model:selectedKeys="topMenu.selectedKeys"
-            :items="topMenu.list"
-            v-if="topMenu.list && topMenu.list.length"
-            @click="({ key }: any) => admin.topMenuClick(key)"
-          >
+          <a-menu class="unione-header-menu" mode="horizontal" v-model:openKeys="topMenu.openKeys"
+            v-model:selectedKeys="topMenu.selectedKeys" :items="topMenu.list" v-if="topMenu.list && topMenu.list.length"
+            @click="({ key }: any) => admin.topMenuClick(key)">
             <!-- <a-menu-item v-for="menu in topMenu.list" :key="menu.key">
               <component #icon v-if="menu.icon" :is="menu.icon"></component>
               {{ menu.label }}
@@ -57,16 +36,11 @@
         </div>
       </a-layout-header>
       <a-layout-content class="unione-layout-content">
-        <iframe
-          class="unione-iframe-content"
-          v-if="$route.meta.url && $route.meta.isIframe == 1"
-          :src="$route.meta.url.toString()"
-        ></iframe>
-        <component
-          class="unione-page-content"
-          v-else-if="$route.meta.isIframe != 1 && viewComponent"
-          :is="viewComponent"
-        />
+        <unione-breadcrumb />
+        <iframe class="unione-iframe-content" v-if="$route.meta.url && $route.meta.isIframe == 1"
+          :src="$route.meta.url.toString()"></iframe>
+        <component class="unione-page-content" v-else-if="$route.meta.isIframe != 1 && viewComponent"
+          :is="viewComponent" />
         <RouterView v-else :key="$route.name?.toString()"></RouterView>
       </a-layout-content>
     </a-layout>
@@ -143,6 +117,7 @@ const viewComponent = computed(() => {
       line-height: 64px;
       overflow: hidden;
       cursor: pointer;
+
       .logo-title {
         color: #ffffff;
       }
@@ -152,6 +127,7 @@ const viewComponent = computed(() => {
       .logo {
         margin: 5px;
       }
+
       .unione-sider-menu {
         /deep/.ant-menu-item-icon {
           font-size: 20px;
@@ -177,6 +153,7 @@ const viewComponent = computed(() => {
           position: absolute;
         }
       }
+
       .trigger {
         font-size: 18px;
         line-height: 64px;
@@ -184,6 +161,7 @@ const viewComponent = computed(() => {
         cursor: pointer;
         transition: color 0.3s;
       }
+
       .trigger:hover {
         color: #1890ff;
       }
@@ -215,6 +193,7 @@ const viewComponent = computed(() => {
       height: 100%;
       border: none;
     }
+
     .unione-page-content {
       width: 100%;
       height: 100%;
