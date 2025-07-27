@@ -118,7 +118,14 @@ const define = ref({
       }
     }
   ],
-  rightBtns: false,
+  rightBtns: ['impData', 'expData', 'downTmpl', {
+    title: '全部设置已读',
+    name: 'clear',
+    icon: 'EyeOutlined',
+    props: {
+      danger: true
+    }
+  }],
   operation: {
     title: '操作',
     width: 125,
@@ -145,8 +152,53 @@ async function btnClick({ btn, event, row, keys }: any) {
   if (btn.name == 'view') {
     noticeView.value.open(row.id)
   }
-  if (btn.name == 'remove') {
-    //
+  if (btn.name == 'remove' || btn.name == 'removeBatch') {
+    if (btn.name == 'removeBatch' && (!keys || !keys.length)) {
+      dialog.info('请选择要删除的记录')
+      return;
+    }
+    if (!keys || !keys.length) {
+      keys = [row.id]
+    }
+
+    // 确认删除
+    dialog.confirm({
+      title: '确认信息',
+      content: '请确认是否要删除该记录?',
+      onOk: () => {
+        axios.admin({
+          url: '/api/ums/message/remove',
+          method: 'post',
+          data: keys
+        }).then((res: any) => {
+          if (res.success) {
+            dialog.success('删除成功')
+            page.value.reload()
+          } else {
+            dialog.error(res.message)
+          }
+        })
+      }
+    })
+  }
+  if (btn.name == 'clear') {
+    dialog.confirm({
+      title: '确认信息',
+      content: '请确认是否要全部设置已读?',
+      onOk: () => {
+        axios.admin({
+          url: '/api/ums/message/clear',
+          method: 'post'
+        }).then((res: any) => {
+          if (res.success) {
+            dialog.success('设置成功')
+            page.value.reload()
+          } else {
+            dialog.error(res.message)
+          }
+        })
+      }
+    })
   }
 }
 </script>
