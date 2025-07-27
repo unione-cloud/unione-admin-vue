@@ -166,6 +166,7 @@ const drawer = ref<any>({
       {
         title: '编码',
         name: 'sn',
+        control: 'unione-random-input',
         required: true
       },
       {
