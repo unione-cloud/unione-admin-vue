@@ -70,18 +70,13 @@ const umstypes = new Convertor({ types: 'dict', dictName: 'UMSTYPES' })
 const umstypeMap = ref<any>({})
 const visible = ref(false)
 const notice = ref<any>({})
-const location = ref({
-  x: 0,
-  y: 0
-})
+const emit = defineEmits(['change'])
 
 function close() {
   visible.value = !visible.value
 }
 function open(id: any) {
   visible.value = true
-  location.value.x = window.innerWidth * 0.8
-  location.value.y = 0
   loadDetail(id)
 }
 
@@ -106,6 +101,7 @@ function loadDetail(id: any) {
           if (notice.value.bodyText) {
             notice.value.bodyText = JSON.parse(notice.value.bodyText)
           }
+          emit('change')
         } else {
           dialog.error(res.message)
         }
@@ -129,6 +125,8 @@ function onConfirmChange() {
       if (!res.success) {
         notice.value.confirmStatus = !notice.value.confirmStatus
         dialog.error(res.message)
+      } else {
+        emit('change')
       }
     })
 }
@@ -155,6 +153,8 @@ function onConfirmResult(notice: any, type: string) {
         notice.confirmStatus = !notice.confirmStatus
         notice.confirmResult = 0
         dialog.error(res.message)
+      } else {
+        emit('change')
       }
     })
 }

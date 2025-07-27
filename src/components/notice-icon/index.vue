@@ -7,15 +7,11 @@
       <a-card class="notice-panel" v-if="visible" size="small" :bodyStyle="{ padding: 0 }">
         <template #title>
           <bell-outlined class="icon" />
-          <unione-select-box :options="umstypeList" size="small" value="-1"></unione-select-box>
-          <a-input-search
-            class="search"
-            v-model:value="keywords"
-            placeholder="请输入搜索内容"
-            size="small"
-            @search="doQuery"
-            allowClear
-          />
+          <unione-select-box :options="umstypeList" size="small" v-model:value="umstypeValue"
+            @change="doQuery"></unione-select-box>
+
+          <a-input-search class="search" v-model:value="keywords" placeholder="请输入搜索内容" size="small" @search="doQuery"
+            allowClear />
         </template>
         <template #extra>
           <close-outlined @click="toggle" class="icon" />
@@ -28,6 +24,7 @@
               <a-list-item-meta>
                 <template #title>
                   <div class="msg-index">{{ index + 1 }}、</div>
+                  <component class="icon" :is="item.mineId ? 'EyeOutlined' : 'EyeInvisibleOutlined'"></component>
                   <a href="javascript:;" class="msg-title">{{ item.title }}</a>
                   <span class="msg-time">{{ item.created }}</span>
                 </template>
@@ -36,26 +33,17 @@
                     {{ umstypeMap[item.types]?.label }}/{{ umsCategory[item.categoryId]?.title }}
                   </div>
                   <div class="msg-isConfirm" v-if="item.isConfirm == 1" @click.stop>
-                    <a-tag
-                      v-if="item.confirmType == 1"
-                      :checked="item.confirmStatus == 1"
-                      @click="onConfirmChange(item)"
-                      :color="item.confirmStatus == 1 ? 'success' : ''"
-                      >{{ item.confirmStatus == 1 ? '已确认' : '待确认' }}
+                    <a-tag v-if="item.confirmType == 1" :checked="item.confirmStatus == 1"
+                      @click="onConfirmChange(item)" :color="item.confirmStatus == 1 ? 'success' : ''">{{
+                        item.confirmStatus == 1 ? '已确认' : '待确认' }}
                     </a-tag>
                     <template v-else>
-                      <a-tag
-                        :checked="item.confirmResult == 1"
-                        @click="onConfirmResult(item, 'accept')"
-                        :color="item.confirmResult == 1 ? 'success' : ''"
-                      >
+                      <a-tag :checked="item.confirmResult == 1" @click="onConfirmResult(item, 'accept')"
+                        :color="item.confirmResult == 1 ? 'success' : ''">
                         接受
                       </a-tag>
-                      <a-tag
-                        :checked="item.confirmResult == 2"
-                        @click="onConfirmResult(item, 'reject')"
-                        :color="item.confirmResult == 2 ? 'error' : ''"
-                      >
+                      <a-tag :checked="item.confirmResult == 2" @click="onConfirmResult(item, 'reject')"
+                        :color="item.confirmResult == 2 ? 'error' : ''">
                         拒绝
                       </a-tag>
                     </template>
@@ -66,19 +54,12 @@
           </template>
         </a-list>
 
-        <a-pagination
-          ref="paginationDom"
-          size="small"
-          showLessItems
-          :showSizeChanger="false"
-          v-model:current="pagination.current"
-          v-model:page-size="pagination.pageSize"
-          :total="pagination.total"
-          :show-total="pagination.showtotal"
-        />
+        <a-pagination ref="paginationDom" size="small" showLessItems :showSizeChanger="false"
+          v-model:current="pagination.current" v-model:page-size="pagination.pageSize" :total="pagination.total"
+          :show-total="pagination.showtotal" />
       </a-card>
     </draggable-resizable-vue>
-    <unione-notice-view ref="noticeView"></unione-notice-view>
+    <unione-notice-view ref="noticeView" @change="doQuery"></unione-notice-view>
   </a-badge>
 </template>
 
@@ -98,10 +79,11 @@ const umsCategory = ref<any>({})
 const umstypes = new Convertor({ types: 'dict', dictName: 'UMSTYPES' })
 const umstypeList = ref([])
 const umstypeMap = ref<any>({})
+const umstypeValue = ref('-1')
+const keywords = ref('')
 const messageList = ref([])
 const noticeView = ref()
 const visible = ref(false)
-const keywords = ref('')
 
 const paginationDom = ref()
 const pagination = ref({
@@ -121,7 +103,17 @@ function toggle() {
         dialog.confirm({
           title: '确认设置全部已读？',
           onOk: () => {
-            console.log('ok')
+            axios.admin({
+              url: '/api/ums/message/clear',
+              method: 'post'
+            }).then((res: any) => {
+              if (res.success) {
+                dialog.success('设置成功')
+                doQuery()
+              } else {
+                dialog.error(res.message)
+              }
+            })
           }
         })
       }
@@ -140,7 +132,8 @@ function doQuery() {
         pageSize: pagination.value.pageSize,
         keywords: keywords.value,
         body: {
-          viewSts: 0
+          viewSts: 0,
+          types: umstypeValue.value != '-1' ? umstypeValue.value : null
         }
       }
     })
@@ -304,6 +297,11 @@ onMounted(() => {
       .msg-index {
         float: left;
         margin-left: -20px;
+      }
+
+      .icon {
+        font-size: 14px;
+        margin-right: 5px;
       }
 
       .msg-time {
