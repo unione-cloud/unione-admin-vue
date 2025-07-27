@@ -81,13 +81,7 @@ const define = ref({
   ],
   operation: {
     title: '操作',
-    width: 125,
-    btns: [
-      {
-        name: 'view',
-        visible: false
-      }
-    ],
+    width: 175,
     count: 4,
     more: {
       layout: 'vertical'
@@ -111,6 +105,20 @@ async function btnClick({ btn, event, row, keys }: any) {
     drawer.value.title = '编辑消息'
     drawer.value.placement = 'right'
     drawer.value.row = { ...row }
+    drawer.value.form.model = 'run'
+    if (drawer.value.row.bodyText) {
+      drawer.value.row.bodyText = JSON.parse(drawer.value.row.bodyText)
+    }
+    nextTick(() => {
+      form.value.setValue(drawer.value.row)
+    })
+  }
+  if (btn.name == 'view') {
+    drawer.value.visible = true
+    drawer.value.title = '查看消息'
+    drawer.value.placement = 'right'
+    drawer.value.row = { ...row }
+    drawer.value.form.model = 'view'
     if (drawer.value.row.bodyText) {
       drawer.value.row.bodyText = JSON.parse(drawer.value.row.bodyText)
     }
@@ -255,6 +263,7 @@ const drawer = ref<any>({
         }
       }
     ],
+    model: 'run',
     setting: {
       showColumn: 1,
       labelWidth: 3
