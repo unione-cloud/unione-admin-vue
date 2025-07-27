@@ -8,8 +8,14 @@
         <template #title>
           <bell-outlined class="icon" />
           <unione-select-box :options="umstypeList" size="small" value="-1"></unione-select-box>
-          <a-input-search class="search" v-model:value="keywords" placeholder="请输入搜索内容" size="small" @search="doQuery"
-            allowClear />
+          <a-input-search
+            class="search"
+            v-model:value="keywords"
+            placeholder="请输入搜索内容"
+            size="small"
+            @search="doQuery"
+            allowClear
+          />
         </template>
         <template #extra>
           <close-outlined @click="toggle" class="icon" />
@@ -26,21 +32,31 @@
                   <span class="msg-time">{{ item.created }}</span>
                 </template>
                 <template #description>
-                  <div class="msg-category">{{ umstypeMap[item.types]?.label }}/{{ umsCategory[item.categoryId]?.title
-                  }}
+                  <div class="msg-category">
+                    {{ umstypeMap[item.types]?.label }}/{{ umsCategory[item.categoryId]?.title }}
                   </div>
                   <div class="msg-isConfirm" v-if="item.isConfirm == 1" @click.stop>
-                    <a-tag v-if="item.confirmType == 1" :checked="item.confirmStatus == 1"
-                      @click="onConfirmChange(item)" :color="item.confirmStatus == 1 && 'success'">{{ item.confirmStatus
-                        ==
-                        1 ? '已确认' : '待确认' }}
+                    <a-tag
+                      v-if="item.confirmType == 1"
+                      :checked="item.confirmStatus == 1"
+                      @click="onConfirmChange(item)"
+                      :color="item.confirmStatus == 1 ? 'success' : ''"
+                      >{{ item.confirmStatus == 1 ? '已确认' : '待确认' }}
                     </a-tag>
                     <template v-else>
-                      <a-tag :checked="item.confirmResult == 1" @click="onConfirmResult(item, 'accept')"
-                        :color="item.confirmResult == 1 && 'success'"> 接受
+                      <a-tag
+                        :checked="item.confirmResult == 1"
+                        @click="onConfirmResult(item, 'accept')"
+                        :color="item.confirmResult == 1 ? 'success' : ''"
+                      >
+                        接受
                       </a-tag>
-                      <a-tag :checked="item.confirmResult == 2" @click="onConfirmResult(item, 'reject')"
-                        :color="item.confirmResult == 2 && 'error'"> 拒绝
+                      <a-tag
+                        :checked="item.confirmResult == 2"
+                        @click="onConfirmResult(item, 'reject')"
+                        :color="item.confirmResult == 2 ? 'error' : ''"
+                      >
+                        拒绝
                       </a-tag>
                     </template>
                   </div>
@@ -50,9 +66,16 @@
           </template>
         </a-list>
 
-        <a-pagination ref="paginationDom" size="small" showLessItems :showSizeChanger="false"
-          v-model:current="pagination.current" v-model:page-size="pagination.pageSize" :total="pagination.total"
-          :show-total="pagination.showtotal" />
+        <a-pagination
+          ref="paginationDom"
+          size="small"
+          showLessItems
+          :showSizeChanger="false"
+          v-model:current="pagination.current"
+          v-model:page-size="pagination.pageSize"
+          :total="pagination.total"
+          :show-total="pagination.showtotal"
+        />
       </a-card>
     </draggable-resizable-vue>
     <unione-notice-view ref="noticeView"></unione-notice-view>
@@ -108,21 +131,23 @@ function toggle() {
 
 function doQuery() {
   pagination.value.current = 1
-  axios.admin({
-    url: '/api/ums/message/mine',
-    method: 'post',
-    data: {
-      page: pagination.value.current,
-      pageSize: pagination.value.pageSize,
-      keywords: keywords.value,
-      body: {
-        viewSts: 0
+  axios
+    .admin({
+      url: '/api/ums/message/mine',
+      method: 'post',
+      data: {
+        page: pagination.value.current,
+        pageSize: pagination.value.pageSize,
+        keywords: keywords.value,
+        body: {
+          viewSts: 0
+        }
       }
-    }
-  }).then((res: any) => {
-    messageList.value = res.body
-    pagination.value.total = res.total
-  })
+    })
+    .then((res: any) => {
+      messageList.value = res.body
+      pagination.value.total = res.total
+    })
 }
 
 function loadUmsCategory() {
@@ -130,21 +155,23 @@ function loadUmsCategory() {
   if (category) {
     umsCategory.value = JSON.parse(category)
   } else {
-    axios.admin({
-      url: '/api/ums/category/find',
-      method: 'post',
-      data: {
-        page: 1,
-        pageSize: 1000,
-        body: {}
-      }
-    }).then((res: any) => {
-      umsCategory.value = {}
-      res.body.forEach((item: any) => {
-        umsCategory.value[item.id] = item
+    axios
+      .admin({
+        url: '/api/ums/category/find',
+        method: 'post',
+        data: {
+          page: 1,
+          pageSize: 1000,
+          body: {}
+        }
       })
-      session.setStorage('unione_ums_category', JSON.stringify(umsCategory.value))
-    })
+      .then((res: any) => {
+        umsCategory.value = {}
+        res.body.forEach((item: any) => {
+          umsCategory.value[item.id] = item
+        })
+        session.setStorage('unione_ums_category', JSON.stringify(umsCategory.value))
+      })
   }
 }
 
@@ -153,21 +180,23 @@ function onNoticeClick(notice: any) {
 }
 
 function onConfirmChange(notice: any) {
-  notice.confirmStatus = !notice.confirmStatus;
-  axios.admin({
-    url: '/api/ums/message/confirm',
-    method: 'post',
-    data: {
-      id: notice.mineId,
-      messageId: notice.id,
-      confirmStatus: notice.confirmStatus ? 1 : 0
-    }
-  }).then((res: any) => {
-    if (!res.success) {
-      notice.confirmStatus = !notice.confirmStatus
-      dialog.error(res.message)
-    }
-  })
+  notice.confirmStatus = !notice.confirmStatus
+  axios
+    .admin({
+      url: '/api/ums/message/confirm',
+      method: 'post',
+      data: {
+        id: notice.mineId,
+        messageId: notice.id,
+        confirmStatus: notice.confirmStatus ? 1 : 0
+      }
+    })
+    .then((res: any) => {
+      if (!res.success) {
+        notice.confirmStatus = !notice.confirmStatus
+        dialog.error(res.message)
+      }
+    })
 }
 function onConfirmResult(notice: any, type: string) {
   if (type == 'accept') {
@@ -176,22 +205,24 @@ function onConfirmResult(notice: any, type: string) {
     notice.confirmResult = 2
   }
   notice.confirmStatus = true
-  axios.admin({
-    url: '/api/ums/message/confirm',
-    method: 'post',
-    data: {
-      id: notice.mineId,
-      messageId: notice.id,
-      confirmStatus: notice.confirmStatus ? 1 : 0,
-      confirmResult: notice.confirmResult
-    }
-  }).then((res: any) => {
-    if (!res.success) {
-      notice.confirmStatus = !notice.confirmStatus
-      notice.confirmResult = 0
-      dialog.error(res.message)
-    }
-  })
+  axios
+    .admin({
+      url: '/api/ums/message/confirm',
+      method: 'post',
+      data: {
+        id: notice.mineId,
+        messageId: notice.id,
+        confirmStatus: notice.confirmStatus ? 1 : 0,
+        confirmResult: notice.confirmResult
+      }
+    })
+    .then((res: any) => {
+      if (!res.success) {
+        notice.confirmStatus = !notice.confirmStatus
+        notice.confirmResult = 0
+        dialog.error(res.message)
+      }
+    })
 }
 
 onMounted(() => {
