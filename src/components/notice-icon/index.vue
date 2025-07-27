@@ -88,8 +88,8 @@ const visible = ref(false)
 const paginationDom = ref()
 const pagination = ref({
   current: 1,
-  pageSize: 20,
-  total: 122220,
+  pageSize: 10,
+  total: 0,
   showtotal: (total: any) => `共${total}条`
 })
 
