@@ -1,53 +1,73 @@
 <template>
-  <draggable-resizable-vue :resizable="false" :z="100" v-if="visible" class="unione-notice-view" v-model:x="location.x"
-    v-model:y="location.y">
-    <a-card class="notice-panel" size="small">
-      <template #title>
-        <bell-outlined class="icon" />
-        <span>查看</span>
-      </template>
-      <template #extra>
-        <close-outlined @click="close" class="icon" />
-      </template>
-
-      <div class="notice-content">
-        <div class="title">
-          <span>{{ notice.title || '--' }}</span>
-        </div>
-        <div class="info">
-          <span class="type">
-            <UnorderedListOutlined />{{ umstypeMap[notice.types]?.label }}/{{ umsCategory[notice.categoryId]?.title }}
-          </span>
-          <span class="username" v-if="notice.userName">
-            <UserOutlined />{{ notice.userName }}
-          </span>
-          <span class="time">
-            <FieldTimeOutlined />{{ notice.created }}
-          </span>
-        </div>
-
-        <unione-rich-text :value="notice.bodyText" model="view" :options="{ margins: [0, 0, 0, 0] }"></unione-rich-text>
-
-        <div class="notice-actions">
-          <span v-if="notice.isConfirm" class="confirm-tips">当前消息需要确认</span>
-          <a-tag v-if="notice.confirmType == 1" :checked="notice.confirmStatus == 1" @click="onConfirmChange(notice)"
-            :color="notice.confirmStatus == 1 && 'success'">{{ notice.confirmStatus
-              ==
-              1 ? '已确认' : '待确认' }}
-          </a-tag>
-          <template v-else>
-            <a-tag :checked="notice.confirmResult == 1" @click="onConfirmResult(notice, 'accept')"
-              :color="notice.confirmResult == 1 && 'success'"> 接受
-            </a-tag>
-            <a-tag :checked="notice.confirmResult == 2" @click="onConfirmResult(notice, 'reject')"
-              :color="notice.confirmResult == 2 && 'error'"> 拒绝
-            </a-tag>
+  <Teleport to="body">
+    <div class="unione-notice-view" v-if="visible">
+      <draggable-resizable-vue :resizable="false">
+        <a-card class="notice-panel" size="small">
+          <template #title>
+            <bell-outlined class="icon" />
+            <span>查看</span>
           </template>
-          <a-button @click="close">关闭</a-button>
-        </div>
-      </div>
-    </a-card>
-  </draggable-resizable-vue>
+          <template #extra>
+            <close-outlined @click="close" class="icon" />
+          </template>
+
+          <div class="notice-content">
+            <div class="title">
+              <span>{{ notice.title || '--' }}</span>
+            </div>
+            <div class="info">
+              <span class="type">
+                <UnorderedListOutlined />{{ umstypeMap[notice.types]?.label }}/{{
+                  umsCategory[notice.categoryId]?.title
+                }}
+              </span>
+              <span class="username" v-if="notice.userName">
+                <UserOutlined />{{ notice.userName }}
+              </span>
+              <span class="time"> <FieldTimeOutlined />{{ notice.created }} </span>
+            </div>
+
+            <unione-rich-text
+              class="body-text"
+              :value="notice.bodyText"
+              model="view"
+              :options="{ margins: [0, 0, 0, 0] }"
+            ></unione-rich-text>
+
+            <div class="notice-actions">
+              <span v-if="notice.isConfirm" class="confirm-tips">当前消息需要确认</span>
+              <a-tag
+                class="confirm-opt"
+                v-if="notice.confirmType == 1"
+                @click="onConfirmChange"
+                :color="notice.confirmStatus ? 'success' : ''"
+                >{{ notice.confirmStatus ? '已确认' : '待确认' }}
+              </a-tag>
+              <template v-else>
+                <a-tag
+                  class="confirm-opt"
+                  :checked="notice.confirmResult == 1"
+                  @click="onConfirmResult(notice, 'accept')"
+                  :color="notice.confirmResult == 1 ? 'success' : ''"
+                >
+                  接受
+                </a-tag>
+                <a-tag
+                  class="confirm-opt"
+                  :checked="notice.confirmResult == 2"
+                  @click="onConfirmResult(notice, 'reject')"
+                  :color="notice.confirmResult == 2 ? 'error' : ''"
+                >
+                  拒绝
+                </a-tag>
+              </template>
+              <a-button @click="close">关闭</a-button>
+            </div>
+          </div>
+        </a-card>
+      </draggable-resizable-vue>
+    </div>
+  </Teleport>
 </template>
 
 <script lang="ts" setup>
@@ -86,41 +106,45 @@ function loadDetail(id: any) {
       notice.value.bodyText = JSON.parse(notice.value.bodyText)
     }
   } else {
-    axios.admin({
-      url: '/api/ums/message/viwe',
-      method: 'post',
-      data: {
-        id
-      }
-    }).then((res: any) => {
-      if (res.success) {
-        notice.value = res.body
-        if (notice.value.bodyText) {
-          notice.value.bodyText = JSON.parse(notice.value.bodyText)
+    axios
+      .admin({
+        url: '/api/ums/message/viwe',
+        method: 'post',
+        data: {
+          id
         }
-      } else {
-        dialog.error(res.message)
-      }
-    })
+      })
+      .then((res: any) => {
+        if (res.success) {
+          notice.value = res.body
+          if (notice.value.bodyText) {
+            notice.value.bodyText = JSON.parse(notice.value.bodyText)
+          }
+        } else {
+          dialog.error(res.message)
+        }
+      })
   }
 }
 
-function onConfirmChange(status: any) {
-  console.log('onConfirmChange', status)
-  axios.admin({
-    url: '/api/ums/message/confirm',
-    method: 'post',
-    data: {
-      id: notice.value.mineId,
-      messageId: notice.value.id,
-      confirmStatus: status ? 1 : 0
-    }
-  }).then((res: any) => {
-    if (!res.success) {
-      notice.value.confirmStatus = !status
-      dialog.error(res.message)
-    }
-  })
+function onConfirmChange() {
+  notice.value.confirmStatus = !notice.value.confirmStatus
+  axios
+    .admin({
+      url: '/api/ums/message/confirm',
+      method: 'post',
+      data: {
+        id: notice.value.mineId,
+        messageId: notice.value.id,
+        confirmStatus: notice.value.confirmStatus ? 1 : 0
+      }
+    })
+    .then((res: any) => {
+      if (!res.success) {
+        notice.value.confirmStatus = !notice.value.confirmStatus
+        dialog.error(res.message)
+      }
+    })
 }
 function onConfirmResult(notice: any, type: string) {
   if (type == 'accept') {
@@ -129,22 +153,24 @@ function onConfirmResult(notice: any, type: string) {
     notice.confirmResult = 2
   }
   notice.confirmStatus = true
-  axios.admin({
-    url: '/api/ums/message/confirm',
-    method: 'post',
-    data: {
-      id: notice.mineId,
-      messageId: notice.id,
-      confirmStatus: notice.confirmStatus ? 1 : 0,
-      confirmResult: notice.confirmResult
-    }
-  }).then((res: any) => {
-    if (!res.success) {
-      notice.confirmStatus = !notice.confirmStatus
-      notice.confirmResult = 0
-      dialog.error(res.message)
-    }
-  })
+  axios
+    .admin({
+      url: '/api/ums/message/confirm',
+      method: 'post',
+      data: {
+        id: notice.mineId,
+        messageId: notice.id,
+        confirmStatus: notice.confirmStatus ? 1 : 0,
+        confirmResult: notice.confirmResult
+      }
+    })
+    .then((res: any) => {
+      if (!res.success) {
+        notice.confirmStatus = !notice.confirmStatus
+        notice.confirmResult = 0
+        dialog.error(res.message)
+      }
+    })
 }
 
 function loadUmsCategory() {
@@ -152,21 +178,23 @@ function loadUmsCategory() {
   if (category) {
     umsCategory.value = JSON.parse(category)
   } else {
-    axios.admin({
-      url: '/api/ums/category/find',
-      method: 'post',
-      data: {
-        page: 1,
-        pageSize: 1000,
-        body: {}
-      }
-    }).then((res: any) => {
-      umsCategory.value = {}
-      res.body.forEach((item: any) => {
-        umsCategory.value[item.id] = item
+    axios
+      .admin({
+        url: '/api/ums/category/find',
+        method: 'post',
+        data: {
+          page: 1,
+          pageSize: 1000,
+          body: {}
+        }
       })
-      session.setStorage('unione_ums_category', JSON.stringify(umsCategory.value))
-    })
+      .then((res: any) => {
+        umsCategory.value = {}
+        res.body.forEach((item: any) => {
+          umsCategory.value[item.id] = item
+        })
+        session.setStorage('unione_ums_category', JSON.stringify(umsCategory.value))
+      })
   }
 }
 
@@ -186,19 +214,20 @@ defineExpose({
 })
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 .unione-notice-view {
+  z-index: 100;
+  position: fixed;
+  top: 5px;
+  right: calc(40vw + 10px);
 
-  :deep(.drv) {
-    border: none;
+  & > div {
+    border: none !important;
   }
 
   .notice-panel {
-    position: fixed;
-    top: 0;
-    right: 5px;
     width: 40vw;
-    height: calc(100vh - 50px);
+    height: calc(100vh - 10px);
     box-shadow: 0 2px 8px #6c6c6c;
 
     .icon {
@@ -237,7 +266,7 @@ defineExpose({
       }
     }
 
-    :deep(.unione-rich-text) {
+    .body-text {
       border: none;
     }
 
@@ -252,7 +281,7 @@ defineExpose({
       padding-right: 25px;
       border-top: 1px solid #e5e5e5;
 
-      :deep(.ant-tag) {
+      .confirm-opt {
         cursor: pointer;
       }
 
