@@ -8,20 +8,23 @@
           <div class="view-tag" v-if="showType == 'tag'">
             <template v-if="type.name != 'all' && type.name != 'tenant'">
               <template v-for="(target, j) in type.list" :key="j">
-                <a-tag :closable="!disabled" @close="toDel(target)">{{ target.targetName }}</a-tag>
+                <a-tag :closable="!disabled && widgetModel != 'view'" @close="toDel(target)">{{ target.targetName
+                }}</a-tag>
               </template>
-              <a-tag v-if="!disabled" class="btn-add" @click="toAdd(type)">
+              <a-tag v-if="!disabled && widgetModel != 'view'" class="btn-add" @click="toAdd(type)">
                 <PlusOutlined />
               </a-tag>
             </template>
             <template v-else-if="type.name == 'all'">
-              <a-checkbox v-model:checked="type.checked" @change="() => onAllChanged(type)">平台所有用户</a-checkbox>
+              <a-checkbox v-model:checked="type.checked" @change="() => onAllChanged(type)"
+                :disabled="widgetModel == 'view' || disabled">平台所有用户</a-checkbox>
             </template>
             <template v-else-if="type.name == 'tenant'">
-              <a-checkbox v-model:checked="type.checked" @change="() => onTenantChanged(type)">系统所有用户</a-checkbox>
+              <a-checkbox v-model:checked="type.checked" @change="() => onTenantChanged(type)"
+                :disabled="widgetModel == 'view' || disabled">系统所有用户</a-checkbox>
             </template>
+            <a-empty v-if="!type.list || !type.list.length"></a-empty>
           </div>
-          <a-empty v-if="type.name != 'all' && (!type.list || !type.list.length) && disabled"></a-empty>
         </a-tab-pane>
       </template>
     </a-tabs>
@@ -41,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { PropType } from 'vue'
 import { useDialog } from 'unione-base-vue'
 import type { DataStorage, WidgetModel } from 'unione-form-vue/dist/typing'
@@ -98,6 +101,10 @@ const modelValue = defineModel<Array<any>>('value')
 const dataList = ref<Array<any>>([])
 const dataIds = ref<Array<any>>([])
 
+const widgetModel = computed(() => {
+  return props.editor?.model.value || 'run'
+})
+
 function processInput(data: Array<any>) {
   dataList.value = []
   dataIds.value = []
@@ -111,10 +118,12 @@ function processInput(data: Array<any>) {
       dataIds.value.push(row.targetId)
       if (tmap[row.targetType]) {
         tmap[row.targetType].list.push(row)
+        if (row.targetType == '1' || row.targetType == '2') {
+          tmap[row.targetType].checked = true
+        }
       }
     }
   })
-  console.log('process data', data)
 }
 
 const organSelect = ref({
@@ -230,15 +239,16 @@ onMounted(() => {
   }
 })
 
-// watch(
-//   () => modelValue,
-//   () => {
-//     if (props.model == 'sync') {
-//       processInput(modelValue.value || [])
-//     }
-//   },
-//   { deep: true }
-// )
+watch(
+  () => modelValue,
+  () => {
+    if (props.model == 'sync') {
+      console.log('modelValue', modelValue.value)
+      processInput(modelValue.value || [])
+    }
+  },
+  { deep: true }
+)
 
 const emit = defineEmits(['change'])
 </script>
@@ -247,7 +257,7 @@ const emit = defineEmits(['change'])
 .target-list {
   .view-tag {
     margin-top: -3px;
-    min-height: 144px;
+    min-height: 170px;
 
     .btn-add {
       cursor: pointer;
