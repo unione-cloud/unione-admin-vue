@@ -176,7 +176,7 @@ function loadUmsCategory() {
 }
 
 function onNoticeClick(notice: any) {
-  noticeView.value.open(notice)
+  noticeView.value.open(notice.id)
 }
 
 function onConfirmChange(notice: any) {

@@ -104,16 +104,20 @@ const define = ref({
         ]
       },
       isQuery: true
-    },
-  ],
-  leftBtns: ['add', 'delBatch', {
-    name: 'removeBatch',
-    title: '批量删除',
-    icon: 'DeleteOutlined',
-    props: {
-      danger: true
     }
-  }],
+  ],
+  leftBtns: [
+    'add',
+    'delBatch',
+    {
+      name: 'removeBatch',
+      title: '批量删除',
+      icon: 'DeleteOutlined',
+      props: {
+        danger: true
+      }
+    }
+  ],
   rightBtns: false,
   operation: {
     title: '操作',
@@ -139,13 +143,12 @@ const define = ref({
 const noticeView = ref()
 async function btnClick({ btn, event, row, keys }: any) {
   if (btn.name == 'view') {
-    noticeView.value.open(row)
+    noticeView.value.open(row.id)
   }
   if (btn.name == 'remove') {
     //
   }
 }
-
 </script>
 
 <style scoped lang="less">
