@@ -1,5 +1,3 @@
-import Personal from '@/views/portal/ucenter/personal.vue'
-
 /**
  * 默认配置项
  */
@@ -9,9 +7,9 @@ export default {
   view: {
     logo: {
       title: {
-        text: 'Unione Cloud Admin',
+        text: '',
         side: 'UCA',
-        css: 'font-size:20px;padding-left:3px;'
+        css: 'background-image:url(/logo.png);background-size:100% 100%;height:64px;width:200px;'
       }
     },
     login: {
