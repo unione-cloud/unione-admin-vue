@@ -38,7 +38,7 @@ const dialog = useDialog()
 const page = ref()
 const define = ref({
   storage: {
-    controller: '/api/system/dict'
+    controller: '/api/base/dict'
   },
   params: {
     pid: -1
