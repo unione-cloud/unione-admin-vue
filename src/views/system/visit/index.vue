@@ -201,7 +201,7 @@ function loadMap(name: string = '100000') {
       const data = {
         name: feature.properties.name,
         adcode: feature.properties.adcode,
-        // value: Math.floor(Math.random() * 50000)
+        value: 0
       }
       nameMap[data.name] = data
       return data
