@@ -36,6 +36,7 @@
     "cypress": "^13.7.2",
     "dayjs": "^1.11.12",
     "draggable-resizable-vue3": "^1.0.94-beta",
+    "echarts": "^6.0.0",
     "eslint": "^8.57.0",
     "eslint-plugin-cypress": "^2.15.1",
     "eslint-plugin-vue": "^9.23.0",
