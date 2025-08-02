@@ -22,6 +22,7 @@ export interface MenuMeta {
 
 export interface MenuItem {
   id: string | number
+  appId: string | number
   hidden?: boolean
   title: string
   path: string

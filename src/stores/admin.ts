@@ -64,20 +64,21 @@ export const useAdminStore = defineStore('unione-admin', () => {
     if (items && items.length > 0) {
       items.forEach((item) => {
         const menu: any = {
+          appId: item.appId,
           key: item.id,
           label: item.title,
           icon: item.meta?.icon || 'UnorderedListOutlined',
           path: item.path
         }
         if (menu.icon && typeof menu.icon === 'string') {
-          console.log('menu name:' + item.id + ',icon:' + menu.icon)
+          // console.log('menu name:' + item.id + ',icon:' + menu.icon)
           const IconComponent = Icons[menu.icon as keyof typeof Icons]
           if (IconComponent) {
             menu.icon = () => h(IconComponent)
           } else {
             // 若找不到对应图标，使用默认图标
             menu.icon = () => h(Icons.UnorderedListOutlined)
-            console.log('menu name:' + item.name + ', 默认图标')
+            // console.log('menu name:' + item.name + ', 默认图标')
           }
         }
         menuMap.value[menu.key] = menu
@@ -110,7 +111,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
         routes.forEach((route: any) => {
           router.addRoute('root', route)
         })
-        console.log('router list', router.getRoutes())
+        // console.log('router list', router.getRoutes())
 
         // 构建菜单
         const menus = buildMenu(menuList)
@@ -165,6 +166,9 @@ export const useAdminStore = defineStore('unione-admin', () => {
             }
           }
           router.push({ path: to.path, query: to.query, params: to.params })
+          if (menuMap.value[to.key]) {
+            visitEntry(menuMap.value[to.key])
+          }
         }
 
         resolve(menuList)
@@ -192,6 +196,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
                     mlist = menus.map((m: any) => {
                       return {
                         id: m.id,
+                        appId: app.id,
                         title: m.title,
                         path: '/' + app.sn + m.path,
                         url: m.url,
@@ -211,6 +216,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
                 menuList = res.body.map((app: any) => {
                   return {
                     id: app.id,
+                    appId: app.id,
                     title: app.name,
                     path: '/' + app.sn,
                     url: app.url,
@@ -307,7 +313,6 @@ export const useAdminStore = defineStore('unione-admin', () => {
    */
   function topMenuClick(key: string) {
     const menu = menuMap.value[key]
-    console.log('topMenuClick', menu)
     if (!menu) {
       return
     }
@@ -317,10 +322,12 @@ export const useAdminStore = defineStore('unione-admin', () => {
       sideMenu.value.list = menu.children
       if (!menu.children || !menu.children.length) {
         router.push(menu.path)
+        visitEntry(menu)
       } else {
         const openSubMenu = (m: any) => {
           if (!m.children || !m.children.length) {
             router.push(m.path)
+            visitEntry(menu)
             sideMenu.value.selectedKeys.push(m.key)
           } else {
             sideMenu.value.openKeys.push(m.key)
@@ -339,11 +346,26 @@ export const useAdminStore = defineStore('unione-admin', () => {
    */
   function sideMenuClick(key: string) {
     const menu = menuMap.value[key]
-    console.log('sideMenuClick', menu)
     if (!menu) {
       return
     }
     router.push(menu.path)
+    visitEntry(menu)
+  }
+
+  function visitEntry(menu: any) {
+    console.log('visit entry', menu)
+    axios.admin({
+      url: '/api/common/visit/entry',
+      method: 'post',
+      data: {
+        appId: menu.appId,
+        targetType: 'menu',
+        targetTitle: menu.label,
+        targetId: menu.key,
+        targetUrl: menu.path
+      }
+    })
   }
 
   /**
