@@ -4,8 +4,8 @@
   "private": false,
   "type": "module",
   "scripts": {
-    "dev": "vite --open",
-    "build": "run-p type-check \"build-only {@}\" --",
+    "dev": "cross-env model=dev vite --open ",
+    "build": "cross-env model=pro run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "test:unit": "vitest",
     "test:e2e": "start-server-and-test preview http://localhost:4173 'cypress run --e2e'",
@@ -62,5 +62,8 @@
     "vue-i18n": "^9.13.1",
     "vue-router": "^4.3.0",
     "vue-tsc": "^2.0.11"
+  },
+  "devDependencies": {
+    "cross-env": "^10.0.0"
   }
 }
