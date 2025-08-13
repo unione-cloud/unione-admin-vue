@@ -2,7 +2,11 @@
   <div class="home-page">Welcome To Unione Cloud Admin</div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+defineOptions({
+  name: 'UnioneHome'
+})
+</script>
 
 <style scoped lang="less">
 .home-page {
