@@ -100,8 +100,18 @@ const viewComponent = computed(() => {
       return pageComponents[route.meta.url.toString().replace('@', '')]
     }
 
-    const path = `../views${route.meta.url}.vue`
-    return defineAsyncComponent(() => import(/* @vite-ignore */ path))
+    // 生产环境安全的动态导入方式 - 使用import.meta.glob预加载所有视图组件
+    const fullPath = `../views${route.meta.url}.vue`;
+    // 预加载views目录下所有.vue文件，{ eager: false }保持懒加载特性
+    const modules: any = import.meta.glob('../views/**/*.vue', { eager: false });
+
+    if (modules[fullPath]) {
+      return defineAsyncComponent(modules[fullPath]);
+    }
+
+    // 组件未找到时的错误处理
+    console.error(`动态组件加载失败: 未找到组件文件 ${fullPath}`);
+    return defineAsyncComponent(() => import('../views/error/404.vue')); // 可选: 加载404组件
   }
   return null
 })
