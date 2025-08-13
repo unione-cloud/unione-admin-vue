@@ -37,8 +37,7 @@
       </a-layout-header>
       <a-layout-content class="unione-layout-content">
         <unione-breadcrumb />
-        <iframe class="unione-iframe-content" v-if="$route.meta.url && $route.meta.isIframe == 1"
-          :src="$route.meta.url.toString()"></iframe>
+        <iframe class="unione-iframe-content" v-if="iframeUrl" :src="iframeUrl"></iframe>
         <component class="unione-page-content" v-else-if="$route.meta.isIframe != 1 && viewComponent"
           :is="viewComponent" />
         <RouterView v-else :key="$route.name?.toString()"></RouterView>
@@ -115,6 +114,17 @@ const viewComponent = computed(() => {
   }
   return null
 })
+
+const iframeUrl = computed<string>(() => {
+  if (route.meta.isIframe == 1 && route.meta.url) {
+    if (route.meta.url.toString().indexOf('?') == -1) {
+      return route.meta.url.toString() + '?isIframe=1'
+    }
+    return route.meta.url.toString() + '&isIframe=1'
+  }
+  return ''
+})
+
 </script>
 
 <style scoped lang="less">
