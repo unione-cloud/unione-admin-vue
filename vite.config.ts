@@ -8,7 +8,7 @@ import VueDevTools from 'vite-plugin-vue-devtools'
 export default defineConfig(() => {
   const model = process.env.model || 'dev'
   return {
-    base: model === 'dev' ? '/' : '/portal',
+    base: model === 'dev' ? '/' : '/',
     plugins: [vue(), VueDevTools()],
     resolve: {
       alias: {
