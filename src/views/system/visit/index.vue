@@ -180,7 +180,7 @@ function loadGeo(name: string) {
     if (echarts.getMap(name)) {
       resolve(echarts.getMap(name).geoJson)
     } else {
-      axios.root({
+      axios.admin({
         url: '/geo/' + name + '.geoJson',
         method: 'get'
       }).then((res: any) => {
