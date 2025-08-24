@@ -9,7 +9,12 @@ export default {
       title: {
         text: '',
         side: 'UCA',
-        css: 'background-image:url(/logo.png);background-size:100% 100%;height:64px;width:200px;'
+        css: {
+          'background-image': 'url(/logo.png)',
+          'background-size': '100% 100%',
+          height: '64px',
+          width: '200px'
+        }
       }
     },
     login: {
