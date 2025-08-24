@@ -1,14 +1,15 @@
 import { fileURLToPath, URL } from 'node:url'
 
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import VueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vitejs.dev/config/
-export default defineConfig(() => {
-  const model = process.env.model || 'dev'
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd())
+  // console.log('vite build env mode=' + mode, env)
   return {
-    base: model === 'dev' ? '/' : '/portal',
+    base: mode === 'dev' ? '/' : '/portal',
     plugins: [vue(), VueDevTools()],
     resolve: {
       alias: {
@@ -24,6 +25,9 @@ export default defineConfig(() => {
     },
     build: {
       outDir: 'dist'
+    },
+    define: {
+      'process.env': env
     },
     server: {
       proxy: {

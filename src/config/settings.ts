@@ -10,7 +10,7 @@ export default {
         text: '',
         side: 'UCA',
         css: {
-          'background-image': 'url(/logo.png)',
+          'background-image': 'url(' + (import.meta.env.VITE_APP_CTX || '') + '/logo.png)',
           'background-size': '100% 100%',
           height: '64px',
           width: '200px'
@@ -57,6 +57,7 @@ export default {
   },
   // web setting
   web: {
-    loginUrl: import.meta.env.VUE_APP_LOGIN_URL || '/login'
+    ctx: import.meta.env.VITE_APP_CTX || '',
+    loginUrl: import.meta.env.VITE_LOGIN_URL || '/login'
   }
 }

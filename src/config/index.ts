@@ -7,13 +7,9 @@ import { defineStore } from 'pinia'
  * Admin Store
  */
 export const useConfigStore = defineStore('unione-config', () => {
-  const model = import.meta.env.VITE_MODEL || 'dev'
   const config = ref<any>(setting)
   const session = useSession()
 
-  if (model != 'dev') {
-    config.value.view.logo.title.css['background-image'] = 'url(/portal/logo.png)'
-  }
   if (session.getStorage('unione-config')) {
     config.value = JSON.parse(session.getStorage('unione-config'))
   }
