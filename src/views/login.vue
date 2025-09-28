@@ -13,13 +13,7 @@
           <img class="ad-pic" :src="ImageAd" />
         </div>
         <div class="login-form">
-          <a-form
-            :model="formData"
-            :rules="formRules"
-            autocomplete="off"
-            ref="loginForm"
-            :label-col="{ span: 7 }"
-          >
+          <a-form :model="formData" :rules="formRules" autocomplete="off" ref="loginForm" :label-col="{ span: 7 }">
             <a-tabs v-model:activeKey="loginType">
               <a-tab-pane key="username" tab="帐号登录">
                 <a-form-item label="用户帐号" name="username">
@@ -49,16 +43,10 @@
             </a-form-item>
 
             <a-form-item>
-              <a-button type="primary" class="btn-login" @click="toLogin" :loading="submiting"
-                >登录</a-button
-              >
+              <a-button type="primary" class="btn-login" @click="toLogin" :loading="submiting">登录</a-button>
             </a-form-item>
             <a-form-item class="service-opts">
-              <a-checkbox
-                >我已阅读并同意<span class="link">服务协议</span>和<span class="link"
-                  >隐私政策</span
-                ></a-checkbox
-              >
+              <a-checkbox>我已阅读并同意<span class="link">服务协议</span>和<span class="link">隐私政策</span></a-checkbox>
             </a-form-item>
           </a-form>
         </div>
@@ -68,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, onMounted } from 'vue'
 import type { Rule } from 'ant-design-vue/es/form'
 import { utils } from 'unione-base-vue'
 import { useAdminStore } from '@/stores/admin'
@@ -78,8 +66,15 @@ import ImageBg from '@/assets/login/bg.jpg'
 import ImageAd from '@/assets/login/ad1.png'
 import ImageQr from '@/assets/login/qr.png'
 
-import router from '@/router'
 import { Modal } from 'ant-design-vue'
+import { useRoute, useRouter } from 'vue-router'
+
+defineOptions({
+  name: 'UinoneLogin'
+})
+
+const router = useRouter()
+const route = useRoute()
 
 // Admin对象
 const admin = useAdminStore()
@@ -127,7 +122,11 @@ const toLogin = () => {
     session
       .doLogin(data)
       .then((res: any) => {
-        router.push('/home')
+        if (route.query.backurl) {
+          router.push(route.query.backurl as string)
+        } else {
+          router.push('/home')
+        }
       })
       .catch((err: any) => {
         console.error('登录失败', err)
@@ -150,6 +149,17 @@ const toLogin = () => {
       })
   })
 }
+
+onMounted(() => {
+  if (session.isLogin()) {
+    if (route.query.backurl) {
+      router.push(route.query.backurl as string)
+    } else {
+      router.push('/home')
+    }
+  }
+})
+
 </script>
 
 <style scoped lang="less">
@@ -176,6 +186,7 @@ const toLogin = () => {
 
       .app-info {
         width: 150%;
+
         .app-title {
           color: #134ce4;
           font-size: 30px;
@@ -183,6 +194,7 @@ const toLogin = () => {
           text-align: center;
           user-select: none;
         }
+
         .sub-title {
           font-size: 14px;
           text-align: center;
@@ -191,6 +203,7 @@ const toLogin = () => {
 
       .app-qr {
         width: 100%;
+
         img {
           width: 60px;
           height: 50px;
