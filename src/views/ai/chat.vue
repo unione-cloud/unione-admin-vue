@@ -24,24 +24,22 @@
                 <a-button class="btn" danger size="small" @click="deleteSession">删除</a-button>
             </template>
 
-            <div class="message-list-box">
-                <div class="message-list">
-                    <template v-for="(item) in session.messages" :key="item.id">
-                        <div class="message-timeline" v-if="session.timeline[item.id]">{{ item.created }}</div>
-                        <div :class="['message-item', item.roleName === 'user' ? 'user' : 'assistant']">
-                            <div class="message-header">
-                                <a-avatar :size="30">
-                                    <template #icon>
-                                        <UserOutlined v-if="item.roleName == 'user'" />
-                                        <RedditOutlined v-else />
-                                    </template>
-                                </a-avatar>
-                            </div>
-                            <div class="message-content">{{ item.content }}</div>
+            <div class="message-list">
+                <template v-for="(item) in session.messages" :key="item.id">
+                    <div class="message-timeline" v-if="session.timeline[item.id]">{{ item.created }}</div>
+                    <div :class="['message-item', item.roleName === 'user' ? 'user' : 'assistant']">
+                        <div class="message-header">
+                            <a-avatar :size="30">
+                                <template #icon>
+                                    <UserOutlined v-if="item.roleName == 'user'" />
+                                    <RedditOutlined v-else />
+                                </template>
+                            </a-avatar>
                         </div>
-                    </template>
-                    <a-empty v-if="!session.messages || !session.messages.length" />
-                </div>
+                        <div class="message-content">{{ item.content }}</div>
+                    </div>
+                </template>
+                <a-empty v-if="!session.messages || !session.messages.length" />
             </div>
 
             <div class="message-send-box">
@@ -301,12 +299,18 @@ onMounted(() => {
             margin-right: 5px;
         }
 
-        .message-list-box {
-            height: calc(100% - 100px);
-            overflow: auto;
+        ::v-deep(.ant-card-body) {
+            height: calc(100% - 230px);
         }
 
         .message-list {
+            height: 100%;
+            overflow-y: auto;
+
+            .message-timeline {
+                text-align: center;
+                color: #b9b9b9;
+            }
 
             .message-item {
                 padding: 10px;
