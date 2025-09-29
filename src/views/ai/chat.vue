@@ -7,12 +7,8 @@
       <template #extra>
         <a-button size="small" @click="loadSessionList">刷新</a-button>
       </template>
-      <div
-        v-for="(item, i) in sessions.data"
-        :key="item.id"
-        :class="['session-item', session?.id === item.id ? 'active' : '']"
-        @click="handleSessionClick(item)"
-      >
+      <div v-for="(item, i) in sessions.data" :key="item.id"
+        :class="['session-item', session?.id === item.id ? 'active' : '']" @click="handleSessionClick(item)">
         {{ i + 1 }}、 <component :is="item.icon || 'BarsOutlined'"></component> {{ item.title }}
       </div>
     </a-card>
@@ -43,31 +39,19 @@
             <div class="message-content">{{ item.content }}</div>
           </div>
         </template>
-        <a-empty
-          v-if="!session.messages || !session.messages.length"
-          :description="session.id ? '暂无消息' : '请选择或创建新会话'"
-        />
+        <a-empty v-if="!session.messages || !session.messages.length"
+          :description="session.id ? '暂无消息' : '请选择或创建新会话'" />
       </div>
 
       <div class="message-send-box">
         <div class="message-models">
-          <a-checkable-tag
-            v-for="item in models"
-            :key="item.id"
-            class="model"
-            :value="item.id"
-            :checked="session.model === item.id"
-            @change="session.model = item.id"
-          >
+          <a-checkable-tag v-for="item in models" :key="item.id" class="model" :value="item.id"
+            :checked="session.model === item.id" @change="session.model = item.id">
             <component :is="item.icon || 'RedditOutlined'"></component> {{ item.title }}
           </a-checkable-tag>
         </div>
-        <a-textarea
-          v-model:value="message"
-          placeholder="请输入消息"
-          class="message-input"
-          @keyup.ctrl.enter="sendMessage"
-        ></a-textarea>
+        <a-textarea v-model:value="message" placeholder="请输入消息" class="message-input"
+          @keyup.ctrl.enter="sendMessage"></a-textarea>
         <div class="message-footer">
           <PaperClipOutlined class="item icon" />
           <PictureOutlined class="item icon" />
@@ -269,7 +253,7 @@ function sendMessage() {
     id: session.value.id + '-' + Date.now(),
     modelId: session.value.model,
     content: message.value,
-    role: 'user'
+    roleName: 'user'
   })
 
   axios
@@ -292,7 +276,7 @@ function sendMessage() {
           id: res.id,
           modelId: session.value.model,
           content: res.body.content,
-          role: 'assistant'
+          roleName: 'assistant'
         })
       }
     })
