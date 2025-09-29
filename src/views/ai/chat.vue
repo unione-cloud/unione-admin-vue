@@ -24,7 +24,7 @@
         <a-button class="btn" danger size="small" @click="deleteSession">删除</a-button>
       </template>
 
-      <div class="message-list">
+      <div class="message-list" ref="messageListRef">
         <template v-for="item in session.messages" :key="item.id">
           <div class="message-timeline" v-if="session.timeline[item.id]">{{ item.created }}</div>
           <div :class="['message-item', item.roleName === 'user' ? 'user' : 'assistant']">
@@ -39,6 +39,19 @@
             <div class="message-content">{{ item.content }}</div>
           </div>
         </template>
+
+        <div :class="['message-item', 'assistant']" v-if="message.thiking">
+          <div class="message-header">
+            <a-avatar :size="30">
+              <template #icon>
+                <RedditOutlined />
+              </template>
+            </a-avatar>
+          </div>
+          <div class="message-content">思考中{{ message.thikTotal }}秒</div>
+        </div>
+
+        <!-- 空消息提示 -->
         <a-empty v-if="!session.messages || !session.messages.length"
           :description="session.id ? '暂无消息' : '请选择或创建新会话'" />
       </div>
@@ -50,7 +63,7 @@
             <component :is="item.icon || 'RedditOutlined'"></component> {{ item.title }}
           </a-checkable-tag>
         </div>
-        <a-textarea v-model:value="message" placeholder="请输入消息" class="message-input"
+        <a-textarea v-model:value="message.content" placeholder="请输入消息" class="message-input"
           @keyup.ctrl.enter="sendMessage"></a-textarea>
         <div class="message-footer">
           <PaperClipOutlined class="item icon" />
@@ -69,7 +82,7 @@
 <script setup lang="ts">
 import dayjs from 'dayjs'
 import { axios, useDialog } from 'unione-base-vue'
-import { onMounted, ref } from 'vue'
+import { nextTick, onMounted, ref } from 'vue'
 
 defineOptions({
   name: 'UnioneAiChat'
@@ -78,15 +91,21 @@ defineOptions({
 const dialog = useDialog()
 
 const models = ref<Array<any>>([])
-const message = ref('')
+const message = ref<any>({
+  content: '',
+  thiking: false,
+  thikStart: null,
+  thikTotal: 0
+})
 const session = ref<any>({
   stream: true,
   model: '',
   messages: [],
   timeline: {}
 })
+const messageListRef = ref<HTMLDivElement | null>(null)
 const sessions = ref<any>({
-  page: 1,
+  page: 0,
   pageSize: 50,
   total: 0,
   nomore: false,
@@ -97,6 +116,16 @@ const sessions = ref<any>({
  * 加载会话列表
  */
 function loadSessionList() {
+  if (sessions.value.nomore) {
+    return
+  }
+  if (!sessions.value.page) {
+    sessions.value.page = 0
+  }
+  if (!sessions.value.pageSize) {
+    sessions.value.pageSize = 50
+  }
+  sessions.value.page++
   axios
     .admin({
       url: '/api/ai/session/list',
@@ -110,7 +139,7 @@ function loadSessionList() {
     .then((res: any) => {
       sessions.value.data = res.body
       sessions.value.total = res.total
-      if (res.data.length < sessions.value.pageSize) {
+      if (res.body.length < sessions.value.pageSize) {
         sessions.value.nomore = true
       }
     })
@@ -147,6 +176,9 @@ function deleteSession() {
  */
 function handleSessionClick(item: any) {
   session.value = item
+  if (typeof session.value.stream != 'boolean') {
+    session.value.stream = true
+  }
   loadMessages()
 }
 
@@ -182,9 +214,16 @@ function favoriteSession() {
  * 加载会话消息
  */
 function loadMessages() {
-  if (!session.value) {
+  if (!session.value || session.value.nomore) {
     return
   }
+  if (!session.value.page) {
+    session.value.page = 0
+  }
+  if (!session.value.pageSize) {
+    session.value.pageSize = 10
+  }
+  session.value.page++
   if (!session.value.messages) {
     session.value.messages = []
   }
@@ -193,8 +232,8 @@ function loadMessages() {
       url: '/api/ai/message/list',
       method: 'post',
       data: {
-        page: session.value.page || 1,
-        pageSize: session.value.pageSize || 10,
+        page: session.value.page,
+        pageSize: session.value.pageSize,
         body: { sessionId: session.value.id }
       }
     })
@@ -208,7 +247,12 @@ function loadMessages() {
             session.value.model = models.value[0]?.id
           }
         }
+        if (res.body.length < session.value.pageSize) {
+          session.value.nomore = true
+        }
         timelineProcess(res.body)
+        // 加载消息完成后滚动到底部
+        scrollToBottom()
       }
     })
 }
@@ -239,6 +283,28 @@ function timelineProcess(list: any) {
   })
 }
 
+function thinkStart() {
+  message.value.thiking = true
+  message.value.thikTotal = 0
+  message.value.thikStart = dayjs()
+  if (message.value.thikTask) {
+    clearInterval(message.value.thikTask)
+  }
+  message.value.thikTask = setInterval(() => {
+    message.value.thikTotal++
+  }, 1000)
+}
+
+function thinkEnd() {
+  message.value.thiking = false
+  message.value.thikTotal = dayjs().diff(message.value.thikStart, 'seconds')
+  if (message.value.thikTask) {
+    clearInterval(message.value.thikTask)
+  }
+}
+
+
+
 function sendMessage() {
   if (!message.value && !session.value) {
     return
@@ -252,9 +318,14 @@ function sendMessage() {
   session.value.messages.push({
     id: session.value.id + '-' + Date.now(),
     modelId: session.value.model,
-    content: message.value,
+    content: message.value.content,
     roleName: 'user'
   })
+  scrollToBottom()
+
+  const content = message.value.content
+  message.value.content = ''
+  thinkStart()
 
   axios
     .admin({
@@ -264,13 +335,12 @@ function sendMessage() {
         sessionId: session.value.id,
         modelId: session.value.model,
         category: 'text',
-        content: message.value
+        content
       }
     })
     .then((res: any) => {
       console.log('发送结果', res)
       if (res.success) {
-        message.value = ''
         // 显示消息
         session.value.messages.push({
           id: res.id,
@@ -278,8 +348,13 @@ function sendMessage() {
           content: res.body.content,
           roleName: 'assistant'
         })
+        // 发送消息成功后滚动到底部
+        scrollToBottom()
       }
+    }).finally(() => {
+      thinkEnd()
     })
+
 }
 
 function loadModelList() {
@@ -296,6 +371,18 @@ function loadModelList() {
     .then((res: any) => {
       models.value = res.body || []
     })
+}
+
+/**
+ * 滚动消息列表到底部
+ * 使用nextTick确保DOM更新后再执行滚动
+ */
+function scrollToBottom() {
+  nextTick(() => {
+    if (messageListRef.value) {
+      messageListRef.value.scrollTop = messageListRef.value.scrollHeight
+    }
+  })
 }
 
 onMounted(() => {
