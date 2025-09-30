@@ -81,13 +81,14 @@
 
 <script setup lang="ts">
 import dayjs from 'dayjs'
-import { axios, useDialog } from 'unione-base-vue'
+import { axios, useDialog, useSession } from 'unione-base-vue'
 import { nextTick, onMounted, ref } from 'vue'
 
 defineOptions({
   name: 'UnioneAiChat'
 })
 
+const user = useSession()
 const dialog = useDialog()
 
 const models = ref<Array<any>>([])
@@ -327,6 +328,13 @@ function sendMessage() {
   message.value.content = ''
   thinkStart()
 
+  if (session.value.stream) {
+    // 流式消息
+    sendStreamMessage(content)
+    return
+  }
+
+  // 同步消息
   axios
     .admin({
       url: '/api/ai/message/send',
@@ -356,6 +364,58 @@ function sendMessage() {
     })
 
 }
+
+/**
+ * 发送流式消息
+ * @param content 
+ */
+async function sendStreamMessage(content: string) {
+  let responseMessage = {
+    id: session.value.id + '-' + Date.now(),
+    modelId: session.value.model,
+    content: '',
+    roleName: 'assistant'
+  }
+  axios.admin.stream({
+    url: '/api/ai/message/send/stream',
+    method: 'post',
+    data: {
+      sessionId: session.value.id,
+      modelId: session.value.model,
+      category: 'text',
+      content
+    },
+    onStart: () => {
+      console.log('stream start')
+      session.value.messages.push(responseMessage)
+    },
+    onChunk: (chunk: string) => {
+      // console.log('Received chunk:', chunk)
+      if (!chunk || chunk == 'data:') {
+        return
+      }
+      try {
+        const data = JSON.parse(chunk.replace('data:', ''))
+        if (data.body.content) {
+          responseMessage.id = data.body.id
+          responseMessage.content += data.body.content
+          // session.value.messages = [...session.value.messages]
+          scrollToBottom()
+        }
+      } catch (e) {
+        console.error('解析流式消息错误:', e)
+      }
+    },
+    onDone: () => {
+      thinkEnd()
+    },
+    onError: (error: string) => {
+      console.error('流式消息错误:', error)
+    }
+  })
+
+}
+
 
 function loadModelList() {
   axios
