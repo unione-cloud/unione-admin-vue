@@ -68,7 +68,7 @@
           </a-checkable-tag>
         </div>
         <a-textarea v-model:value="message.content" placeholder="请输入消息" class="message-input"
-          @keyup.ctrl.enter="sendMessage"></a-textarea>
+          :onKeyup="sendKeyHandler"></a-textarea>
         <div class="message-footer">
           <PaperClipOutlined class="item icon" />
           <PictureOutlined class="item icon" />
@@ -76,7 +76,8 @@
             <RedditOutlined />深度思考
           </a-checkable-tag>
           <a-button class="btn right" size="middle" @click="sendMessage">发送</a-button>
-          <span class="tips right">Ctrl+Enter发送</span>
+          <span class="tips right send-type-tip" @click="toggleSendType" style="cursor: pointer;">{{ sendType ===
+            'ctrlEnter' ? 'Ctrl+Enter发送' : 'Enter发送' }}</span>
         </div>
       </div>
     </a-card>
@@ -106,6 +107,9 @@ const message = ref<any>({
     thikTotal: 0
   }
 })
+
+// 发送消息的方式：ctrlEnter 或 enter
+const sendType = ref<'ctrlEnter' | 'enter'>('enter')
 const session = ref<any>({
   stream: true,
   model: '',
@@ -312,6 +316,26 @@ function thinkEnd() {
   }
 }
 
+/**
+ * 切换发送消息的方式
+ */
+function toggleSendType() {
+  sendType.value = sendType.value === 'ctrlEnter' ? 'enter' : 'ctrlEnter'
+}
+
+/**
+ * 根据发送方式动态绑定键盘事件处理器
+ */
+const sendKeyHandler = (event: KeyboardEvent) => {
+  if (sendType.value === 'ctrlEnter' && event.ctrlKey && event.key === 'Enter') {
+    event.preventDefault()
+    sendMessage()
+  } else if (sendType.value === 'enter' && event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault()
+    sendMessage()
+  }
+}
+
 
 
 function sendMessage() {
@@ -414,21 +438,20 @@ async function sendStreamMessage(content: string) {
     },
     onChunk: (chunk: string) => {
       // console.log('Received chunk:', chunk)
-      if (!chunk || chunk == 'data:') {
+      if (!chunk || chunk.trim() === '' || chunk == 'data:') {
         return
       }
-      const response = chunk.replace('data:', '').replace(/\s+/g, '')
-      if (!response.startsWith('{') || !response.endsWith('}')) {
-        return
-      }
+      const response = chunk.split('data:').join(',').trim()
       try {
-        const data = JSON.parse(response)
-        if (data.body.content) {
-          message.value.think.content += data.body.content
-          scrollToBottom()
-        }
+        const dataList = JSON.parse('[' + (response.startsWith(',') ? response.substring(1) : response) + ']')
+        dataList.forEach((data: any) => {
+          if (data.body.content) {
+            message.value.think.content += data.body.content
+          }
+        })
+        scrollToBottom()
       } catch (e) {
-        console.error('解析流式消息错误，chunk：' + chunk + '，error：', e)
+        console.error('解析流式消息错误，response：' + response + '，error：', e)
       }
     },
     onDone: () => {
@@ -642,6 +665,10 @@ onMounted(() => {
         .tips {
           margin-right: 10px;
           color: #b9b9b9;
+        }
+
+        .send-type-tip {
+          cursor: pointer;
         }
       }
     }
