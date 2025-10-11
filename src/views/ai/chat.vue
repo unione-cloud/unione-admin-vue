@@ -9,18 +9,21 @@
       </template>
       <div v-for="(item, i) in sessions.data" :key="item.id"
         :class="['session-item', session?.id === item.id ? 'active' : '']" @click="handleSessionClick(item)">
-        {{ i + 1 }}、 <component :is="item.icon || 'BarsOutlined'"></component> {{ item.title }}
+        {{ i + 1 }}、 <component :is="item.icon || 'BarsOutlined'"></component>
+        <StarOutlined v-if="item.favorite != 1" />
+        <StarFilled v-else style="color:#f1bf09;" /> {{ item.title }}
       </div>
     </a-card>
     <a-card class="chat-pannel" :bodyStyle="{ padding: '5px' }">
       <template #title>
         <div class="d-flex justify-between align-center">
-          <span>会话详情</span>
+          <span>会话窗口</span>
         </div>
       </template>
       <template #extra>
         <a-button class="btn" size="small">设置</a-button>
-        <a-button class="btn" size="small" @click="favoriteSession">收藏</a-button>
+        <a-button class="btn" size="small" @click="favoriteSession">{{ session.favorite != 1 ? '收藏' : '取消收藏'
+        }}</a-button>
         <a-button class="btn" danger size="small" @click="deleteSession">删除</a-button>
       </template>
 
@@ -36,15 +39,12 @@
                 </template>
               </a-avatar>
             </div>
-            <div class="message-content">
-              <div v-if="message.thiking && session.stream && item.roleName == 'assistant'">思考中{{ message.thikTotal }}秒
-              </div>
-              {{ item.content }}
-            </div>
+            <MessageContent class="message-content" :thiking="item.thiking" :thikTotal="item.thikTotal"
+              :roleName="item.roleName" :content="item.content"></MessageContent>
           </div>
         </template>
 
-        <div :class="['message-item', 'assistant']" v-if="message.thiking && !session.stream">
+        <div :class="['message-item', 'assistant']" v-if="message.think.thiking && !session.stream">
           <div class="message-header">
             <a-avatar :size="30">
               <template #icon>
@@ -52,7 +52,7 @@
               </template>
             </a-avatar>
           </div>
-          <div class="message-content">思考中{{ message.thikTotal }}秒</div>
+          <div class="message-content">思考中{{ message.think.thikTotal }}秒</div>
         </div>
 
         <!-- 空消息提示 -->
@@ -87,6 +87,7 @@
 import dayjs from 'dayjs'
 import { axios, useDialog, useSession } from 'unione-base-vue'
 import { nextTick, onMounted, ref } from 'vue'
+import MessageContent from './widget/message-content.vue'
 
 defineOptions({
   name: 'UnioneAiChat'
@@ -96,11 +97,14 @@ const user = useSession()
 const dialog = useDialog()
 
 const models = ref<Array<any>>([])
+
 const message = ref<any>({
   content: '',
-  thiking: false,
-  thikStart: null,
-  thikTotal: 0
+  think: {
+    thiking: false,
+    thikStart: null,
+    thikTotal: 0
+  }
 })
 const session = ref<any>({
   stream: true,
@@ -208,7 +212,7 @@ function favoriteSession() {
         })
         .then((res: any) => {
           if (res.success) {
-            loadSessionList()
+            session.value.favorite = session.value.favorite == 1 ? 0 : 1
           }
         })
     }
@@ -289,22 +293,22 @@ function timelineProcess(list: any) {
 }
 
 function thinkStart() {
-  message.value.thiking = true
-  message.value.thikTotal = 0
-  message.value.thikStart = dayjs()
-  if (message.value.thikTask) {
-    clearInterval(message.value.thikTask)
+  message.value.think.thiking = true
+  message.value.think.thikTotal = 0
+  message.value.think.thikStart = dayjs()
+  if (message.value.think.thikTask) {
+    clearInterval(message.value.think.thikTask)
   }
-  message.value.thikTask = setInterval(() => {
-    message.value.thikTotal++
+  message.value.think.thikTask = setInterval(() => {
+    message.value.think.thikTotal++
   }, 1000)
 }
 
 function thinkEnd() {
-  message.value.thiking = false
-  message.value.thikTotal = dayjs().diff(message.value.thikStart, 'seconds')
-  if (message.value.thikTask) {
-    clearInterval(message.value.thikTask)
+  message.value.think.thiking = false
+  message.value.think.thikTotal = dayjs().diff(message.value.think.thikStart, 'seconds')
+  if (message.value.think.thikTask) {
+    clearInterval(message.value.think.thikTask)
   }
 }
 
@@ -321,7 +325,7 @@ function sendMessage() {
 
   // 显示消息
   session.value.messages.push({
-    id: session.value.id + '-' + Date.now(),
+    id: session.value.id + '-user-' + Date.now(),
     modelId: session.value.model,
     content: message.value.content,
     roleName: 'user'
@@ -330,7 +334,6 @@ function sendMessage() {
 
   const content = message.value.content
   message.value.content = ''
-  thinkStart()
 
   if (session.value.stream) {
     // 流式消息
@@ -339,6 +342,18 @@ function sendMessage() {
   }
 
   // 同步消息
+  message.value.think = {
+    thiking: false,
+    thikTotal: 0,
+    thikStart: null,
+    thikTask: null,
+    id: session.value.id + '-' + Date.now(),
+    modelId: session.value.model,
+    content: '',
+    roleName: 'assistant'
+  }
+  session.value.messages.push(message.value.think)
+  thinkStart()
   axios
     .admin({
       url: '/api/ai/message/send',
@@ -354,12 +369,7 @@ function sendMessage() {
       console.log('发送结果', res)
       if (res.success) {
         // 显示消息
-        session.value.messages.push({
-          id: res.id,
-          modelId: session.value.model,
-          content: res.body.content,
-          roleName: 'assistant'
-        })
+        message.value.think.content = res.body.content
         // 发送消息成功后滚动到底部
         scrollToBottom()
       }
@@ -377,12 +387,19 @@ async function sendStreamMessage(content: string) {
   if (!content) {
     return
   }
-  let responseMessage = {
+  message.value.think = {
+    thiking: false,
+    thikTotal: 0,
+    thikStart: null,
+    thikTask: null,
     id: session.value.id + '-' + Date.now(),
     modelId: session.value.model,
     content: '',
     roleName: 'assistant'
   }
+  session.value.messages.push(message.value.think)
+  thinkStart()
+
   axios.admin.stream({
     url: '/api/ai/message/send/stream',
     method: 'post',
@@ -394,7 +411,6 @@ async function sendStreamMessage(content: string) {
     },
     onStart: () => {
       console.log('stream start')
-      session.value.messages.push(responseMessage)
     },
     onChunk: (chunk: string) => {
       // console.log('Received chunk:', chunk)
@@ -408,9 +424,7 @@ async function sendStreamMessage(content: string) {
       try {
         const data = JSON.parse(response)
         if (data.body.content) {
-          responseMessage.id = data.body.id
-          responseMessage.content += data.body.content
-          // session.value.messages = [...session.value.messages]
+          message.value.think.content += data.body.content
           scrollToBottom()
         }
       } catch (e) {
