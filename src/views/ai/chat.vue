@@ -26,7 +26,7 @@
 
       <div class="message-list" ref="messageListRef">
         <template v-for="item in session.messages" :key="item.id">
-          <div class="message-timeline" v-if="session.timeline[item.id]">{{ item.created }}</div>
+          <div class="message-timeline" v-if="session.timeline && session.timeline[item.id]">{{ item.created }}</div>
           <div :class="['message-item', item.roleName === 'user' ? 'user' : 'assistant']">
             <div class="message-header">
               <a-avatar :size="30">
@@ -36,11 +36,15 @@
                 </template>
               </a-avatar>
             </div>
-            <div class="message-content">{{ item.content }}</div>
+            <div class="message-content">
+              <div v-if="message.thiking && session.stream && item.roleName == 'assistant'">思考中{{ message.thikTotal }}秒
+              </div>
+              {{ item.content }}
+            </div>
           </div>
         </template>
 
-        <div :class="['message-item', 'assistant']" v-if="message.thiking">
+        <div :class="['message-item', 'assistant']" v-if="message.thiking && !session.stream">
           <div class="message-header">
             <a-avatar :size="30">
               <template #icon>
@@ -370,6 +374,9 @@ function sendMessage() {
  * @param content 
  */
 async function sendStreamMessage(content: string) {
+  if (!content) {
+    return
+  }
   let responseMessage = {
     id: session.value.id + '-' + Date.now(),
     modelId: session.value.model,
@@ -394,8 +401,12 @@ async function sendStreamMessage(content: string) {
       if (!chunk || chunk == 'data:') {
         return
       }
+      const response = chunk.replace('data:', '').replace(/\s+/g, '')
+      if (!response.startsWith('{') || !response.endsWith('}')) {
+        return
+      }
       try {
-        const data = JSON.parse(chunk.replace('data:', ''))
+        const data = JSON.parse(response)
         if (data.body.content) {
           responseMessage.id = data.body.id
           responseMessage.content += data.body.content
@@ -403,7 +414,7 @@ async function sendStreamMessage(content: string) {
           scrollToBottom()
         }
       } catch (e) {
-        console.error('解析流式消息错误:', e)
+        console.error('解析流式消息错误，chunk：' + chunk + '，error：', e)
       }
     },
     onDone: () => {
