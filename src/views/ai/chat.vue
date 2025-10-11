@@ -18,6 +18,19 @@
       <template #title>
         <div class="d-flex justify-between align-center">
           <span>会话窗口</span>
+          <template v-if="session.id">
+            <span v-if="!isEditingTitle" class="chat-title" @dblclick="startEditingTitle">/{{ session.title }}</span>
+            <a-input 
+              v-else 
+              v-model:value="editingTitle" 
+              ref="titleInputRef" 
+              size="small" 
+              :style="{ width: '150px' }" 
+              @blur="handleTitleBlur" 
+              @keyup.enter="handleTitleBlur" 
+              @keyup.esc="cancelEditTitle" 
+            />
+          </template>
         </div>
       </template>
       <template #extra>
@@ -117,6 +130,11 @@ const session = ref<any>({
   timeline: {}
 })
 const messageListRef = ref<HTMLDivElement | null>(null)
+// 会话标题编辑相关状态
+const isEditingTitle = ref(false)
+const editingTitle = ref('')
+const originalTitle = ref('')
+const titleInputRef = ref<InstanceType<typeof import('ant-design-vue/es/input')['default']> | null>(null)
 const sessions = ref<any>({
   page: 0,
   pageSize: 50,
@@ -404,6 +422,90 @@ function sendMessage() {
 }
 
 /**
+ * 开始编辑会话标题
+ */
+function startEditingTitle() {
+  if (!session.value || !session.value.id) return
+  
+  // 保存原始标题以便取消编辑时恢复
+  originalTitle.value = session.value.title || ''
+  editingTitle.value = originalTitle.value
+  isEditingTitle.value = true
+  
+  // 确保输入框渲染后自动聚焦
+  nextTick(() => {
+    if (titleInputRef.value) {
+      // 使用类型断言来解决TypeScript类型问题
+      (titleInputRef.value as any).focus()
+      // 或者直接通过DOM元素进行操作
+      setTimeout(() => {
+        const inputElement = titleInputRef.value?.$el.querySelector('input')
+        if (inputElement) {
+          inputElement.focus()
+          inputElement.select()
+        }
+      }, 50)
+    }
+  })
+}
+
+/**
+ * 处理标题输入框失去焦点事件
+ */
+function handleTitleBlur() {
+  if (!isEditingTitle.value) return
+  
+  // 检查标题是否有变化
+  if (editingTitle.value.trim() !== originalTitle.value.trim() && editingTitle.value.trim()) {
+    // 有变化且不为空，调用API修改标题
+    renameSessionTitle(editingTitle.value.trim())
+  } else {
+    // 没有变化或为空，直接取消编辑
+    isEditingTitle.value = false
+  }
+}
+
+/**
+ * 取消编辑会话标题
+ */
+function cancelEditTitle() {
+  isEditingTitle.value = false
+  editingTitle.value = originalTitle.value
+}
+
+/**
+ * 调用API重命名会话标题
+ */
+function renameSessionTitle(newTitle: string) {
+  if (!session.value || !session.value.id) return
+  
+  axios
+    .admin({
+      url: '/api/ai/session/rename',
+      method: 'post',
+      data: {
+        id: session.value.id,
+        title: newTitle
+      }
+    })
+    .then((res: any) => {
+      if (res.success) {
+        // 更新本地会话标题
+        session.value.title = newTitle
+        isEditingTitle.value = false
+      } else {
+        dialog.error(res.message || '重命名会话失败')
+        cancelEditTitle()
+      }
+    })
+    .catch((error: any) => {
+      console.error('重命名会话错误:', error)
+      dialog.error('重命名会话失败，请稍后重试')
+      cancelEditTitle()
+    })
+}
+
+/**
  * 发送流式消息
  * @param content 
  */
@@ -544,6 +646,10 @@ onMounted(() => {
 
     ::v-deep(.ant-card-body) {
       height: calc(100% - 250px);
+    }
+
+    .chat-title {
+      cursor: pointer;
     }
 
     .message-list {
