@@ -20,24 +20,17 @@
           <span>会话窗口</span>
           <template v-if="session.id">
             <span v-if="!isEditingTitle" class="chat-title" @dblclick="startEditingTitle">/{{ session.title }}</span>
-            <a-input 
-              v-else 
-              v-model:value="editingTitle" 
-              ref="titleInputRef" 
-              size="small" 
-              :style="{ width: '150px' }" 
-              @blur="handleTitleBlur" 
-              @keyup.enter="handleTitleBlur" 
-              @keyup.esc="cancelEditTitle" 
-            />
+            <a-input v-else v-model:value="editingTitle" ref="titleInputRef" size="small" :style="{ width: '150px' }"
+              @blur="handleTitleBlur" @keyup.enter="handleTitleBlur" @keyup.esc="cancelEditTitle" />
           </template>
         </div>
       </template>
       <template #extra>
-        <a-button class="btn" size="small">设置</a-button>
-        <a-button class="btn" size="small" @click="favoriteSession">{{ session.favorite != 1 ? '收藏' : '取消收藏'
+        <a-button class="btn" size="small" @click="drawerSession.tosetting" :disabled="!session.id">设置</a-button>
+        <a-button class="btn" size="small" @click="favoriteSession" :disabled="!session.id">{{ session.favorite != 1 ?
+          '收藏' : '取消收藏'
         }}</a-button>
-        <a-button class="btn" danger size="small" @click="deleteSession">删除</a-button>
+        <a-button class="btn" danger size="small" @click="deleteSession" :disabled="!session.id">删除</a-button>
       </template>
 
       <div class="message-list" ref="messageListRef">
@@ -94,6 +87,31 @@
         </div>
       </div>
     </a-card>
+
+    <a-drawer title="会话设置" v-model:visible="drawerSession.visible" width="400px" placement="right"
+      class="drawer-session">
+
+      <a-form :model="drawerSession.form" :rules="drawerSession.rules" ref="sessionFormRef" :label-col="{ span: 6 }"
+        :wrapper-col="{ span: 18 }">
+        <a-form-item label="会话标题" name="title">
+          <a-input v-model:value="drawerSession.form.title" placeholder="请输入会话标题" />
+        </a-form-item>
+        <a-form-item label="角色定义" name="roles">
+          <a-textarea v-model:value="drawerSession.form.roles" :rows="15" placeholder="请输入角色定义" />
+        </a-form-item>
+        <a-form-item label="显示顺序" name="ordered">
+          <a-input-number v-model:value="drawerSession.form.ordered" placeholder="请输入显示顺序" />
+        </a-form-item>
+        <a-form-item label="备注" name="descs">
+          <a-textarea v-model:value="drawerSession.form.descs" :rows="4" placeholder="请输入备注" />
+        </a-form-item>
+      </a-form>
+
+      <template #footer>
+        <a-button class="btn right" size="middle" @click="drawerSession.save">保存</a-button>
+        <a-button class="btn right" size="middle" @click="drawerSession.visible = false">取消</a-button>
+      </template>
+    </a-drawer>
   </div>
 </template>
 
@@ -141,6 +159,32 @@ const sessions = ref<any>({
   total: 0,
   nomore: false,
   data: []
+})
+const sessionFormRef = ref()
+const drawerSession = ref<any>({
+  visible: false,
+  form: {},
+  rules: {
+    title: [{ required: true, message: '请输入会话标题' }],
+    ordered: [{ required: true, message: '请输入显示顺序' }],
+  },
+  tosetting: () => {
+    drawerSession.value.form = { ...session.value }
+    drawerSession.value.visible = true
+  },
+  save: async () => {
+    const data = await sessionFormRef.value?.validate()
+    axios.admin({
+      url: '/api/ai/session/update',
+      method: 'post',
+      data: drawerSession.value.form
+    }).then(() => {
+      drawerSession.value.visible = false
+      Object.keys(data).forEach((key) => {
+        session.value[key] = data[key]
+      })
+    })
+  }
 })
 
 /**
@@ -426,12 +470,12 @@ function sendMessage() {
  */
 function startEditingTitle() {
   if (!session.value || !session.value.id) return
-  
+
   // 保存原始标题以便取消编辑时恢复
   originalTitle.value = session.value.title || ''
   editingTitle.value = originalTitle.value
   isEditingTitle.value = true
-  
+
   // 确保输入框渲染后自动聚焦
   nextTick(() => {
     if (titleInputRef.value) {
@@ -454,7 +498,7 @@ function startEditingTitle() {
  */
 function handleTitleBlur() {
   if (!isEditingTitle.value) return
-  
+
   // 检查标题是否有变化
   if (editingTitle.value.trim() !== originalTitle.value.trim() && editingTitle.value.trim()) {
     // 有变化且不为空，调用API修改标题
@@ -478,7 +522,7 @@ function cancelEditTitle() {
  */
 function renameSessionTitle(newTitle: string) {
   if (!session.value || !session.value.id) return
-  
+
   axios
     .admin({
       url: '/api/ai/session/rename',
@@ -777,6 +821,27 @@ onMounted(() => {
           cursor: pointer;
         }
       }
+    }
+  }
+
+}
+
+.drawer-session {
+  .btn {
+    margin-right: 5px;
+  }
+
+  .right {
+    float: right;
+  }
+
+  .ant-form-item {
+    margin-bottom: 6px;
+
+    :deep(.ant-form-item-explain-error) {
+      right: 5px;
+      margin-top: -27px;
+      position: absolute;
     }
   }
 }
