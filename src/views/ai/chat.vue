@@ -75,13 +75,29 @@
         </div>
         <a-textarea v-model:value="message.content" placeholder="请输入消息" class="message-input"
           :onKeyup="sendKeyHandler"></a-textarea>
+        <div class="message-media">
+          <div v-for="item in mediaList" :key="item.id" class="media-item">
+            <a-tag closable @close="removeMedia(item.id)">
+              <LoadingOutlined v-if="item.status == 'uploading'" />
+              <ExclamationCircleOutlined v-else-if="item.status == 'error'" />
+              <component v-else :is="item.type == 'file' ? 'PaperClipOutlined' : 'PictureOutlined'"></component>
+              <span>{{ item.name }}</span>
+            </a-tag>
+          </div>
+        </div>
         <div class="message-footer">
-          <PaperClipOutlined class="item icon" />
-          <PictureOutlined class="item icon" />
+          <a-upload :showUploadList="false" :before-upload="(file: any) => uploadMedia('file', file)"
+            :disabled="!session.id">
+            <PaperClipOutlined class="item icon" />
+          </a-upload>
+          <a-upload :showUploadList="false" :before-upload="(file: any) => uploadMedia('pic', file)" accept="image/*"
+            :disabled="!session.id">
+            <PictureOutlined class="item icon" />
+          </a-upload>
           <a-checkable-tag class="item model" v-model:checked="session.stream">
             <RedditOutlined />深度思考
           </a-checkable-tag>
-          <a-button class="btn right" size="middle" @click="sendMessage">发送</a-button>
+          <a-button class="btn right" size="middle" @click="sendMessage" :disabled="!session.id">发送</a-button>
           <span class="tips right send-type-tip" @click="toggleSendType" style="cursor: pointer;">{{ sendType ===
             'ctrlEnter' ? 'Ctrl+Enter发送' : 'Enter发送' }}</span>
         </div>
@@ -398,7 +414,57 @@ const sendKeyHandler = (event: KeyboardEvent) => {
   }
 }
 
-
+const mediaList = ref<any>([])
+function uploadMedia(type: string, file: any) {
+  console.log('上传文件', type, file)
+  if (file.size > 1024 * 1024 * 5) {
+    dialog.error('文件大小不能超过5MB')
+    return false
+  }
+  const exist = mediaList.value.filter((item: any) => item.name == file.name)
+  if (exist.length) {
+    dialog.error('文件已存在')
+    return false
+  }
+  const fileObj: any = {
+    id: 'new_' + file.uid,
+    name: file.name,
+    type: type,
+    status: 'uploading',
+  }
+  mediaList.value.push(fileObj)
+  // 异步上传文件
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('name', 'chat')
+  formData.append('isPublic', '1');
+  axios.admin({
+    url: '/api/common/store/upload/aichat/' + session.value.id,
+    method: 'post',
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  }).then((res: any) => {
+    fileObj.status = 'success'
+    fileObj.id = res.body.id
+    fileObj.path = res.body.path
+    fileObj.type = (fileObj.type == 'pic' ? 'image' : 'file') + '/' + res.body.type
+    mediaList.value = [...mediaList.value]
+  }).catch((err: any) => {
+    fileObj.status = 'error'
+  })
+  return false
+}
+function removeMedia(id: string) {
+  mediaList.value = mediaList.value.filter((item: any) => item.id !== id)
+  if (!id.startsWith('new_')) {
+    axios.admin({
+      url: '/api/common/store/delete/' + id,
+      method: 'post'
+    })
+  }
+}
 
 function sendMessage() {
   if (!message.value && !session.value) {
@@ -418,12 +484,21 @@ function sendMessage() {
   })
   scrollToBottom()
 
-  const content = message.value.content
+  const messageEntry = {
+    content: message.value.content,
+    files: mediaList.value.filter((item: any) => item.status == 'success').map((item: any) => ({
+      name: item.name,
+      type: item.type,
+      id: item.id,
+      path: item.path,
+    }))
+  }
   message.value.content = ''
+  mediaList.value = []
 
   if (session.value.stream) {
     // 流式消息
-    sendStreamMessage(content)
+    sendStreamMessage(messageEntry)
     return
   }
 
@@ -448,7 +523,8 @@ function sendMessage() {
         sessionId: session.value.id,
         modelId: session.value.model,
         category: 'text',
-        content
+        content: messageEntry.content,
+        files: messageEntry.files,
       }
     })
     .then((res: any) => {
@@ -553,8 +629,8 @@ function renameSessionTitle(newTitle: string) {
  * 发送流式消息
  * @param content 
  */
-async function sendStreamMessage(content: string) {
-  if (!content) {
+async function sendStreamMessage(messageEntry: any) {
+  if (!messageEntry.content) {
     return
   }
   message.value.think = {
@@ -577,7 +653,8 @@ async function sendStreamMessage(content: string) {
       sessionId: session.value.id,
       modelId: session.value.model,
       category: 'text',
-      content
+      content: messageEntry.content,
+      files: messageEntry.files,
     },
     onStart: () => {
       console.log('stream start')
@@ -591,8 +668,11 @@ async function sendStreamMessage(content: string) {
       try {
         const dataList = JSON.parse('[' + (response.startsWith(',') ? response.substring(1) : response) + ']')
         dataList.forEach((data: any) => {
-          if (data.body.content) {
+          if (data.body?.content) {
             message.value.think.content += data.body.content
+          }
+          if (!data.success) {
+            message.value.think.content += data.message
           }
         })
         scrollToBottom()
@@ -781,7 +861,20 @@ onMounted(() => {
         resize: none;
       }
 
+      .message-media {
+        position: absolute;
+        width: 100%;
+        margin-top: -22px;
+        display: flex;
+        flex-direction: row;
+
+        .media-item {
+          margin-right: 5px;
+        }
+      }
+
       .message-footer {
+        margin-top: 5px;
         height: 30px;
         line-height: 30px;
         margin-bottom: 15px;

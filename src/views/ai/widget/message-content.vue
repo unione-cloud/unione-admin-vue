@@ -10,7 +10,7 @@
             <div class="think-item" v-for="(item, i) in thinkList" :key="item">
                 <div class="think-title" @click="thinkItem[i] = !thinkItem[i]">
                     思考think<span v-if="thiking && roleName == 'assistant'" style="margin-left: 4px;">{{ thikTotal
-                    }}秒</span>
+                        }}秒</span>
                     <component :is="(thinkItem[i] || thiking) ? 'DownOutlined' : 'RightOutlined'" />
                 </div>
                 <div class="think-content" v-if="thinkItem[i] || thiking">{{ item }}</div>
@@ -97,7 +97,7 @@ const thinkList = computed<any>(() => {
     return tmp.filter(item => item.trim().startsWith('<think>')).map(item => item.trim().substring(7))
 })
 const contentBody = computed(() => {
-    if (!props.content || !props.content.includes('</think>')) {
+    if (props.thiking && (!props.content || !props.content.includes('</think>'))) {
         return ''
     }
     const tmp = props.content.split('</think>')
