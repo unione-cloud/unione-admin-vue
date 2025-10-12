@@ -50,17 +50,6 @@
           </div>
         </template>
 
-        <div :class="['message-item', 'assistant']" v-if="message.think.thiking && !session.stream">
-          <div class="message-header">
-            <a-avatar :size="30">
-              <template #icon>
-                <RedditOutlined />
-              </template>
-            </a-avatar>
-          </div>
-          <div class="message-content">思考中{{ message.think.thikTotal }}秒</div>
-        </div>
-
         <!-- 空消息提示 -->
         <a-empty v-if="!session.messages || !session.messages.length"
           :description="session.id ? '暂无消息' : '请选择或创建新会话'" />
