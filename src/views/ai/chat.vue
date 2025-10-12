@@ -482,7 +482,10 @@ function sendMessage() {
     content: message.value.content,
     roleName: 'user'
   })
-  scrollToBottom()
+  // 发送消息成功后滚动到底部
+  nextTick(() => {
+    scrollToBottom()
+  })
 
   const messageEntry = {
     content: message.value.content,
@@ -533,7 +536,9 @@ function sendMessage() {
         // 显示消息
         message.value.think.content = res.body.content
         // 发送消息成功后滚动到底部
-        scrollToBottom()
+        nextTick(() => {
+          scrollToBottom()
+        })
       }
     }).finally(() => {
       thinkEnd()
@@ -675,7 +680,10 @@ async function sendStreamMessage(messageEntry: any) {
             message.value.think.content += data.message
           }
         })
-        scrollToBottom()
+        // 发送消息成功后滚动到底部
+        nextTick(() => {
+          scrollToBottom()
+        })
       } catch (e) {
         console.error('解析流式消息错误，response：' + response + '，error：', e)
       }
