@@ -5,7 +5,7 @@
         <span>会话列表</span>
       </template>
       <template #extra>
-        <a-button size="small" @click="loadSessionList">刷新</a-button>
+        <a-button size="small" @click="newSession">创建</a-button>
       </template>
       <div v-for="(item, i) in sessions.data" :key="item.id"
         :class="['session-item', session?.id === item.id ? 'active' : '']" @click="handleSessionClick(item)">
@@ -192,6 +192,30 @@ const drawerSession = ref<any>({
   }
 })
 
+function newSession() {
+  const ordered = sessions.value.data?.sort((a: any, b: any) => b.ordered - a.ordered)[0]?.ordered || 0
+  const data: any = {
+    title: '新会话',
+    roles: '',
+    ordered: ordered + 1,
+    descs: '',
+    favorite: 0,
+  }
+  axios.admin({
+    url: '/api/ai/session/create',
+    method: 'post',
+    data: data
+  }).then((res: any) => {
+    data.id = res.body
+    data.messages = []
+    data.timeline = {}
+    data.stream = true
+    data.model = models.value[0] && models.value[0].id
+    session.value = data
+    sessions.value.data.unshift(data)
+  })
+}
+
 /**
  * 加载会话列表
  */
@@ -213,6 +237,7 @@ function loadSessionList() {
       data: {
         page: sessions.value.page,
         pageSize: sessions.value.pageSize,
+        sorts: [{ name: 'ordered', order: 'desc' }, { name: 'created', order: 'desc' }],
         body: {}
       }
     })
