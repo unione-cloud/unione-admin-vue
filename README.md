@@ -153,13 +153,16 @@ npm run preview
 
 ## 联系方式
 
-如有问题或建议，请通过以下方式联系我们：
-
-- **邮箱**：邮箱: unione-cloud@163.com
 - **项目地址github**：https://github.com/unione-cloud/unione-admin-vue
 - **项目地址gitee**：https://gitee.com/unione-cloud/unione-admin-vue
-- **GitHub Issues**: [提交问题](https://github.com/unione-cloud/unione-admin-vue/issues)
-- **Gitee Issues**: [提交问题](https://gitee.com/unione-cloud/unione-admin-vue/issues)
+- **GitHub Issues**: https://github.com/unione-cloud/unione-admin-vue/issues
+- **Gitee Issues**: https://gitee.com/unione-cloud/unione-admin-vue/issues
+- **邮箱**：邮箱: unione-cloud@163.com
+- **微信号**：wx192637274
+  加微信：wx192637274进群，与其他开发者交流、分享经验、解决问题。
+- **QQ群**：192637274
+  加入QQ群，与其他开发者交流、分享经验、解决问题。
+  ![QQ群](./doc/img/qq.png)
 
 ## 配套后端项目
 

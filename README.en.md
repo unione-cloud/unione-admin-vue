@@ -42,18 +42,18 @@ unione-admin-vue is a modern management system frontend framework built with Vue
 
 ## Technology Stack
 
-| Technology/Framework | Version | Purpose | Documentation |
-|---------------------|---------|---------|---------------|
-| Vue.js | 3.x | Frontend Framework | [Vue.js Documentation](https://vuejs.org/guide/introduction.html) |
-| TypeScript | 5.x | Type System | [TypeScript Documentation](https://www.typescriptlang.org/docs/) |
-| Vite | 4.x | Build Tool | [Vite Documentation](https://vitejs.dev/guide/) |
-| Vuex | 4.x | State Management | [Vuex Documentation](https://vuex.vuejs.org/) |
-| Vue Router | 4.x | Routing Management | [Vue Router Documentation](https://router.vuejs.org/) |
-| Element Plus | 2.x | UI Component Library | [Element Plus Documentation](https://element-plus.org/) |
-| Axios | 1.x | HTTP Client | [Axios Documentation](https://axios-http.com/docs/intro) |
-| ESLint | 8.x | Code Linting | [ESLint Documentation](https://eslint.org/docs/latest/) |
-| Vitest | 0.33.x | Unit Testing | [Vitest Documentation](https://vitest.dev/) |
-| Cypress | 12.x | End-to-End Testing | [Cypress Documentation](https://docs.cypress.io/) |
+| Technology/Framework | Version | Purpose              | Documentation                                                     |
+| -------------------- | ------- | -------------------- | ----------------------------------------------------------------- |
+| Vue.js               | 3.x     | Frontend Framework   | [Vue.js Documentation](https://vuejs.org/guide/introduction.html) |
+| TypeScript           | 5.x     | Type System          | [TypeScript Documentation](https://www.typescriptlang.org/docs/)  |
+| Vite                 | 4.x     | Build Tool           | [Vite Documentation](https://vitejs.dev/guide/)                   |
+| Vuex                 | 4.x     | State Management     | [Vuex Documentation](https://vuex.vuejs.org/)                     |
+| Vue Router           | 4.x     | Routing Management   | [Vue Router Documentation](https://router.vuejs.org/)             |
+| Element Plus         | 2.x     | UI Component Library | [Element Plus Documentation](https://element-plus.org/)           |
+| Axios                | 1.x     | HTTP Client          | [Axios Documentation](https://axios-http.com/docs/intro)          |
+| ESLint               | 8.x     | Code Linting         | [ESLint Documentation](https://eslint.org/docs/latest/)           |
+| Vitest               | 0.33.x  | Unit Testing         | [Vitest Documentation](https://vitest.dev/)                       |
+| Cypress              | 12.x    | End-to-End Testing   | [Cypress Documentation](https://docs.cypress.io/)                 |
 
 ## Project Structure
 
@@ -131,6 +131,7 @@ npm run type-check
 The project supports multiple environment configurations. Set environment variables in `.env.dev` and `.env.prod` files.
 
 Main configuration items:
+
 - `VITE_APP_TITLE`: Application title
 - `VITE_APP_API_BASE_URL`: API base URL
 
@@ -158,13 +159,16 @@ This project is open-sourced under the Apache License 2.0. For more details, ple
 
 ## Contact
 
-For questions or suggestions, please contact us through:
-
+- **Project Address (GitHub)**: https://github.com/unione-cloud/unione
+- **Project Address (Gitee)**: https://gitee.com/unione-cloud/unione
+- **GitHub Issues**: [Submit Issues](https://github.com/unione-cloud/unione/issues)
+- **Gitee Issues**: [Submit Issues](https://gitee.com/unione-cloud/unione/issues)
 - **Email**: unione-cloud@163.com
-- **GitHub Repository**: https://github.com/unione-cloud/unione-admin-vue
-- **Gitee Repository**: https://gitee.com/unione-cloud/unione-admin-vue
-- **GitHub Issues**: [Submit Issues](https://github.com/unione-cloud/unione-admin-vue/issues)
-- **Gitee Issues**: [Submit Issues](https://gitee.com/unione-cloud/unione-admin-vue/issues)
+- **WeChat ID**: wx192637274
+  Add WeChat ID: wx192637274 to join the group, communicate with other developers, share experiences, and solve problems.
+- **QQ Group**: 192637274
+  Join the QQ group to communicate with other developers, share experiences, and solve problems.
+  ![QQ Group](./doc/img/qq.png)
 
 ## Backend Project
 
