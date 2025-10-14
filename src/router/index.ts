@@ -273,6 +273,35 @@ export const router = createRouter({
           path: '/ucenter',
           name: 'ucenter',
           component: () => import('@/views/portal/ucenter/index.vue')
+        },
+        {
+          name: 'unione',
+          path: '/unione',
+          meta: {
+            icon: 'MailOutlined'
+          },
+          children: [
+            {
+              name: 'unioneAdd',
+              path: '/unione/page/add',
+              component: UnionePageForm
+            },
+            {
+              name: 'unioneEdit',
+              path: '/unione/page/edit',
+              component: UnionePageForm
+            },
+            {
+              name: 'unioneView',
+              path: '/unione/page/view',
+              component: UnionePageForm
+            },
+            {
+              name: 'unioneList',
+              path: '/unione/page/list',
+              component: UnionePageList
+            }
+          ]
         }
       ]
     },
