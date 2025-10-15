@@ -54,6 +54,7 @@ import { default as NoticeIcon } from '@/components/notice-icon/index.vue'
 import { useSession } from 'unione-base-vue'
 import { useAdminStore } from '@/stores/admin'
 import {
+  UnioneDataSourceList,
   UnioneDataDefineList,
   UnioneDataDefineEdit,
   UnionePageForm,
@@ -62,6 +63,7 @@ import {
 
 // 页面组件集合
 const pageComponents: any = {
+  UnioneDataSourceList,
   UnioneDataDefineList,
   UnioneDataDefineEdit,
   UnionePageForm,

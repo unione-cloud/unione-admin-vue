@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { MenuItem } from '../stores/typing'
 import {
+  UnioneDataSourceList,
   UnioneDataDefineList,
   UnioneDataDefineEdit,
   UnionePageForm,
@@ -275,30 +276,35 @@ export const router = createRouter({
           component: () => import('@/views/portal/ucenter/index.vue')
         },
         {
-          name: 'unione',
-          path: '/unione',
+          name: 'data',
+          path: '/data',
           meta: {
             icon: 'MailOutlined'
           },
           children: [
             {
-              name: 'unioneAdd',
-              path: '/unione/page/add',
+              name: 'dataSource',
+              path: '/data/source/list',
+              component: UnioneDataSourceList
+            },
+            {
+              name: 'dataAdd',
+              path: '/data/page/add',
               component: UnionePageForm
             },
             {
-              name: 'unioneEdit',
-              path: '/unione/page/edit',
+              name: 'dataEdit',
+              path: '/data/page/edit',
               component: UnionePageForm
             },
             {
-              name: 'unioneView',
-              path: '/unione/page/view',
+              name: 'dataView',
+              path: '/data/page/view',
               component: UnionePageForm
             },
             {
-              name: 'unioneList',
-              path: '/unione/page/list',
+              name: 'dataList',
+              path: '/data/page/list',
               component: UnionePageList
             }
           ]
