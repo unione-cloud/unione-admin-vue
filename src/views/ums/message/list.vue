@@ -4,13 +4,15 @@
     <unione-page-list ref="page" v-bind="define" @btnClick="btnClick"></unione-page-list>
 
     <a-drawer :title="drawer.title" :width="850" v-model:visible="drawer.visible" :placement="drawer.placement"
-      class="drawer-form">
+      class="drawer-form" :mask-closable="false">
       <unione-form :form="drawer.form" ref="form" v-if="drawer.visible"></unione-form>
 
-      <div class="btns">
-        <a-button type="primary" @click="drawer.tosave">保存</a-button>
-        <a-button @click="drawer.visible = false">取消</a-button>
-      </div>
+      <template #footer>
+        <div class="btns">
+          <a-button type="primary" @click="drawer.tosave">保存</a-button>
+          <a-button @click="drawer.visible = false">取消</a-button>
+        </div>
+      </template>
     </a-drawer>
   </div>
 </template>

@@ -3,14 +3,16 @@
   <div class="unione-page unione-page-list unione-system-apps">
     <unione-page-list ref="page" v-bind="define" @btnClick="btnClick"></unione-page-list>
 
-    <a-drawer :title="drawer.title" :width="550" v-model:visible="drawer.visible" :placement="drawer.placement"
+    <a-drawer :title="drawer.title" :width="750" v-model:visible="drawer.visible" :placement="drawer.placement"
       class="drawer-form">
       <unione-form :form="drawer.form" ref="form"></unione-form>
 
-      <div class="btns">
-        <a-button type="primary" @click="drawer.tosave">保存</a-button>
-        <a-button @click="drawer.visible = false">取消</a-button>
-      </div>
+      <template #footer>
+        <div class="btns">
+          <a-button type="primary" @click="drawer.tosave">保存</a-button>
+          <a-button @click="drawer.visible = false">取消</a-button>
+        </div>
+      </template>
     </a-drawer>
   </div>
 </template>
@@ -71,10 +73,10 @@ const define = ref({
       title: '版本号',
       name: 'versNo'
     },
-    {
-      title: '版本说明',
-      name: 'versDesc'
-    },
+    // {
+    //   title: '版本说明',
+    //   name: 'versDesc'
+    // },
     {
       title: '字体图标',
       name: 'icon'
@@ -150,6 +152,10 @@ const define = ref({
       {
         name: 'res',
         title: '资源管理'
+      },
+      {
+        name: 'vers',
+        title: '版本管理'
       }
     ],
     count: 2,
@@ -184,6 +190,9 @@ async function btnClick({ btn, event, row, keys }: any) {
   }
   if (btn.name == 'res') {
     router.push({ path: '/system/base/apps/res', query: { appId: row.id } })
+  }
+  if (btn.name == 'vers') {
+    router.push({ path: '/system/base/apps/vers', query: { appId: row.id } })
   }
   if (btn.name.startsWith('sts-')) {
     const status = btn.name.split('-')[1]
@@ -268,7 +277,7 @@ const drawer = ref({
       {
         title: '版本说明',
         name: 'versDesc',
-        control: 'a-textarea'
+        control: 'unione-rich-text',
       },
       {
         title: '字体图标',
