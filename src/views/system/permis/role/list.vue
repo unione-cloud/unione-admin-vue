@@ -3,13 +3,8 @@
   <div class="unione-page unione-page-list unione-system-role-permis">
     <unione-page-list ref="page" v-bind="define" @btnClick="btnClick"></unione-page-list>
 
-    <ResSelect
-      v-model:visible="resSelectVisible"
-      targetType="role"
-      :targetValue="targetObj?.id"
-      position="right"
-      @ok="handelResOk"
-    ></ResSelect>
+    <UnioneResSelect v-model:visible="resSelectVisible" targetType="role" :targetValue="targetObj?.id" position="right"
+      @ok="handelResOk"></UnioneResSelect>
   </div>
 </template>
 

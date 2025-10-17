@@ -1,46 +1,22 @@
 <template>
   <div class="res-select-warp">
-    <a-input
-      v-model:value="treeKeywords"
-      :placeholder="'搜索资源(回车)...'"
-      class="type-search"
-      allowClear
-      @change="searchTreeData()"
-    ></a-input>
+    <a-input v-model:value="treeKeywords" :placeholder="'搜索资源(回车)...'" class="type-search" allowClear
+      @change="searchTreeData()"></a-input>
 
-    <a-tree
-      :showLine="{ showLeafIcon: false }"
-      showIcon
-      blockNode
-      checkable
-      checkStrictly
-      :tree-data="treeData"
-      :fieldNames="{ key: 'id' }"
-      :filterTreeNode="filterTreeNode"
-      v-if="treeData?.length > 0"
-      v-model:selectedKeys="selectedKeys"
-      v-model:checkedKeys="checkedKeys"
-      v-model:expandedKeys="expandedKeys"
-      @check="onCheck"
-    >
+    <a-tree :showLine="{ showLeafIcon: false }" showIcon blockNode checkable checkStrictly :tree-data="treeData"
+      :fieldNames="{ key: 'id' }" :filterTreeNode="filterTreeNode" v-if="treeData?.length > 0"
+      v-model:selectedKeys="selectedKeys" v-model:checkedKeys="checkedKeys" v-model:expandedKeys="expandedKeys"
+      @check="onCheck">
       <template #icon="{ dataRef }">
-        <component :is="iconMap[dataRef.ntype]"></component>
+        <component :is="dataRef.iconName || iconMap[dataRef.ntype]"></component>
       </template>
       <template #title="{ dataRef }">
         <div class="node-label" @click="onExpande(dataRef)">
           <span>{{ dataRef.title }}</span>
-          <div
-            class="enDilivery"
-            @click.stop="enDiliveryClick(dataRef)"
-            v-if="!dataRef.id.startsWith('btn_') && !dataRef.id.startsWith('tool_')"
-          >
+          <div class="enDilivery" @click.stop="enDiliveryClick(dataRef)"
+            v-if="!dataRef.id.startsWith('btn_') && !dataRef.id.startsWith('tool_')">
             <span class="label">可传递:</span>
-            <a-switch
-              size="small"
-              :checked="dataRef.enDilivery"
-              checkedChildren="是"
-              unCheckedChildren="否"
-            ></a-switch>
+            <a-switch size="small" :checked="dataRef.enDilivery" checkedChildren="是" unCheckedChildren="否"></a-switch>
           </div>
         </div>
       </template>
@@ -435,17 +411,21 @@ defineExpose({
     .ant-tree-title {
       display: inline-block;
       width: calc(100% - 40px);
+
       .node-label {
         width: 100%;
       }
+
       .enDilivery {
         float: right;
+
         .label {
           margin-right: 5px;
         }
       }
     }
   }
+
   :deep(.filter-node) {
     .ant-tree-node-content-wrapper {
       color: red;
