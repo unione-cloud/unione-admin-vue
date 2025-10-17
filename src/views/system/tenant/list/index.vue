@@ -3,13 +3,8 @@
   <div class="unione-page unione-page-list unione-system-tenant">
     <unione-page-list ref="page" v-bind="define" @btnClick="btnClick"></unione-page-list>
 
-    <a-drawer
-      :title="drawer.title"
-      :width="550"
-      v-model:visible="drawer.visible"
-      :placement="drawer.placement"
-      class="drawer-form"
-    >
+    <a-drawer :title="drawer.title" :width="550" v-model:visible="drawer.visible" :placement="drawer.placement"
+      class="drawer-form">
       <unione-form :form="drawer.form" ref="form"></unione-form>
 
       <div class="btns">
@@ -202,6 +197,10 @@ const drawer = ref({
       {
         title: '登录图标',
         name: 'loginAd'
+      },
+      {
+        title: '管理员',
+        name: 'adminId'
       },
       {
         title: '联系人',
