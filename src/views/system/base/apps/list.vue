@@ -34,6 +34,15 @@ const define = ref({
   },
   fields: [
     {
+      title: '应用类别',
+      name: 'category',
+      convert: {
+        types: 'dict',
+        dictName: 'APPCATEGORY'
+      },
+      isQuery: true
+    },
+    {
       title: '应用名称',
       name: 'name',
       isQuery: true
@@ -222,6 +231,16 @@ const drawer = ref({
   row: {},
   form: {
     fields: [
+      {
+        title: '应用类别',
+        name: 'category',
+        control: 'unione-radio-box',
+        value: 'app',
+        convert: {
+          types: 'dict',
+          dictName: 'APPCATEGORY'
+        },
+      },
       {
         title: '应用名称',
         name: 'name',
