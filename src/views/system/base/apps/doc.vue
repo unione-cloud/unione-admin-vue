@@ -79,8 +79,8 @@ const define = ref({
   ],
   operation: {
     title: '操作',
-    width: 200,
-    count: 2,
+    width: 250,
+    count: 4,
     btns: ['view',
       {
         name: 'status',
@@ -116,6 +116,9 @@ const define = ref({
             }
           }
         ]
+      }, {
+        name: 'item',
+        title: '内容管理',
       }],
     more: {
       layout: 'vertical'
@@ -160,6 +163,16 @@ async function btnClick({ btn, event, row, keys }: any) {
           .then(() => {
             page.value.reload()
           })
+      }
+    })
+  }
+  if (btn.name == 'item') {
+    router.push({
+      path: '/system/base/apps/doci',
+      query: {
+        appId: row.appId,
+        docId: row.id,
+        docName: row.title
       }
     })
   }
