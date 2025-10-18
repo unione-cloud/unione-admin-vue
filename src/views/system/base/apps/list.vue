@@ -4,7 +4,7 @@
     <unione-page-list ref="page" v-bind="define" @btnClick="btnClick"></unione-page-list>
 
     <a-drawer :title="drawer.title" :width="750" v-model:visible="drawer.visible" :placement="drawer.placement"
-      class="drawer-form">
+      class="drawer-form" :mask-closable="false">
       <unione-form :form="drawer.form" ref="form"></unione-form>
 
       <template #footer>
@@ -258,6 +258,11 @@ const drawer = ref({
         convert: {
           types: 'dict',
           dictName: 'APPTYPES'
+        },
+        event: {
+          visible: (value: any, ctx: any) => {
+            return ctx.category == 'app'
+          }
         }
       },
       {
@@ -268,16 +273,30 @@ const drawer = ref({
         convert: {
           types: 'dict',
           dictName: 'TUREORFALSE'
+        },
+        event: {
+          visible: (value: any, ctx: any) => {
+            return ctx.category == 'app'
+          }
         }
       },
       {
         title: '应用URL',
         name: 'url',
-        required: true
+        event: {
+          visible: (value: any, ctx: any) => {
+            return ctx.category == 'app'
+          }
+        }
       },
       {
         title: '首页URL',
-        name: 'welcome'
+        name: 'welcome',
+        event: {
+          visible: (value: any, ctx: any) => {
+            return ctx.category == 'app'
+          }
+        }
       },
       {
         title: '显示顺序',
@@ -289,8 +308,7 @@ const drawer = ref({
       {
         title: '版本号',
         name: 'versNo',
-        value: 1,
-        control: 'a-input-number',
+        value: '0.0.1',
         required: true
       },
       {
@@ -323,6 +341,11 @@ const drawer = ref({
         convert: {
           types: 'dict',
           dictName: 'TUREORFALSE'
+        },
+        event: {
+          visible: (value: any, ctx: any) => {
+            return ctx.category == 'app'
+          }
         }
       },
       {
@@ -333,6 +356,11 @@ const drawer = ref({
         convert: {
           types: 'dict',
           dictName: 'TUREORFALSE'
+        },
+        event: {
+          visible: (value: any, ctx: any) => {
+            return ctx.category == 'app'
+          }
         }
       },
       {
