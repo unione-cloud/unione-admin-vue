@@ -180,7 +180,7 @@ const drawer = ref({
       {
         title: '变更类型',
         name: 'changeType',
-        value: 'pack',
+        value: 'patch',
         control: 'unione-radio-box',
         convert: {
           types: 'dict',
