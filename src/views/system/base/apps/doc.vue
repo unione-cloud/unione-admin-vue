@@ -1,7 +1,8 @@
 <!-- eslint-disable vue/multi-word-component-names -->
-<!-- 应用版本管理 -->
+<!-- 在线文档管理 -->
 <template>
-  <div class="unione-page unione-page-list unione-system-vers">
+  <div class="unione-page unione-page-list unione-app-doc">
+
     <unione-page-list ref="page" v-bind="define" @btnClick="btnClick"></unione-page-list>
 
     <a-drawer :title="drawer.title" :width="750" v-model:visible="drawer.visible" :placement="drawer.placement"
@@ -21,74 +22,55 @@
 import { nextTick, ref, computed, onMounted } from 'vue'
 import { axios, useDialog } from 'unione-base-vue'
 import { useRouter, useRoute, type Router } from 'vue-router'
+import { Convertor } from 'unione-form-vue'
 
 const dialog = useDialog()
 const route = useRoute()
 const router: Router = useRouter()
 
-const appInfo = ref<any>()
+const stsConvert = new Convertor({ types: 'dict', dictName: 'ONLINEDOCSTS' })
 const appId = computed(() => {
   return route.query.appId
 })
-function loadAppInfo() {
-  return new Promise((resolve, reject) => {
-    if (appInfo.value) {
-      resolve(appInfo.value)
-    }
-    if (appId.value) {
-      axios.admin({
-        url: '/api/system/appInfo/detail',
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        data: appId.value
-      }).then((res: any) => {
-        appInfo.value = res.body
-        resolve(res.body)
-      })
-    } else {
-      reject('应用ID不能为空')
-    }
-  })
-}
+const appName = computed(() => {
+  return route.query.appName
+})
 
 const page = ref()
 const define = ref({
   storage: {
-    controller: '/api/system/changeLog',
-    orderBy: 'releaseTime desc'
+    controller: '/api/system/onlineDoc',
+    orderBy: 'lastUpdated desc'
   },
   fields: [
     {
-      title: '应用名称',
-      name: 'appName',
+      title: '文档名称',
+      name: 'title',
     },
     {
       title: '版本号',
       name: 'versNo'
     },
     {
-      title: '版本类型',
-      name: 'versType',
-      convert: {
-        types: 'dict',
-        dictName: 'VERSTYPE'
-      },
-      isQuery: true
+      title: '图标',
+      name: 'icon',
     },
     {
-      title: '变更类型',
-      name: 'changeType',
+      title: '状态',
+      name: 'status',
       convert: {
         types: 'dict',
-        dictName: 'CHANGETYPE'
+        dictName: 'ONLINEDOCSTS'
       },
       isQuery: true
     },
     {
       title: '发布时间',
       name: 'releaseTime'
+    },
+    {
+      title: '归档时间',
+      name: 'archiveTime'
     },
     {
       title: '修改时间',
@@ -99,7 +81,42 @@ const define = ref({
     title: '操作',
     width: 200,
     count: 2,
-    btns: [],
+    btns: ['view',
+      {
+        name: 'status',
+        title: '状态',
+        widget: 'dropdown',
+        items: [
+          {
+            name: 'sts-1',
+            title: '编制中',
+            disabled: ({ row }: any) => {
+              return row.status == 1
+            }
+          },
+          {
+            name: 'sts-2',
+            title: '内审中',
+            disabled: ({ row }: any) => {
+              return row.status == 2
+            }
+          },
+          {
+            name: 'sts-3',
+            title: '已发布',
+            disabled: ({ row }: any) => {
+              return row.status == 3
+            }
+          },
+          {
+            name: 'sts-4',
+            title: '已归档',
+            disabled: ({ row }: any) => {
+              return row.status == 4
+            }
+          }
+        ]
+      }],
     more: {
       layout: 'vertical'
     }
@@ -110,45 +127,51 @@ async function btnClick({ btn, event, row, keys }: any) {
   console.log('table btn click', btn, event, row)
   if (btn.name == 'add') {
     drawer.value.visible = true
-    drawer.value.title = '新增版本'
+    drawer.value.title = '新增文档'
     drawer.value.placement = 'left'
-    drawer.value.row = {}
-    drawer.value.form.model = 'run'
-    loadAppInfo().then((app: any) => {
+    drawer.value.row = { appName: appName.value, title: appName.value }
+    nextTick(() => {
       form.value.reset()
-      form.value.setValue({ appName: app.name, versNo: app.versNo, versDesc: app.versDesc })
+      form.value.setValue(drawer.value.row)
     })
   }
   if (btn.name == 'edit') {
     drawer.value.visible = true
-    drawer.value.title = '编辑版本'
+    drawer.value.title = '编辑文档'
     drawer.value.placement = 'right'
     drawer.value.row = row
-    drawer.value.form.model = 'run'
+    drawer.value.row.appName = appName.value
     nextTick(() => {
       form.value.setValue(row)
     })
   }
-  if (btn.name == 'view') {
-    drawer.value.visible = true
-    drawer.value.title = '查看版本'
-    drawer.value.placement = 'right'
-    drawer.value.row = row
-    drawer.value.form.model = 'view'
-    nextTick(() => {
-      form.value.setValue(row)
+  if (btn.name.startsWith('sts-')) {
+    const status = btn.name.split('-')[1]
+    const stsLable = await stsConvert.convert(status)
+    dialog.confirm({
+      content: '确定要设置文档状态为：' + stsLable,
+      onOk: () => {
+        page.value
+          .storage()
+          .request({
+            url: '/status',
+            data: { id: row.id, status }
+          })
+          .then(() => {
+            page.value.reload()
+          })
+      }
     })
   }
 }
 
 const form = ref() //form ref obj
-const drawer = ref({
-  title: '新增版本',
+const drawer = ref<any>({
+  title: '新增文档',
   placement: 'left',
   visible: false,
   row: {},
   form: {
-    model: 'run',
     fields: [
       {
         title: '应用名称',
@@ -156,61 +179,50 @@ const drawer = ref({
         view: 'html'
       },
       {
+        title: '文档名称',
+        name: 'title',
+        required: true
+      },
+      {
         title: '版本号',
         name: 'versNo',
         required: true
       },
       {
-        title: '版本类型',
-        name: 'versType',
-        value: 'dev',
-        control: 'unione-radio-box',
-        convert: {
-          types: 'dict',
-          dictName: 'VERSTYPE'
-        }
+        title: '字体图标',
+        name: 'icon',
+        control: 'unione-icon-select'
       },
       {
-        title: '版本说明',
+        title: '图片图标(小)',
+        name: 'picMix'
+      },
+      {
+        title: '图片图标(中)',
+        name: 'picMid'
+      },
+      {
+        title: '图片图标(大)',
+        name: 'picMax'
+      },
+      {
+        title: '文档介绍',
         control: 'unione-rich-text',
         view: 'self',
-        name: 'versDesc',
+        name: 'profile',
         required: true
       },
       {
-        title: '变更类型',
-        name: 'changeType',
-        value: 'patch',
-        control: 'unione-radio-box',
-        convert: {
-          types: 'dict',
-          dictName: 'CHANGETYPE'
-        }
+        title: '显示顺序',
+        name: 'ordered',
+        value: 0,
+        control: 'a-input-number',
       },
       {
-        title: '变更说明',
-        control: 'unione-rich-text',
-        view: 'self',
-        name: 'changeTxt',
-        required: true
-      },
-      {
-        title: '升级指南',
-        name: 'upgradeTips',
-        control: 'unione-rich-text',
-        view: 'self',
-      },
-      {
-        title: '发布时间',
-        name: 'releaseTime',
-        control: 'a-date-picker',
-        props: {
-          valueFormat: 'YYYY-MM-DD HH:mm:ss',
-          format: 'YYYY-MM-DD HH:mm:ss'
-        },
-        required: true
-      },
-
+        title: '备注',
+        control: 'a-textarea',
+        name: 'descs'
+      }
     ],
     setting: {
       showColumn: 1,

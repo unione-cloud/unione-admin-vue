@@ -121,10 +121,7 @@ const define = ref({
     title: '操作',
     width: 200,
     btns: [
-      {
-        name: 'view',
-        visible: false
-      },
+      'view',
       {
         name: 'status',
         title: '状态',
@@ -165,6 +162,10 @@ const define = ref({
       {
         name: 'vers',
         title: '版本管理'
+      },
+      {
+        name: 'onlinedoc',
+        title: '文档管理'
       }
     ],
     count: 2,
@@ -202,6 +203,9 @@ async function btnClick({ btn, event, row, keys }: any) {
   }
   if (btn.name == 'vers') {
     router.push({ path: '/system/base/apps/vers', query: { appId: row.id } })
+  }
+  if (btn.name == 'onlinedoc') {
+    router.push({ path: '/system/base/apps/doc', query: { appId: row.id, appName: row.name } })
   }
   if (btn.name.startsWith('sts-')) {
     const status = btn.name.split('-')[1]
