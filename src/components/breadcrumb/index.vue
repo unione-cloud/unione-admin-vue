@@ -1,15 +1,15 @@
 <template>
   <div class="unione-breadcrumb">
     <a-breadcrumb>
-      <a-breadcrumb-item href="/home" class="ulink"> <HomeOutlined />首页 </a-breadcrumb-item>
+      <a-breadcrumb-item href="/home" class="ulink">
+        <HomeOutlined />首页
+      </a-breadcrumb-item>
       <template v-for="(menu, i) in routeList" :key="menu.key">
-        <a-breadcrumb-item
-          :href="menu.path"
-          :class="[menu.redirect && i == routeList.length - 1 && 'ulink']"
-          @click="gotoMenu(menu, i)"
-          ><component v-if="menu.icon" :is="menu.icon"></component>
-          {{ menu.label }}</a-breadcrumb-item
-        >
+        <a-breadcrumb-item :href="menu.path" :class="[menu.redirect && i == routeList.length - 1 && 'ulink']"
+          @click="gotoMenu(menu, i)">
+          <component v-if="menu.icon" :is="menu.icon"></component>
+          {{ menu.label }}
+        </a-breadcrumb-item>
       </template>
     </a-breadcrumb>
   </div>
@@ -18,6 +18,10 @@
 import { useAdminStore } from '@/stores/admin'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+
+defineOptions({
+  name: 'UnioneBreadcrumb',
+})
 const route = useRoute()
 const admin = useAdminStore()
 
@@ -47,6 +51,7 @@ function gotoMenu(menu: any, index: number) {
   :deep(.ulink > a) {
     cursor: pointer;
   }
+
   :deep(.ant-breadcrumb-link) {
     cursor: text;
   }

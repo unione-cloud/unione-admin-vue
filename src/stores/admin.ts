@@ -59,7 +59,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
   }
 
   // 构建菜单树
-  function buildMenu(items: Array<MenuItem>) {
+  function buildMenu(items: Array<MenuItem>, parent?: any) {
     const menus: any = []
     if (items && items.length > 0) {
       items.forEach((item) => {
@@ -68,7 +68,8 @@ export const useAdminStore = defineStore('unione-admin', () => {
           key: item.id,
           label: item.title,
           icon: item.meta?.icon || 'UnorderedListOutlined',
-          path: item.path
+          path: item.path,
+          parent: parent?.key || ''
         }
         if (menu.icon && typeof menu.icon === 'string') {
           // console.log('menu name:' + item.id + ',icon:' + menu.icon)
@@ -84,10 +85,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
         menuMap.value[menu.key] = menu
         menuMap.value[menu.path] = menu
         if (item.children && item.children.length) {
-          menu.children = buildMenu(item.children)
-          menu.children.forEach((child: any) => {
-            child.parent = menu.key
-          })
+          menu.children = buildMenu(item.children, menu)
           if (menu.children.length == 0) {
             delete menu.children
           }
