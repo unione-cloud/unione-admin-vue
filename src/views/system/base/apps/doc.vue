@@ -203,7 +203,7 @@ const drawer = ref<any>({
       },
       {
         title: '字体图标',
-        name: 'icon',
+        name: 'iconName',
         control: 'unione-icon-select'
       },
       {

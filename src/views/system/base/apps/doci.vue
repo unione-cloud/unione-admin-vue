@@ -5,10 +5,10 @@
     @treeClick="treeClick">
     <template #form-warp>
       <div class="doc-editor">
-        <unione-rich-text v-model:value="editorContents" :toolbar="['all']"></unione-rich-text>
+        <unione-rich-text v-model:value="editorContents" :toolbar="['all']" ref="richTextEditor"></unione-rich-text>
       </div>
       <div class="doc-footer">
-        <a-button type="primary" @click="tosave">保存</a-button>
+        <a-button type="primary" @click="tosave" :loading="activeItemObj?.loading">保存</a-button>
       </div>
       <!-- 资源设置对话框 -->
       <a-modal v-model:open="modalSetting.visible" :title="modalSetting.title" centered :width="600"
@@ -54,8 +54,10 @@ const unionePage = ref<any>({
 })
 
 
+const richTextEditor = ref()
 const editorContents = ref('{"header":[],"main":[],"footer":[]}')
 const activeItemObj = ref<any>()
+const docContentMap = ref<any>({})
 
 const formRef = ref()
 const modalSetting = ref<any>({
@@ -74,7 +76,7 @@ const modalSetting = ref<any>({
       required: true
     }, {
       title: '内容图标',
-      name: 'icon',
+      name: 'iconName',
       control: 'unione-icon-select'
     },
     {
@@ -131,15 +133,22 @@ function btnClick({ btn, node }: any) {
 }
 function treeClick({ event }: any) {
   const { node } = event;
+  if (activeItemObj.value && editorContents.value) {
+    docContentMap.value[activeItemObj.value.id] = editorContents.value
+  }
   activeItemObj.value = node
-  editorContents.value = node.contents || '{"header":[],"main":[],"footer":[]}'
+  if (!docContentMap.value[node.id]) {
+    docContentMap.value[node.id] = node.contents || '{"header":[],"main":[],"footer":[]}'
+  }
+  editorContents.value = docContentMap.value[node.id]
+  richTextEditor.value.setValue(editorContents.value)
 }
 
 function tosave() {
   activeItemObj.value.loading = true
-  activeItemObj.value.contents = editorContents.value
-  const { title, icon, picMax, picMid, picMix, ordered, descs } = activeItemObj.value
-  const formData: any = { title, icon, picMax, picMid, picMix, ordered, descs }
+  docContentMap.value[activeItemObj.value.id] = editorContents.value
+  const { title, iconName, picMax, picMid, picMix, ordered, descs } = activeItemObj.value
+  const formData: any = { title, iconName, picMax, picMid, picMix, ordered, descs }
   if (activeItemObj.value.id && !/^new_.*/.test(activeItemObj.value.id)) {
     formData.id = activeItemObj.value.id
   }
