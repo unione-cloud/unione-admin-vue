@@ -97,15 +97,15 @@ const modalSetting = ref<any>({
   ok: () => {
     formRef.value.validate().then((data: any) => {
       modalSetting.value.loading = true
-      const formData: any = { ...data }
+      const { title, iconName, picMax, picMid, picMix, ordered, descs } = data
+      const formData: any = { title, iconName, picMax, picMid, picMix, ordered, descs }
       if (data.id && !/^new_.*/.test(data.id)) {
         formData.id = data.id
       } else {
         delete formData.id
       }
-      delete formData.parentNode
       formData.pid = modalSetting.value.data.pid
-      formData.isLeaf = formData.isLeaf ? 1 : 0
+      formData.contents = docContentMap.value[modalSetting.value.data.id]
       treePage.value.storage().save({ data: formData }).then((res: any) => {
         treePage.value.setActiveNode({ id: res.body })
         modalSetting.value.data.id = res.body
