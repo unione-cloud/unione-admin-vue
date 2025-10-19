@@ -319,6 +319,7 @@ const drawer = ref({
         title: '版本说明',
         name: 'versDesc',
         control: 'unione-rich-text',
+        value: '{}'
       },
       {
         title: '字体图标',

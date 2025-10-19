@@ -122,9 +122,6 @@ async function btnClick({ btn, event, row, keys }: any) {
     drawer.value.title = '编辑模版'
     drawer.value.placement = 'right'
     drawer.value.row = { ...row }
-    if (drawer.value.row.bodyText) {
-      drawer.value.row.bodyText = JSON.parse(drawer.value.row.bodyText)
-    }
     nextTick(() => {
       form.value.setValue(drawer.value.row)
     })
@@ -210,7 +207,7 @@ const drawer = ref<any>({
       {
         title: '消息模版',
         name: 'bodyText',
-        value: {},
+        value: '{}',
         control: 'unione-rich-text'
       },
       {
@@ -245,9 +242,6 @@ const drawer = ref<any>({
       data = {
         ...drawer.value.row,
         ...data
-      }
-      if (data.bodyText) {
-        data.bodyText = JSON.stringify(data.bodyText)
       }
       page.value
         .storage()

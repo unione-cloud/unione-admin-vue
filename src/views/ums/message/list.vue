@@ -231,7 +231,7 @@ const drawer = ref<any>({
         title: '内容',
         name: 'bodyText',
         view: 'self',
-        value: {},
+        value: '{}',
         control: 'unione-rich-text',
         props: {
           options: { margins: [0, 0, 0, 0] }

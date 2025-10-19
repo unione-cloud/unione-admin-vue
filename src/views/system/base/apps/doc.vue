@@ -223,6 +223,7 @@ const drawer = ref<any>({
         control: 'unione-rich-text',
         view: 'self',
         name: 'profile',
+        value: '{}',
         required: true
       },
       {

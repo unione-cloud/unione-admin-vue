@@ -175,6 +175,7 @@ const drawer = ref({
         control: 'unione-rich-text',
         view: 'self',
         name: 'versDesc',
+        value: '{}',
         required: true
       },
       {
@@ -198,6 +199,7 @@ const drawer = ref({
         title: '升级指南',
         name: 'upgradeTips',
         control: 'unione-rich-text',
+        value: '{}',
         view: 'self',
       },
       {
