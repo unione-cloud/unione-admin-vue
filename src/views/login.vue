@@ -173,14 +173,14 @@ onMounted(() => {
   align-items: center;
 
   .login-box {
-    width: 70%;
+    width: 60%;
     height: 55%;
     min-height: 450px;
     background-color: #ffffff;
     border-radius: 10px;
 
     .box-head {
-      height: 50px;
+      height: 70px;
       display: flex;
       padding: 10px;
 
