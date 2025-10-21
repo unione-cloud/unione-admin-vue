@@ -1,18 +1,18 @@
 <template>
   <div class="unione-login" :style="{ 'background-image': 'url(' + ImageBg + ')' }">
     <div class="login-box">
-      <div class="box-head">
-        <div class="app-info">
-          <div class="app-title">{{ view.login.appTitle }}</div>
-          <div class="sub-title">{{ view.login.subTitle }}</div>
-        </div>
-        <div class="app-qr"><img :src="ImageQr" /></div>
-      </div>
       <div class="box-body">
         <div class="ads-box">
           <img class="ad-pic" :src="ImageAd" />
         </div>
         <div class="login-form">
+          <div class="box-head">
+            <div class="app-info">
+              <div class="app-title">{{ view.login.appTitle }}</div>
+              <div class="sub-title">{{ view.login.subTitle }}</div>
+            </div>
+            <div class="app-qr"><img :src="ImageQr" /></div>
+          </div>
           <a-form :model="formData" :rules="formRules" autocomplete="off" ref="loginForm" :label-col="{ span: 7 }">
             <a-tabs v-model:activeKey="loginType">
               <a-tab-pane key="username" tab="帐号登录">
@@ -39,6 +39,7 @@
               <a-form-item name="remember" no-style>
                 <a-checkbox v-model:checked="formData.remember">记住我</a-checkbox>
               </a-form-item>
+              <a class="forgot-pwd" href="#" style="margin-left: 5px;">注册帐号</a>
               <a class="forgot-pwd" href="#">忘记密码</a>
             </a-form-item>
 
@@ -183,9 +184,10 @@ onMounted(() => {
       height: 70px;
       display: flex;
       padding: 10px;
+      margin-bottom: 40px;
 
       .app-info {
-        width: 150%;
+        width: calc(100% - 70px);
 
         .app-title {
           color: #134ce4;
@@ -202,7 +204,7 @@ onMounted(() => {
       }
 
       .app-qr {
-        width: 100%;
+        width: 70px;
 
         img {
           width: 60px;
@@ -231,6 +233,7 @@ onMounted(() => {
 
       .login-form {
         width: 45%;
+        min-width: 465px;
         height: 100%;
         padding: 20px 40px;
         margin-top: 20px;
