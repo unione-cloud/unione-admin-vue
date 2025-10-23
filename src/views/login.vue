@@ -173,14 +173,12 @@ const toLogin = () => {
     // 密码加密
     if (loginType.value == 'username') {
       data.password = utils.sm2Encrypt(data.password)
-    } else {
-      data.smscode = utils.sm2Encrypt(data.smscode)
     }
 
     submiting.value = true
     // 提交登录请求
     session
-      .doLogin(data)
+      .doLogin(data, loginType.value == 'username' ? 'uname' : 'sms')
       .then((res: any) => {
         if (route.query.backurl) {
           router.push(route.query.backurl as string)
