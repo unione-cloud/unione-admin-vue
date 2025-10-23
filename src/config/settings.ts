@@ -42,7 +42,6 @@ export default {
     // 项目中自行修改并且和后端配置的公钥保持一致
     sm2PubKey:
       '04a684d7140aebfc83515a2312dac7ab836f3adc484627971b6936ad7d5575048caecf9c7eb07ed4dcee9d04cb3a7b1c514477b646b1ebe8245de215733baa5133',
-    sm2PriKey: '4389c4329a001df855d14ec204d25bf12d4d631bf61bb02d0586a653e199e0da',
     pwds: {
       resetPwdSmsEnable: false,
       secretStrategy: {

@@ -152,8 +152,8 @@ const drawer = ref<any>({
         control: 'unione-random-input',
         required: true,
         event: {
-          disabled: (value: any, formValue: any) => {
-            return !!formValue.id
+          visible: (value: any, formValue: any) => {
+            return !formValue.id
           }
         }
       },
