@@ -31,7 +31,7 @@
                 </a-form-item>
               </a-tab-pane>
               <a-tab-pane key="userphone" tab="手机登录" force-render>
-                <a-form-item label="手机号码" name="userphone">
+                <a-form-item label="手机号码" name="userphone" class="userphone">
                   <a-input v-model:value="formData.userphone">
                     <template #addonAfter>
                       <a-button type="link" class="btn-get-captcha" :loading="smsCaptcha.loading"
@@ -153,7 +153,7 @@ watch(loginType, () => {
     }
   } else {
     formRules.value = {
-      userphone: [{ required: true, message: '请输入用户密码', trigger: 'change' }],
+      userphone: [{ required: true, message: '请输入用户密码', trigger: 'change' }, { pattern: /^1[3456789]\d{9}$/, message: '请输入正确的手机号', trigger: 'change' }],
       captcha: [{ required: true, message: '请输入用户密码', trigger: 'change' }]
     }
   }
@@ -218,7 +218,7 @@ const regRules = ref<Record<string, Rule[]>>({
   username: [{ required: true, message: '请输入用户帐号', trigger: 'blur' }],
   pwdText: [{ required: true, message: '请输入用户密码', trigger: 'blur' }],
   realName: [{ required: true, message: '请输入用户姓名', trigger: 'blur' }],
-  tel: [{ required: true, message: '请输入手机号码', trigger: 'blur' }],
+  tel: [{ required: true, message: '请输入手机号码', trigger: 'blur' }, { pattern: /^1[3456789]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }],
   captcha: [{ required: true, message: '请输入短信验证码', trigger: 'blur' }]
 })
 function toRegister() {
@@ -400,6 +400,13 @@ onMounted(() => {
             height: 35px;
             cursor: pointer;
             margin-right: 10px;
+          }
+        }
+
+        .userphone {
+          :deep(.ant-form-item-explain-error) {
+            margin-right: 140px;
+            z-index: 10;
           }
         }
 
