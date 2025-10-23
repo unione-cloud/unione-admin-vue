@@ -6,7 +6,6 @@
     <a-drawer :title="drawer.title" :width="800" v-model:visible="drawer.visible" :placement="drawer.placement"
       class="drawer-form" :mask-closable="false">
       <unione-form :form="drawer.form" ref="form"></unione-form>
-
       <template #footer>
         <div class="btns">
           <a-button type="primary" @click="drawer.tosave">保存</a-button>
@@ -148,14 +147,19 @@ const drawer = ref<any>({
   form: {
     fields: [
       {
-        title: '标题',
-        name: 'title',
-        required: true
-      },
-      {
         title: '编码',
         name: 'sn',
         control: 'unione-random-input',
+        required: true,
+        event: {
+          disabled: (value: any, formValue: any) => {
+            return !!formValue.id
+          }
+        }
+      },
+      {
+        title: '标题',
+        name: 'title',
         required: true
       },
       {
