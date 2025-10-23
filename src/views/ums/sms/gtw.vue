@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <div class="unione-page unione-page-list unione-ums-tmpl">
+  <div class="unione-page unione-page-list unione-sms-gtw">
     <unione-page-list ref="page" v-bind="define" @btnClick="btnClick"></unione-page-list>
 
     <a-drawer :title="drawer.title" :width="800" v-model:visible="drawer.visible" :placement="drawer.placement"
@@ -27,7 +27,7 @@ const dialog = useDialog()
 const page = ref()
 const define = ref({
   storage: {
-    controller: '/api/ums/tmpl'
+    controller: '/api/ums/smsGtw'
   },
   fields: [
     {
@@ -41,26 +41,16 @@ const define = ref({
       isQuery: true
     },
     {
-      title: '类别',
-      name: 'types',
-      convert: {
-        types: 'dict',
-        dictName: 'UMSTMPLTYPE'
-      },
-      isQuery: true
+      title: 'IP',
+      name: 'ip',
     },
     {
-      title: '通知方式',
-      name: 'ways'
+      title: '端口',
+      name: 'ports',
     },
     {
-      title: '使用级别',
-      name: 'usel',
-      convert: {
-        types: 'dict',
-        dictName: 'UMSTMPLUSEL'
-      },
-      isQuery: true
+      title: '地址',
+      name: 'url',
     },
     {
       title: '状态',
@@ -112,7 +102,7 @@ async function btnClick({ btn, event, row, keys }: any) {
   console.log('table btn click', btn, event, row)
   if (btn.name == 'add') {
     drawer.value.visible = true
-    drawer.value.title = '新增模版'
+    drawer.value.title = '新增网关'
     drawer.value.placement = 'left'
     drawer.value.row = {}
     nextTick(() => {
@@ -121,7 +111,7 @@ async function btnClick({ btn, event, row, keys }: any) {
   }
   if (btn.name == 'edit') {
     drawer.value.visible = true
-    drawer.value.title = '编辑模版'
+    drawer.value.title = '编辑网关'
     drawer.value.placement = 'right'
     drawer.value.row = { ...row }
     nextTick(() => {
@@ -134,11 +124,11 @@ async function btnClick({ btn, event, row, keys }: any) {
 }
 function setStatus(id: string, status: number) {
   dialog.confirm({
-    content: '确定要' + (status == 1 ? '启用' : '停用') + '该模版么?',
+    content: '确定要' + (status == 1 ? '启用' : '停用') + '该网关么?',
     onOk: () => {
       axios.admin
         .request({
-          url: '/api/ums/tmpl/status',
+          url: '/api/ums/smsGtw/status',
           method: 'post',
           data: { id, status }
         })
@@ -151,7 +141,7 @@ function setStatus(id: string, status: number) {
 
 const form = ref() //form ref obj
 const drawer = ref<any>({
-  title: '新增模版',
+  title: '新增网关',
   placement: 'left',
   visible: false,
   row: {},
@@ -169,48 +159,26 @@ const drawer = ref<any>({
         required: true
       },
       {
-        title: '类型',
-        name: 'types',
-        control: 'unione-radio-box',
-        value: 'normal',
-        convert: {
-          types: 'dict',
-          dictName: 'UMSTMPLTYPE'
-        }
+        title: 'IP',
+        name: 'ip',
+        required: true
       },
       {
-        title: '使用级别',
-        name: 'usel',
-        control: 'unione-radio-box',
-        value: 1,
-        convert: {
-          types: 'dict',
-          dictName: 'UMSTMPLUSEL'
-        }
+        title: '端口',
+        name: 'ports',
+        control: 'a-input-number',
+        required: true
       },
       {
-        title: '通知方式',
-        name: 'ways',
-        value: '',
-        control: 'unione-check-box',
-        convert: {
-          types: 'dict',
-          dictName: 'UMSMESSAGEWAY'
-        }
+        title: 'URL',
+        name: 'url',
+        required: true
       },
-      // {
-      //   title: 'html模版',
-      //   name: 'bodyHtml',
-      //   control: 'a-textarea',
-      //   props: {
-      //     help: '应用于站内信，邮件等支持富文本的消息'
-      //   }
-      // },
       {
-        title: '消息模版',
-        name: 'bodyText',
-        value: '{}',
-        control: 'unione-rich-text'
+        title: '显示顺序',
+        name: 'ordered',
+        control: 'a-input-number',
+        value: 1
       },
       {
         title: '状态',
@@ -223,16 +191,102 @@ const drawer = ref<any>({
         }
       },
       {
-        title: '显示顺序',
-        name: 'ordered',
-        control: 'a-input-number',
-        value: 1
+        title: '备注信息',
+        name: 'descs',
+        control: 'a-textarea'
       },
       {
-        title: '备注信息',
-        name: 'remark',
-        control: 'a-textarea'
-      }
+        widget: 'unione-tabs',
+        widgets: [
+          {
+            title: '认证设置',
+            widgets: [{
+              title: '认证接口',
+              name: 'authApi',
+              props: {
+                tooltip: '/开头,例如:/auth'
+              },
+            }, {
+              title: '认证信息',
+              name: 'authInfo',
+              control: 'unione-code-editor',
+              props: {
+                language: 'json'
+              },
+            },
+            {
+              title: '认证脚本',
+              name: 'authScript',
+              control: 'unione-code-editor',
+              props: {
+                language: 'javascript'
+              },
+            },]
+          },
+          {
+            title: '发送设置',
+            widgets: [{
+              title: '发送接口',
+              name: 'sendApi',
+              props: {
+                tooltip: '/开头,例如:/send'
+              },
+            },
+            {
+              title: '发送脚本',
+              name: 'sendScript',
+              control: 'unione-code-editor',
+              props: {
+                language: 'javascript'
+              },
+            },]
+          },
+          {
+            title: '收信设置',
+            widgets: [{
+              title: '收信接口',
+              name: 'receiveApi',
+              props: {
+                tooltip: '/开头,例如:/receive'
+              },
+            },
+            {
+              title: '收信脚本',
+              name: 'receiveScript',
+              control: 'unione-code-editor',
+              props: {
+                language: 'javascript'
+              },
+            },
+            {
+              title: '收信cron',
+              name: 'receiveCron',
+            },]
+          },
+          {
+            title: '回执设置',
+            widgets: [{
+              title: '回执接口',
+              name: 'receiptApi',
+              props: {
+                tooltip: '/开头,例如:/receipt'
+              },
+            },
+            {
+              title: '回执脚本',
+              name: 'receiptScript',
+              control: 'unione-code-editor',
+              props: {
+                language: 'javascript'
+              },
+            },
+            {
+              title: '回执cron',
+              name: 'receiptCron',
+            },]
+          },
+        ]
+      },
     ],
     setting: {
       showColumn: 1,
