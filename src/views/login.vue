@@ -192,13 +192,19 @@ const toLogin = () => {
           Modal.error({
             title: '登录失败',
             centered: true,
-            content: err.message
+            content: err.message,
+            onOk: () => {
+              imageCaptcha.value.refresh()
+            }
           })
         } else {
           Modal.error({
             title: '登录失败',
             centered: true,
-            content: '系统异常'
+            content: '系统异常',
+            onOk: () => {
+              imageCaptcha.value.refresh()
+            }
           })
         }
       })
@@ -301,14 +307,13 @@ const smsCaptcha = ref({
 })
 
 onMounted(() => {
+  imageCaptcha.value.refresh()
   if (session.isLogin()) {
     if (route.query.backurl) {
       router.push(route.query.backurl as string)
     } else {
       router.push('/home')
     }
-  } else {
-    imageCaptcha.value.refresh()
   }
 })
 

@@ -33,6 +33,8 @@ export const useAdminStore = defineStore('unione-admin', () => {
   const router = useRouter()
   const dialog = useDialog()
 
+  const errorDialog = ref<any>(null)
+
   // 构建路由
   function buildRoute(items: Array<MenuItem>) {
     const routes: any = []
@@ -230,7 +232,10 @@ export const useAdminStore = defineStore('unione-admin', () => {
                 session.setStorage('menuList', JSON.stringify(menuList))
                 process(menuList)
               } else {
-                dialog.error({ content: '当前张菜单为空' })
+                if (errorDialog.value) {
+                  errorDialog.value.close()
+                }
+                errorDialog.value = dialog.error({ content: '当前帐号菜单为空' })
               }
             } else {
               dialog.error({
