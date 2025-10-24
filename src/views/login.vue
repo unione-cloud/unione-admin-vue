@@ -71,7 +71,7 @@
             <a-form-item label="单位名称" name="company">
               <a-input v-model:value="regData.company" />
             </a-form-item>
-            <a-form-item label="登录帐号" name="username">
+            <!-- <a-form-item label="登录帐号" name="username">
               <a-input v-model:value="regData.username" />
             </a-form-item>
             <a-form-item label="用户密码" name="pwdText">
@@ -79,7 +79,7 @@
             </a-form-item>
             <a-form-item label="确认密码" name="confirmPwdText">
               <a-input-password v-model:value="regData.confirmPwdText" />
-            </a-form-item>
+            </a-form-item> -->
             <a-form-item label="真实姓名" name="realName">
               <a-input v-model:value="regData.realName" />
             </a-form-item>
@@ -215,12 +215,44 @@ const regRules = ref<Record<string, Rule[]>>({
   company: [{ required: true, message: '请输入单位名称', trigger: 'blur' }],
   username: [{ required: true, message: '请输入用户帐号', trigger: 'blur' }],
   pwdText: [{ required: true, message: '请输入用户密码', trigger: 'blur' }],
+  confirmPwdText: [{ required: true, message: '请输入确认密码', trigger: 'blur' }, {
+    validator: (rule: any, value: any, callback: any) => {
+      if (value !== regData.value.pwdText) {
+        callback('两次输入密码不一致')
+      } else {
+        callback()
+      }
+    }, trigger: 'blur'
+  }],
   realName: [{ required: true, message: '请输入用户姓名', trigger: 'blur' }],
   tel: [{ required: true, message: '请输入手机号码', trigger: 'blur' }, { pattern: /^1[3456789]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }],
   captcha: [{ required: true, message: '请输入短信验证码', trigger: 'blur' }]
 })
 function toRegister() {
+  regForm.value.validate().then((data: any) => {
+    // 密码加密
+    if (data.pwdText) {
+      data.pwdText = utils.sm2Encrypt(data.pwdText)
+    }
+    delete data.confirmPwdText
+    submiting.value = true
 
+    // 提交注册请求
+    axios.admin({
+      url: '/api/security/register',
+      method: 'post',
+      data
+    }).then((res: any) => {
+      if (res.success) {
+        dialog.success('注册成功')
+        formType.value = 'login'
+      } else {
+        dialog.error(res.message || '注册失败')
+      }
+    }).finally(() => {
+      submiting.value = false
+    })
+  })
 }
 
 const imageCaptcha = ref({
@@ -439,7 +471,7 @@ onMounted(() => {
         }
 
         :deep(.ant-form-item) {
-          margin-bottom: 5px;
+          margin-bottom: 15px;
 
           .ant-form-item-explain-error {
             right: 5px;
