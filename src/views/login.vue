@@ -26,7 +26,7 @@
                 <a-form-item label="验证码" name="captcha" required>
                   <div class="captcha-box">
                     <img class="img" :src="imageCaptcha.src" @click="imageCaptcha.refresh()" />
-                    <a-input v-model:value="formData.captcha" />
+                    <a-input v-model:value="formData.captcha" @keyup.enter="toLogin" />
                   </div>
                 </a-form-item>
               </a-tab-pane>
@@ -35,14 +35,15 @@
                   <a-input v-model:value="formData.userphone">
                     <template #addonAfter>
                       <a-button type="link" class="btn-get-captcha" :loading="smsCaptcha.loading"
-                        @click="smsCaptcha.send('login', formData.userphone)">{{ smsCaptcha.loading ?
-                          ('获取验证码(' + smsCaptcha.countdown + '秒)') : '获取验证码' }}</a-button>
+                        @click="smsCaptcha.send('login', formData.userphone)">{{
+                          smsCaptcha.loading ?
+                            ('获取验证码(' + smsCaptcha.countdown + '秒)') : '获取验证码' }}</a-button>
                     </template>
                   </a-input>
                 </a-form-item>
 
                 <a-form-item label="验证码" name="captcha">
-                  <a-input v-model:value="formData.captcha" />
+                  <a-input v-model:value="formData.captcha" @keyup.enter="toLogin" />
                 </a-form-item>
               </a-tab-pane>
             </a-tabs>
