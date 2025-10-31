@@ -196,6 +196,7 @@ const toLogin = () => {
             content: err.message,
             onOk: () => {
               imageCaptcha.value.refresh()
+              formData.value.captcha = ''
             }
           })
         } else {
