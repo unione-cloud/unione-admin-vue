@@ -1,48 +1,59 @@
 <template>
   <a-layout class="unione-basic-layout">
-    <a-layout-sider v-model:collapsed="sideMenu.collapsed" :collapsedWidth="50" collapsible class="unione-layout-sider"
-      v-if="sideMenu.list && sideMenu.list.length">
-      <div class="logo-box">
-        <div class="logo-title" :style="view.logo.title.css">
-          {{ sideMenu.collapsed ? view.logo.title.side : view.logo.title.text }}
-        </div>
-      </div>
-      <a-menu class="unione-sider-menu" v-model:openKeys="sideMenu.openKeys"
-        v-model:selectedKeys="sideMenu.selectedKeys" mode="inline" theme="dark" :inline-collapsed="sideMenu.collapsed"
-        :items="sideMenu.list" @click="({ key }: any) => admin.sideMenuClick(key)"></a-menu>
-    </a-layout-sider>
-    <a-layout>
-      <a-layout-header style="background: #fff; padding: 0" class="unione-layout-header"
-        v-if="(sideMenu.list && sideMenu.list.length) || (topMenu.list && topMenu.list.length)">
-        <div class="unione-header-left">
-          <div class="logo-box" v-if="!sideMenu.list || !sideMenu.list.length">
-            <div class="logo-title" :style="view.logo.title.css">
-              {{ sideMenu.collapsed ? view.logo.title.side : view.logo.title.text }}
-            </div>
+    <template v-if="!isIframe">
+      <a-layout-sider v-model:collapsed="sideMenu.collapsed" :collapsedWidth="50" collapsible
+        class="unione-layout-sider" v-if="sideMenu.list && sideMenu.list.length">
+        <div class="logo-box">
+          <div class="logo-title" :style="view.logo.title.css">
+            {{ sideMenu.collapsed ? view.logo.title.side : view.logo.title.text }}
           </div>
-          <a-menu class="unione-header-menu" mode="horizontal" v-model:openKeys="topMenu.openKeys"
-            v-model:selectedKeys="topMenu.selectedKeys" :items="topMenu.list" v-if="topMenu.list && topMenu.list.length"
-            @click="({ key }: any) => admin.topMenuClick(key)">
-            <!-- <a-menu-item v-for="menu in topMenu.list" :key="menu.key">
-              <component #icon v-if="menu.icon" :is="menu.icon"></component>
-              {{ menu.label }}
-            </a-menu-item> -->
-          </a-menu>
         </div>
+        <a-menu class="unione-sider-menu" v-model:openKeys="sideMenu.openKeys"
+          v-model:selectedKeys="sideMenu.selectedKeys" mode="inline" theme="dark" :inline-collapsed="sideMenu.collapsed"
+          :items="sideMenu.list" @click="({ key }: any) => admin.sideMenuClick(key)"></a-menu>
+      </a-layout-sider>
+      <a-layout>
+        <a-layout-header style="background: #fff; padding: 0" class="unione-layout-header"
+          v-if="(sideMenu.list && sideMenu.list.length) || (topMenu.list && topMenu.list.length)">
+          <div class="unione-header-left">
+            <div class="logo-box" v-if="!sideMenu.list || !sideMenu.list.length">
+              <div class="logo-title" :style="view.logo.title.css">
+                {{ sideMenu.collapsed ? view.logo.title.side : view.logo.title.text }}
+              </div>
+            </div>
+            <a-menu class="unione-header-menu" mode="horizontal" v-model:openKeys="topMenu.openKeys"
+              v-model:selectedKeys="topMenu.selectedKeys" :items="topMenu.list"
+              v-if="topMenu.list && topMenu.list.length" @click="({ key }: any) => admin.topMenuClick(key)">
+              <!-- <a-menu-item v-for="menu in topMenu.list" :key="menu.key">
+                <component #icon v-if="menu.icon" :is="menu.icon"></component>
+                {{ menu.label }}
+              </a-menu-item> -->
+            </a-menu>
+          </div>
 
-        <div class="unione-header-right">
-          <notice-icon class="item" />
-          <avatar-dropdown :principal="principal" class="item" />
-        </div>
-      </a-layout-header>
+          <div class="unione-header-right">
+            <notice-icon class="item" />
+            <avatar-dropdown :principal="principal" class="item" />
+          </div>
+        </a-layout-header>
+        <a-layout-content class="unione-layout-content">
+          <unione-breadcrumb />
+          <iframe class="unione-iframe-content" v-if="iframeUrl" :src="iframeUrl"></iframe>
+          <component class="unione-page-content" v-else-if="$route.meta.isIframe != 1 && viewComponent"
+            :is="viewComponent" />
+          <RouterView v-else :key="$route.name?.toString()"></RouterView>
+        </a-layout-content>
+      </a-layout>
+    </template>
+    <template v-if="isIframe">
       <a-layout-content class="unione-layout-content">
-        <unione-breadcrumb />
-        <iframe class="unione-iframe-content" v-if="iframeUrl" :src="iframeUrl"></iframe>
+        <iframe class="unione-iframe-content" v-if="$route.meta.url && $route.meta.isIframe == 1"
+          :src="$route.meta.url.toString()"></iframe>
         <component class="unione-page-content" v-else-if="$route.meta.isIframe != 1 && viewComponent"
           :is="viewComponent" />
         <RouterView v-else :key="$route.name?.toString()"></RouterView>
       </a-layout-content>
-    </a-layout>
+    </template>
   </a-layout>
 </template>
 
@@ -126,7 +137,15 @@ const iframeUrl = computed<string>(() => {
   }
   return ''
 })
-
+const isIframe = computed(() => {
+  const envMode = import.meta.env.MODE;
+  if (envMode === 'dev') {
+    // 开发环境: 默认非iframe，可通过URL参数强制开启
+    return route.query.isIframe?.toString() === '1';
+  }
+  // 生产环境: 严格依赖URL参数
+  return route.query.isIframe?.toString() === '1' || route.meta.isIframe == 1 || route.query.isIframe?.toString() === 'true' || route.meta.isIframe == true;
+})
 </script>
 
 <style scoped lang="less">
