@@ -58,32 +58,17 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, defineAsyncComponent } from 'vue'
+import { computed, defineAsyncComponent, getCurrentInstance } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 import { default as AvatarDropdown } from '@/components/avatar/avatar-dropdown.vue'
 import { default as NoticeIcon } from '@/components/notice-icon/index.vue'
 import { useSession } from 'unione-base-vue'
 import { useAdminStore } from '@/stores/admin'
-import {
-  UnioneDataSourceList,
-  UnioneDataDefineList,
-  UnioneDataDefineEdit,
-  UnionePageForm,
-  UnionePageList,
-  UnioneFormList,
-  UnioneWidgetList
-} from 'unione-form-vue'
 
-// 页面组件集合
-const pageComponents: any = {
-  UnioneDataSourceList,
-  UnioneDataDefineList,
-  UnioneDataDefineEdit,
-  UnionePageForm,
-  UnionePageList,
-  UnioneFormList,
-  UnioneWidgetList
-}
+const instance = getCurrentInstance()
+const app = computed<any>(() => {
+  return instance?.appContext?.app
+})
 
 // 会话对象
 const session = useSession()
@@ -113,7 +98,11 @@ const view: any = computed(() => {
 const viewComponent = computed(() => {
   if (route.meta.isIframe != 1 && route.meta.url) {
     if (route.meta.url.toString().startsWith('@')) {
-      return pageComponents[route.meta.url.toString().replace('@', '')]
+      // return pageComponents[route.meta.url.toString().replace('@', '')]
+      const component = app.value?.component(route.meta.url.toString().replace('@', ''))
+      if (component) {
+        return component
+      }
     }
 
     // 生产环境安全的动态导入方式 - 使用import.meta.glob预加载所有视图组件
