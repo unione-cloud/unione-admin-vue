@@ -55,7 +55,7 @@
     "sm-crypto": "^0.3.13",
     "start-server-and-test": "^2.0.3",
     "typescript": "~5.4.0",
-    "unione-base-vue": "^0.1.3",
+    "unione-base-vue": "^0.1.7",
     "unione-form-vue": "^0.1.6",
     "uuid": "^10.0.0",
     "vite": "^5.2.8",
