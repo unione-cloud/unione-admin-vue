@@ -69,7 +69,9 @@ import {
   UnioneDataDefineList,
   UnioneDataDefineEdit,
   UnionePageForm,
-  UnionePageList
+  UnionePageList,
+  UnioneFormList,
+  UnioneWidgetList
 } from 'unione-form-vue'
 
 // 页面组件集合
@@ -78,7 +80,9 @@ const pageComponents: any = {
   UnioneDataDefineList,
   UnioneDataDefineEdit,
   UnionePageForm,
-  UnionePageList
+  UnionePageList,
+  UnioneFormList,
+  UnioneWidgetList
 }
 
 // 会话对象
