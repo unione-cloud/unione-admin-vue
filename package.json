@@ -17,9 +17,9 @@
   },
   "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",
-    "@codemirror/lang-javascript": "^6.2.2",
     "@codemirror/lang-css": "^6.2.2",
     "@codemirror/lang-html": "^6.2.2",
+    "@codemirror/lang-javascript": "^6.2.2",
     "@codemirror/lang-json": "^6.0.2",
     "@rushstack/eslint-patch": "^1.8.0",
     "@tsconfig/node20": "^20.1.4",
@@ -66,7 +66,8 @@
     "vue-codemirror": "^6.1.1",
     "vue-i18n": "^9.13.1",
     "vue-router": "^4.3.0",
-    "vue-tsc": "^2.0.11"
+    "vue-tsc": "^2.0.11",
+    "vuedraggable": "^2.24.3"
   },
   "devDependencies": {
     "@types/prismjs": "^1.26.5",
