@@ -10,7 +10,8 @@
             style="color: #1890ff;">请先升级版本</span>后进行编辑</span>
       </div>
       <div :class="['steps', 'step-len-' + stepItems.length]">
-        <a-steps v-model:current="stepsCurrentIndex" size="small" :items="stepItems"></a-steps>
+        <a-steps v-model:current="stepsCurrentIndex" size="small" :items="stepItems"
+          @change="handelStepChange"></a-steps>
       </div>
       <div class="opts">
         <a-button type="primary" @click="toSave" shape="round" v-if="flowObj.status != 2">保存</a-button>
@@ -19,17 +20,27 @@
       </div>
     </template>
 
-    <UFEditor ref="ufEditor" :value="ufmValue" :toolbar="toolbar" model="edit"></UFEditor>
+    <div class="flow-base-info" v-if="stepCurrentItem.name == 'baseInfo'">
+      <UnioneForm :form="baseFormDef" ref="baseFormRef" class="base-form">
+      </UnioneForm>
+    </div>
+    <div class="flow-base-info" v-if="stepCurrentItem.name == 'flowSetting'">
+      <UnioneForm :form="settingFormDef" ref="settingFormRef" class="base-form"></UnioneForm>
+    </div>
+
+    <UFEditor ref="ufEditor" :value="ufmValue" :toolbar="toolbar" model="edit"
+      v-show="stepCurrentItem.name == 'flowEditor'"></UFEditor>
 
   </a-modal>
 </template>
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from 'vue'
-import { Graph } from '@antv/x6'
+import { message } from 'ant-design-vue'
+import { axios, useDialog } from 'unione-base-vue'
 import { UFEditor, registerNode, registerOpts } from 'unione-flow-vue'
+import type { UFDefine } from 'unione-flow-vue/dist/typing'
+import { utils } from 'unione-form-vue'
+import { computed, nextTick, ref } from 'vue'
 import Custome from './nodes/node.vue'
-import type { UFDefine, UFToolItem } from 'unione-flow-vue/dist/typing'
-import { utils } from 'unione-base-vue'
 
 defineOptions({
   name: 'DemoIndex',
@@ -71,6 +82,7 @@ const toolbar = ref<any>([
   }
 ])
 
+const dialog = useDialog()
 const visible = ref(false)
 const stepItems = computed(() => {
   const items = [
@@ -97,6 +109,85 @@ const stepItems = computed(() => {
 const stepsCurrentIndex = ref(0)
 const stepCurrentItem = computed(() => stepItems.value[stepsCurrentIndex.value] || {})
 
+const baseFormRef = ref<any>()
+const baseFormDef = ref({
+  fields: [{
+    title: '流程标题',
+    name: 'title',
+    props: {
+      required: true
+    }
+  }, {
+    title: '流程编码',
+    name: 'sn',
+    control: 'unione-random-input',
+    props: {
+      required: true
+    }
+  }, {
+    title: '流程版本',
+    name: 'vers',
+    value: 1,
+    props: {
+      disabled: true
+    }
+  }, {
+    title: '流程分类',
+    name: 'category',
+    control: 'unione-select-box',
+    props: {
+      required: true
+    },
+    convert: {
+      types: 'dict',
+      dictName: 'FLOWLITECATEGORY'
+    }
+  }, {
+    title: '流程说明',
+    name: 'descs',
+    control: 'a-textarea',
+  }]
+})
+
+const settingFormRef = ref<any>()
+const settingFormDef = ref({
+  fields: [{
+    title: '自由流',
+    name: 'isGoto',
+    control: 'unione-switch-box',
+    convert: {
+      types: 'dict',
+      dictName: 'TRUEORFALSE'
+    },
+    props: {
+      help: '开启该功能，提交流程时，用户可以自由选择流程流转，自由选择下一个节点'
+    }
+  }, {
+    title: '任务指派',
+    name: 'isAssign',
+    control: 'unione-switch-box',
+    convert: {
+      types: 'dict',
+      dictName: 'TRUEORFALSE'
+    },
+    props: {
+      help: '开启该功能，用户可以自己决定下一个节点的任务处理人'
+    }
+  }, {
+    title: '公开流程',
+    name: 'isOpen',
+    control: 'unione-switch-box',
+    convert: {
+      types: 'dict',
+      dictName: 'TRUEORFALSE'
+    },
+    props: {
+      help: '公开流程不需要分配节点候选人，任何人都可以操作流程'
+    }
+  }]
+})
+
+
 const flowObj = ref<any>({
   title: '流程',
   vers: 1,
@@ -109,11 +200,105 @@ const ufmValue = ref<UFDefine>({
   routes: [],
 })
 
+function handelStepChange() {
+  nextTick(() => {
+    if (stepCurrentItem.value?.name == 'flowSetting') {
+      settingFormRef.value.setValue(flowObj.value)
+    } else if (stepCurrentItem.value?.name == 'baseInfo') {
+      baseFormRef.value.setValue(flowObj.value)
+    }
+  })
+}
+
 function toSave() {
-  visible.value = false
+  if (stepCurrentItem.value?.name == 'baseInfo') {
+    // 保存基本信息
+    baseFormRef.value.validate().then((data: any) => {
+      utils.obj.ext(flowObj.value, data, true)
+      if (!flowObj.value.id) {
+        utils.obj.ext(flowObj.value, {
+          isGoto: 0,
+          isAssign: 0,
+          isAuth: 1,
+          isOpen: 0,
+          status: 1,
+          ordered: 1,
+          flowChart: '{}'
+        }, true)
+      }
+      // 提交数据
+      message.loading({
+        content: '提交中...',
+        duration: 3
+      })
+      axios.flow({
+        url: '/api/tmpl/save',
+        method: 'POST',
+        data: flowObj.value
+      }).then((res: any) => {
+        message.destroy()
+        if (res.success) {
+          message.success('提交成功')
+          flowObj.value.id = res.body
+          stepsCurrentIndex.value = 1
+        } else {
+          message.error(res.message || '提交失败')
+        }
+      })
+    })
+  }
+  // 保存流程图
+  if (stepCurrentItem.value?.name == 'flowEditor') {
+    if (!flowObj.value?.id) {
+      dialog.warning({
+        content: '请先保存基本信息'
+      })
+      return
+    }
+    ufmValue.value = ufEditor.value.toJSON()
+    axios.flow({
+      url: '/api/tmpl/save/flowChart/' + flowObj.value.id,
+      method: 'POST',
+      data: ufmValue.value
+    }).then((res: any) => {
+      message.destroy()
+      if (res.success) {
+        message.success('提交成功')
+        flowObj.value.id = res.body
+      } else {
+        message.error(res.message || '提交失败')
+      }
+    })
+  }
+  // 保存流程设置
+  if (stepCurrentItem.value?.name == 'flowSetting') {
+    // 保存基本信息
+    settingFormRef.value.validate().then((data: any) => {
+      utils.obj.ext(flowObj.value, data, true)
+      // 提交数据
+      message.loading({
+        content: '提交中...',
+        duration: 3
+      })
+      axios.flow({
+        url: '/api/tmpl/save',
+        method: 'POST',
+        data: flowObj.value
+      }).then((res: any) => {
+        message.destroy()
+        if (res.success) {
+          message.success('提交成功')
+          flowObj.value.id = res.body
+          stepsCurrentIndex.value = 1
+        } else {
+          message.error(res.message || '提交失败')
+        }
+      })
+    })
+  }
 }
 function toPublish() {
-  visible.value = false
+
 }
 function close() {
   visible.value = false
@@ -122,7 +307,8 @@ function open(flow: any) {
   flowObj.value = utils.obj.ext(flow, {
     title: '流程',
     vers: 1,
-    status: 1
+    status: 1,
+    sn: utils.randomStr(10)
   })
   utils.obj.ext(flowObj.value, {
     configs: {
@@ -131,15 +317,40 @@ function open(flow: any) {
       nodes: [],
       routes: [],
     }
-  })
+  }, true)
   ufmValue.value = flowObj.value.configs
+  if (!hadStartNode()) {
+    ufmValue.value.nodes.push({
+      types: 'start',
+      title: '开始',
+      attr: {
+        position: {
+          x: 100,
+          y: 100,
+        }
+      }
+    })
+  }
+
+
   visible.value = true
+  if (!flowObj.value.id) {
+    stepsCurrentIndex.value = 0
+    nextTick(() => {
+      baseFormRef.value.setValue(flowObj.value)
+    })
+  } else {
+    stepsCurrentIndex.value = 1
+  }
 }
 
-onMounted(() => {
+function hadStartNode() {
+  if (!ufmValue.value.nodes) {
+    return false
+  }
+  return ufmValue.value.nodes.some((item: any) => item.type == 'start')
+}
 
-
-})
 defineExpose({
   open,
   close
@@ -191,7 +402,22 @@ defineExpose({
     padding: 0;
   }
 
+  .flow-base-info {
+    background-color: #f5f5f5;
+    padding: 10px;
+    height: 100%;
+    display: flex;
+    justify-content: center;
 
+    .base-form {
+      background-color: #FFFFFF;
+      width: 850px;
+      height: 100%;
+      padding: 20px 30px;
+      border-radius: 10px;
+    }
+
+  }
 
 }
 </style>
