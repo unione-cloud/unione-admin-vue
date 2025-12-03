@@ -1,6 +1,6 @@
 <template>
   <a-modal wrapClassName="unione-modal-full flow-editor" v-model:visible="visible" :footer="null" :mask="false"
-    :closable="false" :bodyStyle="{ padding: '0 5px' }">
+    :closable="false" :bodyStyle="{ padding: '0 5px' }" destroyOnClose>
     <template #title>
       <div class="title">
         <ApartmentOutlined />
@@ -28,7 +28,8 @@
       <UnioneForm :form="settingFormDef" ref="settingFormRef" class="base-form"></UnioneForm>
     </div>
 
-    <UFEditor ref="ufEditor" :toolbar="toolbar" model="edit" v-show="stepCurrentItem.name == 'flowEditor'"></UFEditor>
+    <UFEditor ref="ufEditor" :toolbar="toolbar" v-show="stepCurrentItem.name == 'flowEditor'"
+      :model="flowObj?.status == 2 ? 'readonly' : 'edit'"></UFEditor>
 
   </a-modal>
 </template>
