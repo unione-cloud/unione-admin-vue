@@ -28,8 +28,7 @@
       <UnioneForm :form="settingFormDef" ref="settingFormRef" class="base-form"></UnioneForm>
     </div>
 
-    <UFEditor ref="ufEditor" :value="ufmValue" :toolbar="toolbar" model="edit"
-      v-show="stepCurrentItem.name == 'flowEditor'"></UFEditor>
+    <UFEditor ref="ufEditor" :toolbar="toolbar" model="edit" v-show="stepCurrentItem.name == 'flowEditor'"></UFEditor>
 
   </a-modal>
 </template>
@@ -208,6 +207,11 @@ function handelStepChange() {
       baseFormRef.value.setValue(flowObj.value)
     }
   })
+  if (!ufEditor.value && stepCurrentItem.value?.name == 'flowEditor') {
+    nextTick(() => {
+      ufEditor.value.fromJSON(ufmValue.value)
+    })
+  }
 }
 
 function toSave() {
@@ -332,7 +336,6 @@ function open(flow: any) {
     })
   }
 
-
   visible.value = true
   if (!flowObj.value.id) {
     stepsCurrentIndex.value = 0
@@ -341,6 +344,9 @@ function open(flow: any) {
     })
   } else {
     stepsCurrentIndex.value = 1
+    nextTick(() => {
+      ufEditor.value.fromJSON(ufmValue.value)
+    })
   }
 }
 
