@@ -306,6 +306,21 @@ export const router = createRouter({
               name: 'dataList',
               path: '/data/page/list',
               component: UnionePageList
+            },
+            {
+              name: 'dataListAdd',
+              path: '/data/page/list/add',
+              component: UnionePageForm
+            },
+            {
+              name: 'dataListEdit',
+              path: '/data/page/list/edit',
+              component: UnionePageForm
+            },
+            {
+              name: 'dataListView',
+              path: '/data/page/list/view',
+              component: UnionePageForm
             }
           ]
         }
