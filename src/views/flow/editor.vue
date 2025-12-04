@@ -308,23 +308,37 @@ function toPublish() {
 function close() {
   visible.value = false
 }
-function open(flow: any) {
+async function open(flow: any) {
   flowObj.value = utils.obj.ext(flow, {
     title: '流程',
     vers: 1,
     status: 1,
     sn: utils.randomStr(10)
   })
+  if (flow && flow.id) {
+    // 加载流程图
+    const result = await axios.flow({
+      url: '/api/tmpl/load/flowChart/' + flowObj.value.id,
+      method: 'POST',
+    })
+    if (!result.success) {
+      dialog.error({
+        content: result.message || '加载流程图失败'
+      })
+      return
+    }
+    flowObj.value.flowChart = result.body
+  }
   utils.obj.ext(flowObj.value, {
-    configs: {
+    flowChart: {
       setting: {
       },
       nodes: [],
       routes: [],
     }
   }, true)
-  ufmValue.value = flowObj.value.configs
-  if (!hadStartNode()) {
+  ufmValue.value = flowObj.value.flowChart
+  if (!hadStartNode(ufmValue.value.nodes)) {
     ufmValue.value.nodes.push({
       types: 'start',
       title: '开始',
@@ -351,11 +365,11 @@ function open(flow: any) {
   }
 }
 
-function hadStartNode() {
-  if (!ufmValue.value.nodes) {
+function hadStartNode(nodes: any[]) {
+  if (!nodes) {
     return false
   }
-  return ufmValue.value.nodes.some((item: any) => item.type == 'start')
+  return nodes.some((item: any) => item.types == 'start')
 }
 
 defineExpose({
