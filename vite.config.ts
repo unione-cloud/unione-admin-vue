@@ -32,29 +32,16 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: {
         '/portal': {
-          target: 'http://localhost:8080',
+          target: 'http://localhost:8090',
+          // target: 'http://localhost:8080',
           // target: 'https://online.unione.cloud', // 代理的目标地址
           changeOrigin: true // 搭建代理服务器，开启代理
           // secure: true, // 是否代理https接口
           // rewrite: path => path.replace('', '') // 不用路径重写
         },
         '/flow': {
-          target: 'http://localhost:8081',
+          target: 'http://localhost:8080',
           // target: 'https://online.unione.cloud', // 代理的目标地址
-          changeOrigin: true // 搭建代理服务器，开启代理
-          // secure: true, // 是否代理https接口
-          // rewrite: path => path.replace('', '') // 不用路径重写
-        },
-        '/cms-web': {
-          // target: 'http://localhost:8080',
-          target: 'https://online.unione.cloud', // 代理的目标地址
-          changeOrigin: true // 搭建代理服务器，开启代理
-          // secure: true, // 是否代理https接口
-          // rewrite: path => path.replace('', '') // 不用路径重写
-        },
-        '/cms': {
-          // target: 'http://localhost:8080',
-          target: 'https://online.unione.cloud', // 代理的目标地址
           changeOrigin: true // 搭建代理服务器，开启代理
           // secure: true, // 是否代理https接口
           // rewrite: path => path.replace('', '') // 不用路径重写
