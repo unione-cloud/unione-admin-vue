@@ -1,48 +1,21 @@
 <template>
   <a-row class="user-list-warp">
     <a-col :span="13" class="type-list">
-      <a-tabs
-        v-model:activeKey="activeType"
-        type="card"
-        tabPosition="left"
-        @change="loadTreeData(activeType, '-1')"
-      >
+      <a-tabs v-model:activeKey="activeType" type="card" tabPosition="left" @change="loadTreeData(activeType, '-1')">
         <a-tab-pane v-for="type in typeList" :key="type" :tab="getTypeLabel(type)">
-          <a-input
-            v-model:value="treeKeywords[activeType]"
-            :placeholder="'搜索' + getTypeLabel(type) + '(回车)...'"
-            class="type-search"
-            allowClear
-            @pressEnter="loadTreeData(activeType, '-1')"
-          ></a-input>
+          <a-input v-model:value="treeKeywords[activeType]" :placeholder="'搜索' + getTypeLabel(type) + '(回车)...'"
+            class="type-search" allowClear @pressEnter="loadTreeData(activeType, '-1')"></a-input>
 
-          <a-tree
-            :showLine="{ showLeafIcon: false }"
-            showIcon
-            checkable
-            blockNode
-            :tree-data="treeData[activeType]"
-            :fieldNames="{ key: 'id' }"
-            v-model:selectedKeys="selectedKeys[activeType]"
-            v-model:checkedKeys="checkedKeys"
-            @expand="onExpand"
-            @select="onSelect"
-            @check="onCheck"
-          >
+          <a-tree :showLine="{ showLeafIcon: false }" showIcon checkable blockNode :tree-data="treeData[activeType]"
+            :fieldNames="{ key: 'id' }" v-model:selectedKeys="selectedKeys[activeType]"
+            v-model:checkedKeys="checkedKeys" @expand="onExpand" @select="onSelect" @check="onCheck">
             <template #title="{ dataRef }">
               {{ dataRef.title }}{{ dataRef.userCount ? '[' + dataRef.userCount + ']' : '' }}
-              <a-input
-                v-if="
-                  activeNode[activeType]?.id == dataRef.id &&
-                  ((dataRef.isLeaf == false && dataRef.ntype == 'user') || dataRef.ntype == 'role')
-                "
-                v-model:value="userKeywords"
-                class="user-search-input"
-                size="small"
-                placeholder="搜索用户(回车)..."
-                allowClear
-                @pressEnter="loadUserList(dataRef.id)"
-              ></a-input>
+              <a-input v-if="
+                activeNode[activeType]?.id == dataRef.id &&
+                ((dataRef.isLeaf == false && dataRef.ntype == 'user') || dataRef.ntype == 'role')
+              " v-model:value="userKeywords" class="user-search-input" size="small" placeholder="搜索用户(回车)..."
+                allowClear @pressEnter="loadUserList(dataRef.id)"></a-input>
             </template>
             <template #icon="{ dataRef }">
               <component :is="typeMap[dataRef.ntype][1]"></component>
@@ -229,7 +202,13 @@ function loadUserList(pid: string) {
         if (selectedUids.value.includes[item.id]) {
           item.checked = true
         }
-        if (item.checked || props.selected?.includes(item.id)) {
+        const sltIds = props.selected?.map((r: any) => {
+          if (typeof r === 'string') {
+            return r
+          }
+          return r.id
+        }) || []
+        if (item.checked || sltIds.includes(item.id)) {
           if (!checkedKeys.value.includes(item.id)) {
             checkedKeys.value.push(item.id)
           }
@@ -338,20 +317,24 @@ defineExpose({ init, getSelected, getSelectedList, getSelectedIds })
       align-self: stretch;
     }
   }
+
   .selected-list {
     height: 100%;
     padding: 5px;
 
     :deep(.ant-list-item) {
       padding: 5px;
+
       .btn {
         display: none;
         float: right;
         cursor: pointer;
         color: red;
       }
+
       .num {
         float: right;
+
         .ant-badge-count {
           background-color: #fff;
           color: #7d7c7c;
@@ -359,8 +342,10 @@ defineExpose({ init, getSelected, getSelectedList, getSelectedIds })
         }
       }
     }
+
     :deep(.ant-list-item:hover) {
       background-color: #eeeeee;
+
       .btn {
         display: block;
       }
