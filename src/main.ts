@@ -26,6 +26,7 @@ app
   .use(createPinia())
   .use(router)
   .use(Antd)
+  //@ts-ignore
   .use(UninoneBaseVue, config)
   .use(UnioneFormVue, config)
   .use(UnioneFlowVue, config)
