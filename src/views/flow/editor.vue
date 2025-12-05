@@ -29,7 +29,7 @@
     </div>
 
     <UFEditor ref="ufEditor" :toolbar="toolbar" v-show="stepCurrentItem.name == 'flowEditor'"
-      :model="flowObj?.status == 2 ? 'readonly' : 'edit'"></UFEditor>
+      :model="flowObj?.status == 2 ? 'readonly' : 'edit'" :value="ufmValue"></UFEditor>
 
   </a-modal>
 </template>

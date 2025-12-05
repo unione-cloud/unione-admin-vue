@@ -16,6 +16,7 @@ import config from '@/config/settings'
 
 import UnioneFormVue from 'unione-form-vue'
 import UninoneBaseVue from 'unione-base-vue'
+import UnioneFlowVue from 'unione-flow-vue'
 import { loadLanguage } from './locales'
 
 import UinoneComponents from '@/components'
@@ -27,6 +28,7 @@ app
   .use(Antd)
   .use(UninoneBaseVue, config)
   .use(UnioneFormVue, config)
+  .use(UnioneFlowVue, config)
   .use(UinoneComponents, config)
 
 loadLanguage('zh-CN') //'en-US' 'en-US'
