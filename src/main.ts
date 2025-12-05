@@ -20,6 +20,7 @@ import UnioneFlowVue from 'unione-flow-vue'
 import { loadLanguage } from './locales'
 
 import UinoneComponents from '@/components'
+import FlowProps from '@/views/flow/props'
 
 const app = createApp(App)
 app
@@ -31,6 +32,7 @@ app
   .use(UnioneFormVue, config)
   .use(UnioneFlowVue, config)
   .use(UinoneComponents, config)
+  .use(FlowProps, config)
 
 loadLanguage('zh-CN') //'en-US' 'en-US'
 

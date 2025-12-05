@@ -46,7 +46,7 @@ defineOptions({
   name: 'DemoIndex',
 })
 
-registerNode({
+registerNode([{
   shape: 'custom',
   component: Custome,
   icon: 'AndroidOutlined',
@@ -56,7 +56,22 @@ registerNode({
     title: '自定义节点',
     info: '发起人'
   },
-})
+}, {
+  shape: 'task',
+  props: {
+    'approve.specify': {
+      title: '指定审批人',
+      name: 'approve.specify',
+      control: 'task-candidate',
+      after: 'approve.handlerType',
+      event: {
+        visible: (val: any, formValue: any) => {
+          return formValue.approve?.handlerType === 'specify'
+        }
+      }
+    }
+  }
+}])
 
 registerOpts({
   name: 'custom',
