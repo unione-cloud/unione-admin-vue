@@ -69,6 +69,33 @@ registerNode([{
           return formValue.approve?.handlerType === 'specify'
         }
       }
+    },
+    'approve.chainLevel': {
+      title: '审批层级',
+      name: 'approve.chainLevel',
+      control: 'a-input-number',
+      after: 'approve.handlerType',
+      value: 3,
+      props: {
+        min: 0,
+        max: 20,
+        step: 1,
+        style: {
+          width: '100%',
+        },
+        help: '逐级审批最高层级，0或者为空表示不限制'
+      },
+      event: {
+        visible: (val: any, formValue: any) => {
+          if (!val) {
+            if (!formValue.approve) {
+              formValue.approve = {}
+            }
+            formValue.approve.chainLevel = 3
+          }
+          return formValue.approve?.handlerType === 'chain'
+        }
+      }
     }
   }
 }])
