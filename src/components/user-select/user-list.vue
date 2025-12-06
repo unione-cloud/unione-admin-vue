@@ -134,7 +134,7 @@ function loadTreeData(
     if (!pid || pid == '-1') {
       target = treeData.value[type]
     } else {
-      if (!treeNode.value[pid].children) {
+      if (!treeNode.value[pid].children?.length) {
         treeNode.value['userList-' + pid] = {
           title: '用户列表',
           ntype: 'user',

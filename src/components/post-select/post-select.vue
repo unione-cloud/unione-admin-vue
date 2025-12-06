@@ -1,28 +1,12 @@
 <template>
   <a-row class="post-select-warp">
     <a-col :span="13" class="type-list">
-      <a-input
-        v-model:value="treeKeywords"
-        :placeholder="'搜索岗位(回车)...'"
-        class="type-search"
-        allowClear
-        @change="searchTreeData()"
-      ></a-input>
+      <a-input v-model:value="treeKeywords" :placeholder="'搜索岗位(回车)...'" class="type-search" allowClear
+        @change="searchTreeData()"></a-input>
 
-      <a-tree
-        :showLine="{ showLeafIcon: false }"
-        showIcon
-        checkable
-        blockNode
-        checkStrictly
-        :tree-data="treeData"
-        :fieldNames="{ key: 'id' }"
-        v-if="treeData?.length > 0"
-        v-model:selectedKeys="selectedKeys"
-        v-model:checkedKeys="checkedKeys"
-        @expand="onExpand"
-        @check="onCheck"
-      >
+      <a-tree :showLine="{ showLeafIcon: false }" showIcon checkable blockNode checkStrictly :tree-data="treeData"
+        :fieldNames="{ key: 'id' }" v-if="treeData?.length > 0" v-model:selectedKeys="selectedKeys"
+        v-model:checkedKeys="checkedKeys" @expand="onExpand" @check="onCheck">
         <template #icon>
           <component :is="'ApartmentOutlined'"></component>
         </template>
@@ -119,7 +103,13 @@ function loadTreeData(pid: string = '-1') {
         nmap[item.id] = item
         treeNode.value[item.id] = item
         item.isLeaf = false
-        if (item.checked || props.selected?.includes(item.id)) {
+        const sltIds = props.selected?.map((r: any) => {
+          if (typeof r === 'string') {
+            return r
+          }
+          return r.id
+        }) || []
+        if (item.checked || sltIds.includes(item.id)) {
           if (!checkedKeys.value.includes(item.id)) {
             checkedKeys.value.push(item.id)
           }
@@ -285,23 +275,28 @@ defineExpose({ loadTreeData, getSelected, getSelectedList, getSelectedIds })
       align-self: stretch;
     }
   }
+
   .selected-list {
     height: 100%;
     padding: 5px;
 
     :deep(.ant-list-item) {
       padding: 5px;
+
       .btn {
         display: none;
         float: right;
         cursor: pointer;
         color: red;
       }
+
       .isDlv {
         float: right;
       }
+
       .num {
         float: right;
+
         .ant-badge-count {
           background-color: #fff;
           color: #7d7c7c;
@@ -309,8 +304,10 @@ defineExpose({ loadTreeData, getSelected, getSelectedList, getSelectedIds })
         }
       }
     }
+
     :deep(.ant-list-item:hover) {
       background-color: #eeeeee;
+
       .btn {
         display: block;
       }
