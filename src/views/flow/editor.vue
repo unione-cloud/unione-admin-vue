@@ -349,7 +349,6 @@ function toSave() {
       message.destroy()
       if (res.success) {
         message.success('提交成功')
-        flowObj.value.id = res.body
       } else {
         message.error(res.message || '提交失败')
       }
@@ -373,7 +372,6 @@ function toSave() {
         message.destroy()
         if (res.success) {
           message.success('提交成功')
-          flowObj.value.id = res.body
           stepsCurrentIndex.value = 1
         } else {
           message.error(res.message || '提交失败')
