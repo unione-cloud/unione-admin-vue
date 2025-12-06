@@ -3,7 +3,7 @@
         <div class="entry-item" v-for="item in entryItems" :key="item.name">
             <span class="title">{{ item.title }}</span>
             <div class="items">
-                <a-tag v-for="(i, j) in modelValue[item.name]" :key="i.id" closable @close="removeItem(item, j)">{{
+                <a-tag v-for="(i, j) in modelValue[item.name]" :key="j" closable @close="removeItem(item, j)">{{
                     i.title }}</a-tag>
             </div>
             <a-button type="text" size="small" class="btn-add" @click="toAddItem(item)">
@@ -11,8 +11,8 @@
                     <PlusOutlined />
                 </template>
             </a-button>
-            <component :is="item.widget" v-model:visible="item.visible" :selected="modelValue[item.name]"
-                @ok="(e: any) => handelSelected(item, e)" />
+            <component v-if="types == 'specify'" :is="item.widget" v-model:visible="item.visible"
+                :selected="modelValue[item.name]" @ok="(e: any) => handelSelected(item, e)" />
         </div>
         <div class="isAssembly" v-if="modelValue">
             <a-checkbox v-model:checked="modelValue.isAssembly">
@@ -22,14 +22,24 @@
                 </a-tooltip>
             </a-checkbox>
         </div>
+        <VarSelect ref="varSelect" v-if="types == 'flowVar'" v-model:visible="varVisible" @ok="handelSelectedVar">
+        </VarSelect>
     </div>
 </template>
 <script setup lang="ts">
 import { utils } from 'unione-base-vue'
 import { onMounted, ref } from 'vue'
+import VarSelect from './varSelect/index.vue'
 
 defineOptions({
     name: 'TaskCandidate',
+})
+
+const props = defineProps({
+    types: {
+        type: String,
+        default: 'specify'  //specify:指定用户，flowVar：流程变量
+    },
 })
 
 const modelValue = defineModel('value', {
@@ -63,11 +73,17 @@ const entryItems = ref([{
     visible: false,
 }])
 
+const activeItem = ref<any>(null)
+const varVisible = ref(false)
 function toAddItem(item: any) {
+    activeItem.value = item
     entryItems.value.forEach((i: any) => {
         i.visible = false
     })
     item.visible = true
+    if (props.types == 'flowVar') {
+        varVisible.value = true
+    }
 }
 function removeItem(item: any, i: number) {
     modelValue.value[item.name].splice(i, 1)
@@ -86,6 +102,16 @@ function handelSelected(item: any, { list }: any) {
     }
     item.visible = false
     modelValue.value[item.name] = [...modelValue.value[item.name], ...added]
+    emit('change', modelValue.value)
+}
+function handelSelectedVar({ list }: any) {
+    if (!activeItem.value) {
+        return
+    }
+    modelValue.value[activeItem.value.name] = list.map((r: any) => {
+        return { title: r.title, name: r.name }
+    })
+    varVisible.value = false
     emit('change', modelValue.value)
 }
 

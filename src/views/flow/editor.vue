@@ -64,9 +64,27 @@ registerNode([{
       name: 'approve.specify',
       control: 'flow-candidate',
       after: 'approve.handlerType',
+      props: {
+        help: '通过选定的成员，作为审批人'
+      },
       event: {
         visible: (val: any, formValue: any) => {
           return formValue.approve?.handlerType === 'specify'
+        }
+      }
+    },
+    'approve.flowVar': {
+      title: '指定审批人',
+      name: 'approve.flowVar',
+      control: 'flow-candidate',
+      after: 'approve.handlerType',
+      props: {
+        types: 'flowVar',
+        help: '通过流程变量，作为审批人'
+      },
+      event: {
+        visible: (val: any, formValue: any) => {
+          return formValue.approve?.handlerType === 'flowVar'
         }
       }
     },
