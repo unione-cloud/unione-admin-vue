@@ -134,7 +134,31 @@ registerNode([{
       title: '抄送设置',
       name: 'copyOption',
       control: 'flow-copy-to',
-    }
+    },
+    'notify.remind': {
+      name: 'notify.remind',
+      control: 'flow-notice',
+    },
+    'notify.agree': {
+      name: 'notify.agree',
+      control: 'flow-notice',
+    },
+    'notify.reject': {
+      name: 'notify.reject',
+      control: 'flow-notice',
+    },
+    'notify.back': {
+      name: 'notify.back',
+      control: 'flow-notice',
+    },
+    'notify.copy': {
+      name: 'notify.copy',
+      control: 'flow-notice',
+    },
+    'notify.timeout': {
+      name: 'notify.timeout',
+      control: 'flow-notice',
+    },
   }
 }])
 

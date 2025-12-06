@@ -3,6 +3,7 @@ import FlowCandidate from './candidate.vue'
 import FlowNodeSelect from './nodeSelect.vue'
 import FlowVarSelect from './varSelect/index.vue'
 import FlowCopyTo from './copyto.vue'
+import FlowNotice from './notice.vue'
 
 export default {
   install(app: App, options?: any) {
@@ -10,5 +11,6 @@ export default {
     app.component('FlowNodeSelect', FlowNodeSelect)
     app.component('FlowVarSelect', FlowVarSelect)
     app.component('FlowCopyTo', FlowCopyTo)
+    app.component('FlowNotice', FlowNotice)
   }
 }
