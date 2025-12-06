@@ -3,7 +3,7 @@
         <div class="entry-item" v-for="item in entryItems" :key="item.name">
             <span class="title">{{ item.title }}</span>
             <div class="items">
-                <a-tag v-for="i in modelValue[item.name]" :key="i.id" closable @close="removeItem(item, i)">{{
+                <a-tag v-for="(i, j) in modelValue[item.name]" :key="i.id" closable @close="removeItem(item, j)">{{
                     i.title }}</a-tag>
             </div>
             <a-button type="text" size="small" class="btn-add" @click="toAddItem(item)">

@@ -436,7 +436,17 @@ defineExpose({
 
   .ant-modal-content {
     padding: 0;
+
+    .unione-flow-editor {
+      .form-item-approve\.handlerType {
+        .unione-form-radio {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+        }
+      }
+    }
   }
+
 
   .flow-base-info {
     background-color: #f5f5f5;
