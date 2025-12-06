@@ -8,9 +8,9 @@
 
         <template v-if="modelValue.enable">
             <div class="title">指定抄送对象：</div>
-            <Candidate v-model:value="modelValue.tagUsers"></Candidate>
+            <Candidate v-model:value="modelValue.tagUsers" @change="handelChange"></Candidate>
             <div class="title">流程变量设置：</div>
-            <Candidate v-model:value="modelValue.varUsers"></Candidate>
+            <Candidate v-model:value="modelValue.varUsers" @change="handelChange" types="flowVar"></Candidate>
         </template>
     </div>
 </template>
