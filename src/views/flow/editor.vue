@@ -62,7 +62,7 @@ registerNode([{
     'approve.specify': {
       title: '指定审批人',
       name: 'approve.specify',
-      control: 'task-candidate',
+      control: 'flow-candidate',
       after: 'approve.handlerType',
       event: {
         visible: (val: any, formValue: any) => {
@@ -94,6 +94,21 @@ registerNode([{
             formValue.approve.chainLevel = 3
           }
           return formValue.approve?.handlerType === 'chain'
+        }
+      }
+    },
+    'approve.flowNode': {
+      title: '流程节点',
+      name: 'approve.flowNode',
+      control: 'flow-node-select',
+      after: 'approve.handlerType',
+      props: {
+        help: '指定当前流程中其他节点，和目标节点保持一样的候选人',
+        scope: 'pre',
+      },
+      event: {
+        visible: (val: any, formValue: any) => {
+          return formValue.approve?.handlerType === 'flowNode'
         }
       }
     }
