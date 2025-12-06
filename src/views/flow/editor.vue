@@ -129,6 +129,11 @@ registerNode([{
           return formValue.approve?.handlerType === 'flowNode'
         }
       }
+    },
+    'copyOption': {
+      title: '抄送设置',
+      name: 'copyOption',
+      control: 'flow-copy-to',
     }
   }
 }])
