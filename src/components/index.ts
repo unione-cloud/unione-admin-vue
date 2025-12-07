@@ -6,6 +6,8 @@ import UnionePostSelect from './post-select/index.vue'
 import UnioneResSelect from './res-select/index.vue'
 import UnioneNoticeView from './notice-icon/noticeView.vue'
 import UnioneTargetList from './target-list/index.vue'
+import UnioneFormSelect from './form-select/index.vue'
+
 import UnioneAvatar from './avatar/index.vue'
 import UnioneBreadcrumb from './breadcrumb/index.vue'
 
@@ -18,8 +20,10 @@ export default {
     app.component('UnioneGroupSelect', UnioneGroupSelect)
     app.component('UnionePostSelect', UnionePostSelect)
     app.component('UnioneResSelect', UnioneResSelect)
-    app.component('UnioneAvatar', UnioneAvatar)
+    app.component('UnioneFormSelect', UnioneFormSelect)
     app.component('UnioneTargetList', UnioneTargetList)
+
+    app.component('UnioneAvatar', UnioneAvatar)
     app.component('UnioneNoticeView', UnioneNoticeView)
     app.component('UnioneBreadcrumb', UnioneBreadcrumb)
   }

@@ -59,6 +59,10 @@ registerNode([{
 }, {
   shape: 'task',
   props: {
+    'formId': {
+      name: 'formId',
+      control: 'flow-form-ref'
+    },
     'approve.specify': {
       title: '指定审批人',
       name: 'approve.specify',
