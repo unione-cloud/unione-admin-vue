@@ -97,6 +97,12 @@ function init() {
     }
     varData.value[1].vars = []
     if (nodeVars) {
+        if (!nodeVars.local) {
+            nodeVars.local = []
+        }
+        if (!nodeVars.global) {
+            nodeVars.global = []
+        }
         //@ts-ignore
         varData.value[1].vars = [...nodeVars.local.map((item: any) => {
             return {
