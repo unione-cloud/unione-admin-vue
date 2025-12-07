@@ -14,11 +14,14 @@
     </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { axios } from 'unione-base-vue'
+import { useDebounce } from 'unione-form-vue'
+import { ref, onMounted, computed, watch } from 'vue'
 
 const modelValue = defineModel('value', {
     type: String
 })
+const emit = defineEmits(['change'])
 const formMap = ref<any>({})
 const formTitle = computed(() => {
     if (!modelValue.value) {
@@ -26,6 +29,11 @@ const formTitle = computed(() => {
     }
     return formMap.value[modelValue.value] || ''
 })
+watch(() => modelValue.value, (val) => {
+    if (val) {
+        loadFormTitle()
+    }
+}, { immediate: true })
 // const error = ref('存在多个前置节点，请手动绑定表单')
 const error = ref('')
 
@@ -40,8 +48,26 @@ const formSelectObj = ref({
         formMap.value[selected.id] = selected.title + '(V' + selected.vers + ')'
         formSelectObj.value.visible = false
         formMap.value = { ...formMap.value }
+        emit('change', modelValue.value)
     }
 })
+const loadFormTitle = useDebounce(() => {
+    if (modelValue.value && !formMap.value[modelValue.value]) {
+        const mvid = modelValue.value
+        axios.form({
+            url: '/api/data/define/simple',
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: modelValue.value
+        }).then((res: any) => {
+            if (res.success && res.body) {
+                formMap.value[mvid] = res.body.title + '(V' + res.body.vers + ')'
+            }
+        })
+    }
+}, 300)
 
 
 </script>

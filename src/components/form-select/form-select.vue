@@ -13,6 +13,7 @@ const page = ref()
 const define = ref({
   storage: {
     controller: '/api/data/define',
+    findUrl: '/list'
   },
   fields: [
     {
