@@ -1,6 +1,6 @@
 <template>
-    <div :class="['flow-form-ref']">
-        <a-input :value="formTitle" :read-only="true" :status="error ? 'error' : ''">
+    <div :class="['flow-form-ref']" ref="formRef">
+        <a-input :value="formTitle" :read-only="true" :status="error ? 'error' : ''" allowClear>
             <template #addonAfter>
                 <div class="btns">
                     <div class="btn btn-bind" @click="formSelectObj.open()">绑定表单</div>
@@ -16,12 +16,14 @@
 <script setup lang="ts">
 import { axios } from 'unione-base-vue'
 import { useDebounce } from 'unione-form-vue'
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed, watch, inject, nextTick } from 'vue'
+import { loadPreForm } from '@/views/flow/lib/flowUtil'
 
 const modelValue = defineModel('value', {
     type: String
 })
 const emit = defineEmits(['change'])
+const formRef = ref()
 const formMap = ref<any>({})
 const formTitle = computed(() => {
     if (!modelValue.value) {
@@ -29,15 +31,43 @@ const formTitle = computed(() => {
     }
     return formMap.value[modelValue.value] || ''
 })
-watch(() => modelValue.value, (val) => {
-    if (val) {
-        loadFormTitle()
-    }
-}, { immediate: true })
 // const error = ref('存在多个前置节点，请手动绑定表单')
 const error = ref('')
+const flowGraph: any = inject('flowGraph')
+const activeNode: any = inject('activeNode')
+function toloadPreForm() {
+    if (!flowGraph || !activeNode) {
+        return
+    }
+    const graph = flowGraph()
+    const currNode = activeNode()
+    if (graph && currNode) {
+        const formId = currNode.data?.formId || ''
+        nextTick(() => {
+            if (formId) {
+                formRef.value.querySelector('.ant-input-clear-icon').style.display = 'block'
+            } else {
+                formRef.value.querySelector('.ant-input-clear-icon').style.display = 'none'
+            }
+        })
+        loadPreForm(graph.getJson(), currNode).then((formId: any) => {
+            modelValue.value = formId
+        }).catch((e: any) => {
+            if (e) {
+                error.value = e
+            }
+        })
+    }
+}
+watch(() => modelValue.value, (val, old) => {
+    error.value = ''
+    if (val) {
+        loadFormTitle()
+    } else {
+        toloadPreForm()
+    }
+}, { immediate: true })
 
-const formSelectRef = ref()
 const formSelectObj = ref({
     visible: false,
     open: () => {
@@ -68,7 +98,30 @@ const loadFormTitle = useDebounce(() => {
         })
     }
 }, 300)
+function clearModelValue() {
+    modelValue.value = ''
+    emit('change', '')
+}
 
+onMounted(() => {
+    if (flowGraph) {
+        flowGraph().onActiveNode((node: any) => {
+            if (node) {
+                error.value = ''
+                modelValue.value = node.data?.formId || ''
+                nextTick(() => {
+                    if (node.data?.formId) {
+                        formRef.value.querySelector('.ant-input-clear-icon').style.display = 'block'
+                    } else {
+                        formRef.value.querySelector('.ant-input-clear-icon').style.display = 'none'
+                    }
+                })
+                toloadPreForm()
+            }
+        })
+    }
+    formRef.value.querySelector('.ant-input-clear-icon').addEventListener('click', clearModelValue)
+})
 
 </script>
 <style lang="less" scoped>

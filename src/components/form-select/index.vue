@@ -17,6 +17,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useDialog } from 'unione-base-vue'
+//@ts-ignore
 import FormSelect from './form-select.vue'
 
 const dialog = useDialog()
