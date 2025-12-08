@@ -163,6 +163,10 @@ registerNode([{
       name: 'notify.timeout',
       control: 'flow-notice',
     },
+    'timeOut.transferTarget': {
+      name: 'timeOut.transferTarget',
+      control: 'flow-candidate',
+    }
   }
 }])
 
