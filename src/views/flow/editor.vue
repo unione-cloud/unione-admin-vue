@@ -126,7 +126,7 @@ registerNode([{
       after: 'approve.handlerType',
       props: {
         help: '指定当前流程中其他节点，和目标节点保持一样的候选人',
-        scope: 'pre',
+        //  scope: 'pre',
       },
       event: {
         visible: (val: any, formValue: any) => {
