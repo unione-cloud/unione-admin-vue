@@ -44,10 +44,12 @@ function toloadPreForm() {
     if (graph && currNode) {
         const formId = currNode.data?.formId || ''
         nextTick(() => {
-            if (formId) {
-                formRef.value.querySelector('.ant-input-clear-icon').style.display = 'block'
-            } else {
-                formRef.value.querySelector('.ant-input-clear-icon').style.display = 'none'
+            if (formRef.value) {
+                if (formId) {
+                    formRef.value.querySelector('.ant-input-clear-icon').style.display = 'block'
+                } else {
+                    formRef.value.querySelector('.ant-input-clear-icon').style.display = 'none'
+                }
             }
         })
         loadPreForm(graph.getJson(), currNode).then((formId: any) => {
@@ -59,14 +61,6 @@ function toloadPreForm() {
         })
     }
 }
-watch(() => modelValue.value, (val, old) => {
-    error.value = ''
-    if (val) {
-        loadFormTitle()
-    } else {
-        toloadPreForm()
-    }
-}, { immediate: true })
 
 const formSelectObj = ref({
     visible: false,
@@ -98,6 +92,14 @@ const loadFormTitle = useDebounce(() => {
         })
     }
 }, 300)
+watch(() => modelValue.value, (val, old) => {
+    error.value = ''
+    if (val) {
+        loadFormTitle()
+    } else {
+        toloadPreForm()
+    }
+}, { immediate: true })
 function clearModelValue() {
     modelValue.value = ''
     emit('change', '')
@@ -110,10 +112,12 @@ onMounted(() => {
                 error.value = ''
                 modelValue.value = node.data?.formId || ''
                 nextTick(() => {
-                    if (node.data?.formId) {
-                        formRef.value.querySelector('.ant-input-clear-icon').style.display = 'block'
-                    } else {
-                        formRef.value.querySelector('.ant-input-clear-icon').style.display = 'none'
+                    if (formRef.value) {
+                        if (node.data?.formId) {
+                            formRef.value.querySelector('.ant-input-clear-icon').style.display = 'block'
+                        } else {
+                            formRef.value.querySelector('.ant-input-clear-icon').style.display = 'none'
+                        }
                     }
                 })
                 toloadPreForm()

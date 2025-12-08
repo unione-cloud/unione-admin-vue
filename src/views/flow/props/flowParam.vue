@@ -112,7 +112,6 @@ const currentVar = ref()
 watch(() => modelValue.value, () => {
   if (!modelValue.value) {
     modelValue.value = []
-    handleChange()
   }
 }, { immediate: true })
 

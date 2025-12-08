@@ -36,7 +36,7 @@
 <script setup lang="ts">
 import { message } from 'ant-design-vue'
 import { axios, useDialog } from 'unione-base-vue'
-import { UFEditor, registerNode, registerOpts } from 'unione-flow-vue'
+import { UFEditor, registerNode, registerOpts, setNodeProps } from 'unione-flow-vue'
 import type { UFDefine } from 'unione-flow-vue/dist/typing'
 import { utils } from 'unione-form-vue'
 import { computed, nextTick, ref } from 'vue'
@@ -45,7 +45,6 @@ import Custome from './nodes/node.vue'
 defineOptions({
   name: 'DemoIndex',
 })
-
 registerNode([{
   shape: 'custom',
   component: Custome,
@@ -57,118 +56,124 @@ registerNode([{
     info: '发起人'
   },
 }, {
-  shape: 'task',
+  shape: 'start',
   props: {
     'formId': {
       name: 'formId',
       control: 'flow-form-ref'
     },
-    'approve.specify': {
-      title: '指定审批人',
-      name: 'approve.specify',
-      control: 'flow-candidate',
-      after: 'approve.handlerType',
-      props: {
-        help: '通过选定的成员，作为审批人'
-      },
-      event: {
-        visible: (val: any, formValue: any) => {
-          return formValue.approve?.handlerType === 'specify'
-        }
-      }
-    },
-    'approve.flowVar': {
-      title: '指定审批人',
-      name: 'approve.flowVar',
-      control: 'flow-candidate',
-      after: 'approve.handlerType',
-      props: {
-        types: 'flowVar',
-        help: '通过流程变量，作为审批人'
-      },
-      event: {
-        visible: (val: any, formValue: any) => {
-          return formValue.approve?.handlerType === 'flowVar'
-        }
-      }
-    },
-    'approve.chainLevel': {
-      title: '审批层级',
-      name: 'approve.chainLevel',
-      control: 'a-input-number',
-      after: 'approve.handlerType',
-      value: 3,
-      props: {
-        min: 0,
-        max: 20,
-        step: 1,
-        style: {
-          width: '100%',
-        },
-        help: '逐级审批最高层级，0或者为空表示不限制'
-      },
-      event: {
-        visible: (val: any, formValue: any) => {
-          if (!val) {
-            if (!formValue.approve) {
-              formValue.approve = {}
-            }
-            formValue.approve.chainLevel = 3
-          }
-          return formValue.approve?.handlerType === 'chain'
-        }
-      }
-    },
-    'approve.flowNode': {
-      title: '流程节点',
-      name: 'approve.flowNode',
-      control: 'flow-node-select',
-      after: 'approve.handlerType',
-      props: {
-        help: '指定当前流程中其他节点，和目标节点保持一样的候选人',
-        //  scope: 'pre',
-      },
-      event: {
-        visible: (val: any, formValue: any) => {
-          return formValue.approve?.handlerType === 'flowNode'
-        }
-      }
-    },
-    'copyOption': {
-      title: '抄送设置',
-      name: 'copyOption',
-      control: 'flow-copy-to',
-    },
-    'notify.remind': {
-      name: 'notify.remind',
-      control: 'flow-notice',
-    },
-    'notify.agree': {
-      name: 'notify.agree',
-      control: 'flow-notice',
-    },
-    'notify.reject': {
-      name: 'notify.reject',
-      control: 'flow-notice',
-    },
-    'notify.back': {
-      name: 'notify.back',
-      control: 'flow-notice',
-    },
-    'notify.copy': {
-      name: 'notify.copy',
-      control: 'flow-notice',
-    },
-    'notify.timeout': {
-      name: 'notify.timeout',
-      control: 'flow-notice',
-    },
-    'timeOut.transferTarget': {
-      name: 'timeOut.transferTarget',
-      control: 'flow-candidate',
-    }
   }
 }])
+setNodeProps({
+  'formId': {
+    name: 'formId',
+    control: 'flow-form-ref'
+  },
+  'approve.specify': {
+    title: '指定审批人',
+    name: 'approve.specify',
+    control: 'flow-candidate',
+    after: 'approve.handlerType',
+    props: {
+      help: '通过选定的成员，作为审批人'
+    },
+    event: {
+      visible: (val: any, formValue: any) => {
+        return formValue.approve?.handlerType === 'specify'
+      }
+    }
+  },
+  'approve.flowVar': {
+    title: '指定审批人',
+    name: 'approve.flowVar',
+    control: 'flow-candidate',
+    after: 'approve.handlerType',
+    props: {
+      types: 'flowVar',
+      help: '通过流程变量，作为审批人'
+    },
+    event: {
+      visible: (val: any, formValue: any) => {
+        return formValue.approve?.handlerType === 'flowVar'
+      }
+    }
+  },
+  'approve.chainLevel': {
+    title: '审批层级',
+    name: 'approve.chainLevel',
+    control: 'a-input-number',
+    after: 'approve.handlerType',
+    value: 3,
+    props: {
+      min: 0,
+      max: 20,
+      step: 1,
+      style: {
+        width: '100%',
+      },
+      help: '逐级审批最高层级，0或者为空表示不限制'
+    },
+    event: {
+      visible: (val: any, formValue: any) => {
+        if (!val) {
+          if (!formValue.approve) {
+            formValue.approve = {}
+          }
+          formValue.approve.chainLevel = 3
+        }
+        return formValue.approve?.handlerType === 'chain'
+      }
+    }
+  },
+  'approve.flowNode': {
+    title: '流程节点',
+    name: 'approve.flowNode',
+    control: 'flow-node-select',
+    after: 'approve.handlerType',
+    props: {
+      help: '指定当前流程中其他节点，和目标节点保持一样的候选人',
+      //  scope: 'pre',
+    },
+    event: {
+      visible: (val: any, formValue: any) => {
+        return formValue.approve?.handlerType === 'flowNode'
+      }
+    }
+  },
+  'copyOption': {
+    title: '抄送设置',
+    name: 'copyOption',
+    control: 'flow-copy-to',
+  },
+  'notify.remind': {
+    name: 'notify.remind',
+    control: 'flow-notice',
+  },
+  'notify.agree': {
+    name: 'notify.agree',
+    control: 'flow-notice',
+  },
+  'notify.reject': {
+    name: 'notify.reject',
+    control: 'flow-notice',
+  },
+  'notify.back': {
+    name: 'notify.back',
+    control: 'flow-notice',
+  },
+  'notify.copy': {
+    name: 'notify.copy',
+    control: 'flow-notice',
+  },
+  'notify.timeout': {
+    name: 'notify.timeout',
+    control: 'flow-notice',
+  },
+  'timeOut.transferTarget': {
+    name: 'timeOut.transferTarget',
+    control: 'flow-candidate',
+  }
+})
 
 registerOpts({
   name: 'custom',
