@@ -62,6 +62,10 @@ registerNode([{
       name: 'formId',
       control: 'flow-form-ref'
     },
+    'copyOption': {
+      name: 'copyOption',
+      control: 'flow-copy-to',
+    },
   }
 }])
 setNodeProps({
