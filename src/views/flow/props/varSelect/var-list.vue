@@ -4,7 +4,7 @@
             <template v-for="item in varData" :key="item.key">
                 <a-tab-pane v-if="props.scope.includes(item.key)" :key="item.key" :tab="item.title">
                     <a-table :columns="columns" :row-selection="selection" :data-source="item.vars" :pagination="false"
-                        size="small" row-key="name"></a-table>
+                        :scroll="{ x: props.width - 100 }" size="small" row-key="name"></a-table>
                 </a-tab-pane>
             </template>
         </a-tabs>
@@ -22,6 +22,10 @@ const props = defineProps({
         type: Array<String>,
         default: () => ['flow', 'node']
     },
+    width: {
+        type: Number,
+        default: 550
+    }
 })
 const activeKey = ref(props.scope[0])
 const varData = ref([
@@ -60,12 +64,14 @@ const columns = ref([{
     dataIndex: 'dataType',
     key: 'dataType',
     width: 80,
+    fixed: 'right',
 },
 {
     title: '作用域',
     dataIndex: 'scope',
     key: 'scope',
     width: 60,
+    fixed: 'right',
     customRender: ({ text }: any) => {
         return text == 'global' ? '全局' : '本地'
     }

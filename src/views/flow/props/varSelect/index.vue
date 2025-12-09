@@ -3,7 +3,7 @@
         <a-drawer :title="title" :width="props.width" v-if="props.show == 'drawer'" v-model:visible="visible"
             :placement="props.position" :maskClosable="false" :bodyStyle="{ padding: 0 }"
             class="var-select var-select-drawer">
-            <VarList :scope="props.scope" ref="varListRef" />
+            <VarList :scope="props.scope" ref="varListRef" :width="props.width" />
             <template #footer>
                 <a-button type="primary" @click="handelOk">确定</a-button>
                 <a-button @click="visible = false">取消</a-button>
@@ -12,7 +12,7 @@
         <a-modal :title="title" :width="props.width" v-if="props.show == 'dialog'" v-model:open="visible"
             :centered="props.position == 'center'" :maskClosable="false" class="var-select var-select-dialog"
             @ok="handelOk">
-            <VarList :scope="props.scope" ref="varListRef" />
+            <VarList :scope="props.scope" ref="varListRef" :width="props.width" />
         </a-modal>
     </div>
 </template>
@@ -45,7 +45,7 @@ const props = defineProps({
     },
     width: {
         type: Number,
-        default: 550
+        default: 750
     }
 })
 const visible = defineModel('visible')
