@@ -1,3 +1,4 @@
+import { axios } from 'unione-base-vue'
 import type { UFNode, UFDefine } from 'unione-flow-vue/dist/typing'
 
 /**
@@ -54,5 +55,64 @@ export function loadPreForm(flowChart: UFDefine, currNode: UFNode) {
       return
     }
     reject(null)
+  })
+}
+
+/**
+ * 加载当前节点绑定的表单字段
+ * @param flowChart 流程定义
+ * @param currNode 当前节点
+ * @returns
+ */
+const formFieldListStore: any = {}
+export function loadFormFieldList(flowChart: any, currNode: UFNode) {
+  if (!currNode) {
+    // 当前节点为空，获取流程起点
+    const startNode = flowChart.getNodes().find((item: any) => item.types === 'start')
+    if (!startNode) {
+      return Promise.reject(null)
+    }
+    currNode = startNode
+  }
+  return new Promise((resolve, reject) => {
+    loadPreForm(flowChart.getJson(), currNode)
+      .then((formId: any) => {
+        if (formFieldListStore[formId]) {
+          resolve(formFieldListStore[formId])
+          return
+        }
+        // 根据formId加载表单字段列表
+        axios
+          .form({
+            url: '/api/data/field/find',
+            method: 'POST',
+            data: {
+              body: {
+                defineId: formId
+              }
+            }
+          })
+          .then((res: any) => {
+            if (res.success) {
+              const list = res.body.map(({ title, dataType, name }: any) => {
+                return {
+                  label: title,
+                  value: name,
+                  dataType
+                }
+              })
+              formFieldListStore[formId] = list
+              resolve(list)
+            } else {
+              reject(res.message)
+            }
+          })
+          .catch((err: any) => {
+            reject(err)
+          })
+      })
+      .catch((err: any) => {
+        reject(err)
+      })
   })
 }
