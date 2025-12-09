@@ -5,6 +5,7 @@ import FlowVarSelect from './varSelect/index.vue'
 import FlowCopyTo from './copyto.vue'
 import FlowNotice from './notice.vue'
 import FlowFormRef from './formRef.vue'
+import FlowFormVar from './formVar.vue'
 
 export default {
   install(app: App, options?: any) {
@@ -14,5 +15,6 @@ export default {
     app.component('FlowCopyTo', FlowCopyTo)
     app.component('FlowNotice', FlowNotice)
     app.component('FlowFormRef', FlowFormRef)
+    app.component('FlowFormVar', FlowFormVar)
   }
 }

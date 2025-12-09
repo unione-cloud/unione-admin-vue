@@ -103,6 +103,21 @@ setNodeProps({
       }
     }
   },
+  'approve.formVar': {
+    title: '指定审批人',
+    name: 'approve.formVar',
+    control: 'flow-candidate',
+    after: 'approve.handlerType',
+    props: {
+      types: 'formVar',
+      help: '通过前置节点表单变量，作为审批人'
+    },
+    event: {
+      visible: (val: any, formValue: any) => {
+        return formValue.approve?.handlerType === 'formVar'
+      }
+    }
+  },
   'approve.chainLevel': {
     title: '审批层级',
     name: 'approve.chainLevel',

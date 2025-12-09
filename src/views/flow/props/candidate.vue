@@ -2,13 +2,22 @@
     <div class="task-candidate" v-if="modelValue">
         <div class="entry-item" v-for="item in entryItems" :key="item.name">
             <span class="title">{{ item.title }}</span>
-            <div class="items">
+            <div class="items" v-if="types != 'formVar'">
                 <a-tag v-for="(i, j) in modelValue[item.name]" :key="j" closable @close="removeItem(item, j)">{{
                     i.title }}</a-tag>
             </div>
+            <div v-else class="var-select">
+                <FlowFormVar ref="formVar" v-if="item.visible" :value="modelValue[item.name]?.[0]?.name"
+                    :selected="modelValue[item.name]" @select="(v: any, o: any) => formVarSelected(item, v, o)" />
+                <span v-else>{{ modelValue[item.name]?.[0]?.title }}</span>
+            </div>
             <a-button type="text" size="small" class="btn-add" @click="toAddItem(item)">
                 <template #icon>
-                    <PlusOutlined />
+                    <template v-if="types == 'formVar'">
+                        <FormOutlined v-if="!item.visible" />
+                        <SaveOutlined v-else />
+                    </template>
+                    <PlusOutlined v-else />
                 </template>
             </a-button>
             <component v-if="types == 'specify'" :is="item.widget" v-model:visible="item.visible"
@@ -38,7 +47,7 @@ defineOptions({
 const props = defineProps({
     types: {
         type: String,
-        default: 'specify'  //specify:指定用户，flowVar：流程变量
+        default: 'specify'  //specify:指定用户，flowVar：流程变量，formVar：表单变量
     },
 })
 
@@ -77,13 +86,22 @@ const activeItem = ref<any>(null)
 const varVisible = ref(false)
 function toAddItem(item: any) {
     activeItem.value = item
+    if (props.types == 'formVar') {
+        entryItems.value.forEach((i: any) => {
+            if (i.name != item.name) {
+                i.visible = false
+            }
+        })
+        item.visible = !item.visible
+        return
+    }
     entryItems.value.forEach((i: any) => {
         i.visible = false
     })
-    item.visible = true
     if (props.types == 'flowVar') {
         varVisible.value = true
     }
+    item.visible = true
 }
 function removeItem(item: any, i: number) {
     modelValue.value[item.name].splice(i, 1)
@@ -102,6 +120,13 @@ function handelSelected(item: any, { list }: any) {
     }
     item.visible = false
     modelValue.value[item.name] = [...modelValue.value[item.name], ...added]
+    emit('change', modelValue.value)
+}
+function formVarSelected(item: any, v: any, o: any) {
+    if (!modelValue.value[item.name]) {
+        modelValue.value[item.name] = []
+    }
+    modelValue.value[item.name] = [{ title: o.titleFull, name: o.name }]
     emit('change', modelValue.value)
 }
 function handelSelectedVar({ list }: any) {
@@ -156,6 +181,10 @@ onMounted(() => {
         }
 
         .items {
+            width: calc(100% - 100px);
+        }
+
+        .var-select {
             width: calc(100% - 100px);
         }
     }

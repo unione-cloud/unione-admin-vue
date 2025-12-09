@@ -67,10 +67,11 @@ export function loadPreForm(flowChart: UFDefine, currNode: UFNode) {
  * 加载当前节点绑定的表单字段
  * @param flowChart 流程定义
  * @param currNode 当前节点
+ * @param force 是否强制刷新
  * @returns
  */
 const formFieldListStore: any = {}
-export function loadFormFieldList(flowChart: any, currNode: UFNode) {
+export function loadFormFieldList(flowChart: any, currNode: UFNode, force?: boolean) {
   if (!currNode) {
     // 当前节点为空，获取流程起点
     const startNode = flowChart.getNodes().find((item: any) => item.types === 'start')
@@ -82,7 +83,7 @@ export function loadFormFieldList(flowChart: any, currNode: UFNode) {
   return new Promise((resolve, reject) => {
     loadPreForm(flowChart.getJson(), currNode)
       .then((formId: any) => {
-        if (formFieldListStore[formId]) {
+        if (formFieldListStore[formId] && force != true) {
           resolve(formFieldListStore[formId])
           return
         }
