@@ -41,7 +41,7 @@ import type { UFDefine } from 'unione-flow-vue/dist/typing'
 import { utils } from 'unione-form-vue'
 import { computed, nextTick, provide, ref } from 'vue'
 import Custome from './nodes/node.vue'
-import { loadFormFieldList } from './lib/flowUtil'
+import { loadFormDataModels } from './lib/flowUtil'
 
 defineOptions({
   name: 'DemoIndex',
@@ -220,7 +220,7 @@ const toolbar = ref<any>([
 ])
 
 // 获取当前节点绑定的表单字段
-provide('loadFormFieldList', loadFormFieldList)
+provide('loadFormDataModels', loadFormDataModels)
 
 const dialog = useDialog()
 const visible = ref(false)

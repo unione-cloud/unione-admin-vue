@@ -1,5 +1,5 @@
 import { axios } from 'unione-base-vue'
-import type { UFNode, UFDefine } from 'unione-flow-vue/dist/typing'
+import type { UFNode, UFDefine, UFRoute } from 'unione-flow-vue/dist/typing'
 
 /**
  * 加载当前节点绑定的表单或前置表单
@@ -70,21 +70,27 @@ export function loadPreForm(flowChart: UFDefine, currNode: UFNode) {
  * @param force 是否强制刷新
  * @returns
  */
-const formFieldListStore: any = {}
-export function loadFormFieldList(flowChart: any, currNode: UFNode, force?: boolean) {
-  if (!currNode) {
+const formDataModelStore: any = {}
+export function loadFormDataModels(flowChart: any, node: UFNode | UFRoute, force?: boolean) {
+  if (!node) {
     // 当前节点为空，获取流程起点
     const startNode = flowChart.getNodes().find((item: any) => item.types === 'start')
     if (!startNode) {
       return Promise.reject(null)
     }
-    currNode = startNode
+    node = startNode
+    //@ts-ignore
+  } else if (node.attr?.source) {
+    //@ts-ignore
+    node = flowChart.getNodes().find((item: any) => item.sn === node.attr.source.cell)
   }
+
   return new Promise((resolve, reject) => {
-    loadPreForm(flowChart.getJson(), currNode)
+    //@ts-ignore
+    loadPreForm(flowChart.getJson(), node)
       .then((formId: any) => {
-        if (formFieldListStore[formId] && force != true) {
-          resolve(formFieldListStore[formId])
+        if (formDataModelStore[formId] && force != true) {
+          resolve(formDataModelStore[formId])
           return
         }
         // 根据formId加载表单字段列表
@@ -101,38 +107,25 @@ export function loadFormFieldList(flowChart: any, currNode: UFNode, force?: bool
               if (res.body.types == 'setting') {
                 const list = res.body.configs.fields?.map(({ title, dataType, name }: any) => {
                   return {
-                    label: title,
-                    value: name,
+                    title,
+                    name,
                     dataType
                   }
                 })
-                formFieldListStore[formId] = [
+                formDataModelStore[formId] = [
                   {
-                    label: res.body.title,
-                    value: formId,
-                    children: list
+                    title: res.body.title,
+                    dsn: formId,
+                    vers: res.body.vers,
+                    fields: list
                   }
                 ]
-                resolve(formFieldListStore[formId])
+                resolve(formDataModelStore[formId])
               }
               if (res.body.types == 'form') {
                 const dataModels = res.body.configs?.form?.dataModels || []
-                const list = dataModels.map(({ title, dsn, fields }: any) => {
-                  return {
-                    label: title,
-                    value: dsn,
-                    children: fields?.map(({ title, dataType, name }: any) => {
-                      return {
-                        label: title,
-                        value: dsn + '.' + name,
-                        dataType
-                      }
-                    })
-                  }
-                })
-                formFieldListStore[formId] = list
-                console.log('list', list)
-                resolve(list)
+                formDataModelStore[formId] = dataModels
+                resolve(dataModels)
               }
             } else {
               reject(res.message)

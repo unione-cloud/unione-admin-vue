@@ -1,15 +1,15 @@
 <template>
     <div class="form-var-select">
         <a-tree-select v-model:value="modelValue" placeholder="请选择表单字段" :treeLine="{ showLine: true }"
-            :tree-data="formFieldList" @select="handleFieldSelect">
+            :fieldNames="{ label: 'label' }" :tree-data="formFieldList" @select="handleFieldSelect">
         </a-tree-select>
-        <a-button @click="toloadFormFieldList(true)">刷新</a-button>
+        <a-button @click="toloadFormDataModels(true)">刷新</a-button>
         <div class="error-info" v-if="errorInfo">{{ errorInfo }}</div>
     </div>
 </template>
 <script setup lang="ts">
 import { computed, inject, onMounted, ref, type PropType } from 'vue';
-import { loadFormFieldList } from '../lib/flowUtil';
+import { loadFormDataModels } from '../lib/flowUtil';
 import type { WidgetModel } from 'unione-form-vue/dist/typing';
 
 const emit = defineEmits(['change', 'select'])
@@ -63,29 +63,33 @@ const flowGraph = inject<Function>('flowGraph')
 const activeNode = inject<Function>('activeNode')
 const formFieldList = ref<Array<{ label: string, value: string, dataType: string, selectable?: boolean, children?: Array<{ label: string, value: string, dataType: string }> }>>([])
 /**
- * 加载表单字段列表
- * @param cache 
+ * 加载当前节点绑定的表单数据模型
+ * @param force 
  */
-function toloadFormFieldList(cache?: boolean) {
+function toloadFormDataModels(force?: boolean) {
     errorInfo.value = false
-    if (loadFormFieldList && activeNode && flowGraph) {
+    if (loadFormDataModels && activeNode && flowGraph) {
         const graph = flowGraph()
         const currNode = activeNode()
         // 加载表单字段
-        loadFormFieldList(graph, currNode, cache).then((field: any) => {
-            formFieldList.value = field || []
-            const process = (fields: any, parent: any) => {
-                fields.forEach((item: any) => {
-                    if (parent) {
-                        item.parent = parent
-                    }
-                    if (item.children?.length) {
-                        item.selectable = false
-                        process(item.children, item)
-                    }
-                })
-            }
-            process(formFieldList.value, null)
+        loadFormDataModels(graph, currNode, force).then((dataModels: any) => {
+            formFieldList.value = (dataModels || []).map((item: any) => {
+                return {
+                    label: item.title,
+                    value: item.name,
+                    dataType: item.types,
+                    selectable: false,
+                    isLeaf: false,
+                    children: (item.fields || []).map((field: any) => {
+                        return {
+                            label: field.title,
+                            title: item.title + '#' + field.title,
+                            value: item.dsn + '.' + field.name,
+                            dataType: field.types,
+                        }
+                    })
+                }
+            })
         }).catch((err: any) => {
             errorInfo.value = err || '请先绑定流程表单'
         })
@@ -99,18 +103,9 @@ function toloadFormFieldList(cache?: boolean) {
 function handleFieldSelect(value: any, item: any) {
     const option: any = {
         title: item.label,
-        titleFull: item.label,
+        titleFull: item.title,
         name: item.value,
         dataType: item.dataType,
-    }
-    if (item.parent) {
-        const title = [item.label]
-        let parent = item.parent
-        while (parent) {
-            title.unshift(parent.label)
-            parent = parent.parent
-        }
-        option.titleFull = title.join('#')
     }
     if (widgetEvent.value.select) {
         widgetEvent.value.select(value, { option, formValue: props.formValue })
@@ -120,7 +115,7 @@ function handleFieldSelect(value: any, item: any) {
 }
 
 onMounted(() => {
-    toloadFormFieldList(true)
+    toloadFormDataModels(true)
 })
 
 </script>
