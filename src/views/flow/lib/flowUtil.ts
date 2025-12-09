@@ -106,8 +106,14 @@ export function loadFormFieldList(flowChart: any, currNode: UFNode, force?: bool
                     dataType
                   }
                 })
-                formFieldListStore[formId] = list
-                resolve(list)
+                formFieldListStore[formId] = [
+                  {
+                    label: res.body.title,
+                    value: formId,
+                    children: list
+                  }
+                ]
+                resolve(formFieldListStore[formId])
               }
               if (res.body.types == 'form') {
                 const dataModels = res.body.configs?.form?.dataModels || []

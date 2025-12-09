@@ -10,8 +10,7 @@
         <div class="param-item-main">
           <span class="param-item-title">{{ param.title || '未命名参数' }}</span>
           <span class="param-item-name">{{ param.name || '无名参数' }}</span>
-          <span class="param-item-type">{{ dataTypeMap[param.dataType] || '未知' }}</span>
-          <span class="param-item-type">{{ dataBindType[param.bindType] || '未知' }}</span>
+          <span class="param-item-bind">{{ param.bindTitle || '未绑定' }}</span>
         </div>
       </div>
       <div class="param-item-actions">
@@ -53,35 +52,30 @@
         <a-form-item label="绑定类型" name="assignType">
           <a-select v-model:value="formData.bindType" placeholder="请选择赋值方式">
             <a-select-option value="formVar">表单字段</a-select-option>
-            <a-select-option value="flowVar">流程参数</a-select-option>
-            <a-select-option value="nodeVar">节点参数</a-select-option>
+            <a-select-option value="flowVar">流程变量</a-select-option>
             <a-select-option value="system">系统参数</a-select-option>
             <a-select-option value="custom">自定义</a-select-option>
           </a-select>
         </a-form-item>
-        <a-form-item :label="formData.bindType === 'custom' ? '参数数值' : '绑定字段'" name="bindValue">
-          <!-- 动态赋值表达式输入控件 -->
-          <template v-if="formData.bindType === 'custom'">
-            <!-- 自定义赋值，根据变量类型切换输入控件 -->
-            <template v-if="formData.dataType === 'String'">
-              <a-input v-model:value="formData.bindValue" placeholder="请输入参数值" />
-            </template>
-            <template v-else-if="formData.dataType === 'Integer'">
-              <a-input-number v-model:value="formData.bindValue" placeholder="请输入参数值" style="width: 100%" />
-            </template>
-            <template v-else-if="formData.dataType === 'Date'">
-              <a-date-picker v-model:value="formData.bindValue" placeholder="请选择日期" style="width: 100%" />
-            </template>
+        <a-form-item label="绑定字段" name="bindValue" v-if="['formVar', 'flowVar', 'system'].includes(formData.bindType)">
+          <a-select v-model:value="formData.bindValue" :options="systemVars" placeholder="请选择系统变量"
+            v-if="formData.bindType === 'system'" @select="handelSelect"> </a-select>
+          <flow-form-var v-model:value="formData.bindValue" v-if="formData.bindType === 'formVar'"
+            @select="formVarSelect"></flow-form-var>
+          <a-tree-select v-model:value="formData.bindValue" placeholder="请选择流程变量" :treeLine="{ showLine: true }"
+            :tree-data="flowVars" @select="handelSelect" v-if="formData.bindType === 'flowVar'">
+          </a-tree-select>
+        </a-form-item>
+        <a-form-item label="参数数值" name="bindValue" v-if="formData.bindType === 'custom'">
+          <!-- 自定义赋值，根据变量类型切换输入控件 -->
+          <template v-if="formData.dataType === 'String'">
+            <a-input v-model:value="formData.bindValue" placeholder="请输入参数值" />
           </template>
-          <template v-else>
-            <!-- 表单字段或系统变量，使用下拉框 -->
-            <a-select v-model:value="formData.bindValue" placeholder="请选择{{ dataBindType[formData.bindType] }}">
-              <!-- 这里可以根据实际情况动态加载选项 -->
-              <a-select-option v-for="option in getAssignOptions(formData.bindType)" :key="option.value"
-                :value="option.value">
-                {{ option.label }}
-              </a-select-option>
-            </a-select>
+          <template v-else-if="formData.dataType === 'Integer'">
+            <a-input-number v-model:value="formData.bindValue" placeholder="请输入参数值" style="width: 100%" />
+          </template>
+          <template v-else-if="formData.dataType === 'Date'">
+            <a-date-picker v-model:value="formData.bindValue" placeholder="请选择日期" style="width: 100%" />
           </template>
         </a-form-item>
       </a-form>
@@ -90,7 +84,7 @@
 </template>
 <script setup lang="ts">
 import { utils } from 'unione-base-vue'
-import { onMounted, ref, reactive, watch } from 'vue'
+import { onMounted, ref, reactive, watch, computed, inject } from 'vue'
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons-vue'
 import type { FormInstance } from 'ant-design-vue'
 
@@ -121,7 +115,8 @@ const formData = reactive({
   name: '',
   dataType: 'String',
   bindType: 'custom',
-  bindValue: ''
+  bindValue: '',
+  bindTitle: ''
 })
 // 表单校验规则
 const formRules = ref({
@@ -131,28 +126,6 @@ const formRules = ref({
   bindType: [{ required: true, message: '请选择绑定类型' }],
   bindValue: [{ required: true, message: '请输入绑定字段' }]
 })
-watch(() => formData.bindType, (newval, oldval) => {
-  if (newval == 'params') {
-    formRules.value.bindValue[0].required = false
-  } else {
-    formRules.value.bindValue[0].required = true
-  }
-})
-
-
-// 获取参数类型文本
-const dataTypeMap: Record<string, string> = {
-  String: '字符串',
-  Integer: '数值',
-  Date: '日期'
-}
-const dataBindType: Record<string, string> = {
-  custom: '自定义',
-  formVar: '表单字段',
-  flowVar: '流程参数',
-  nodeVar: '节点参数',
-  system: '系统参数',
-}
 
 // 显示弹窗
 function showModal(mode: 'add' | 'edit', varItem?: any) {
@@ -165,18 +138,20 @@ function showModal(mode: 'add' | 'edit', varItem?: any) {
     Object.assign(formData, {
       title: '',
       name: '',
-      type: 'string',
-      assignType: 'custom',
-      expression: ''
+      dataType: 'String',
+      bindType: 'custom',
+      bindValue: '',
+      bindTitle: '',
     })
   } else if (mode === 'edit' && varItem) {
     // 填充表单数据
     Object.assign(formData, {
       title: varItem.title || '',
       name: varItem.name || '',
-      type: varItem.type || 'string',
-      assignType: varItem.assignType || 'custom',
-      expression: varItem.expression || ''
+      dataType: varItem.dataType || 'String',
+      bindType: varItem.bindType || 'custom',
+      bindValue: varItem.bindValue || '',
+      bindTitle: varItem.bindTitle || '',
     })
     currentVar.value = varItem
   }
@@ -184,31 +159,96 @@ function showModal(mode: 'add' | 'edit', varItem?: any) {
   visible.value = true
 }
 
-// 获取赋值选项
-function getAssignOptions(type: string) {
-  // 这里可以根据实际情况动态加载选项
-  // 目前返回模拟数据
-  if (type === 'form') {
-    return [
-      { label: '字段1', value: 'field1' },
-      { label: '字段2', value: 'field2' },
-      { label: '字段3', value: 'field3' }
-    ]
-  } else if (type === 'system') {
-    return [
-      { label: '当前时间', value: 'now' },
-      { label: '用户ID', value: 'userId' },
-      { label: '用户名', value: 'userName' },
-      { label: '机构ID', value: 'orgId' },
-      { label: '机构名称', value: 'orgName' },
-      { label: '租户ID', value: 'tenantId' },
-      { label: '流程定义ID', value: 'flowDefId' },
-      { label: '流程实例ID', value: 'flowInsId' },
-      { label: '流程节点ID', value: 'flowNodeId' },
-      { label: '流程任务ID', value: 'flowTaskId' },
-    ]
+const systemVars = ref([
+  { label: '当前时间', value: 'now', dataType: 'Timestamp' },
+  { label: '用户ID', value: 'userId', dataType: 'Long' },
+  { label: '用户名', value: 'userName', dataType: 'String' },
+  { label: '机构ID', value: 'orgId', dataType: 'Long' },
+  { label: '机构名称', value: 'orgName', dataType: 'String' },
+  { label: '租户ID', value: 'tenantId', dataType: 'Long' },
+  { label: '流程定义ID', value: 'flowDefId', dataType: 'Long' },
+  { label: '流程实例ID', value: 'flowInsId', dataType: 'Long' },
+  { label: '流程节点ID', value: 'flowNodeId', dataType: 'Long' },
+  { label: '流程任务ID', value: 'flowTaskId', dataType: 'Long' }
+])
+const flowGraph = inject<Function>('flowGraph')
+const activeNode = inject<Function>('activeNode')
+const flowVars = computed(() => {
+  const vars: any = []
+
+  const flowVars = flowGraph && flowGraph().getJson().setting?.vars || {}
+  const nodeVars = activeNode && activeNode().data?.vars || {}
+  if (flowVars?.global) {
+    const fields = (flowVars.global || []).map((item: any) => {
+      return {
+        label: item.title,
+        value: item.name,
+        dataType: item.dataType
+      }
+    })
+    vars.push({
+      label: '流程变量',
+      value: 'flowVar',
+      selectable: false,
+      children: fields || [],
+      isLeaf: false
+    })
   }
-  return []
+  if (nodeVars) {
+    if (!nodeVars.local) {
+      nodeVars.local = []
+    }
+    if (!nodeVars.global) {
+      nodeVars.global = []
+    }
+    const nvars: any = {
+      label: '节点变量',
+      value: 'nodeVar',
+      selectable: false,
+      children: [],
+      isLeaf: false
+    }
+    vars.push(nvars)
+
+    const global = nodeVars.global.map((item: any) => {
+      return {
+        label: item.title,
+        value: item.name,
+        dataType: item.dataType
+      }
+    })
+    nvars.children.push({
+      label: '全局变量',
+      value: 'global',
+      selectable: false,
+      children: global,
+      isLeaf: false
+    })
+
+    const local = nodeVars.local.map((item: any) => {
+      return {
+        label: item.title,
+        value: item.name,
+        dataType: item.dataType
+      }
+    })
+    nvars.children.push({
+      label: '本地变量',
+      value: 'local',
+      selectable: false,
+      children: local,
+      isLeaf: false
+    })
+  }
+
+  return vars;
+})
+
+function handelSelect(val: any, item: any) {
+  formData.bindTitle = item.label
+}
+function formVarSelect(val: any, item: any) {
+  formData.bindTitle = item.titleFull
 }
 
 // 保存参数
@@ -221,20 +261,11 @@ async function handleOk() {
       modelValue.value = []
     }
 
-    // 直接保存，不使用表单验证
-    const varData: any = {
-      title: formData.title,
-      name: formData.name,
-      dataType: formData.dataType,
-      bindType: formData.bindType,
-      bindValue: formData.bindValue
-    }
-
     if (currentMode.value === 'add') {
       // 新增参数
-      modelValue.value.push(varData)
+      modelValue.value.push({ ...formData })
     } else {
-      utils.obj.set(currentVar.value, varData)
+      utils.obj.set(currentVar.value, formData)
     }
     modelValue.value = [...modelValue.value]
     visible.value = false
@@ -317,18 +348,8 @@ function handleChange() {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      width: 60%;
+      width: 30%;
       font-size: 14px;
-    }
-
-    .param-item-type {
-      background: #f0f5ff;
-      color: #1890ff;
-      padding: 2px 6px;
-      border-radius: 8px;
-      font-size: 12px;
-      flex-shrink: 0;
-      margin-right: 8px;
     }
 
     .param-item-name {
@@ -338,6 +359,17 @@ function handleChange() {
       font-size: 12px;
       color: #666;
       width: 30%;
+    }
+
+    .param-item-bind {
+      background: #f0f5ff;
+      color: #1890ff;
+      padding: 2px 6px;
+      border-radius: 8px;
+      font-size: 12px;
+      flex-shrink: 0;
+      margin-right: 8px;
+      width: 40%;
     }
 
     .param-item-actions {
