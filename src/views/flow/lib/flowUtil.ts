@@ -9,6 +9,11 @@ import type { UFNode, UFDefine } from 'unione-flow-vue/dist/typing'
  */
 export function loadPreForm(flowChart: UFDefine, currNode: UFNode) {
   return new Promise((resolve, reject) => {
+    if (currNode.data?.formType != 1) {
+      // 非动态表单，直接返回
+      reject(null)
+      return
+    }
     if (currNode.data?.formId) {
       resolve(currNode.data.formId)
       return
@@ -84,25 +89,44 @@ export function loadFormFieldList(flowChart: any, currNode: UFNode) {
         // 根据formId加载表单字段列表
         axios
           .form({
-            url: '/api/data/field/find',
-            method: 'POST',
-            data: {
-              body: {
-                defineId: formId
-              }
-            }
+            url: '/api/data/define/load/' + formId,
+            method: 'POST'
           })
           .then((res: any) => {
             if (res.success) {
-              const list = res.body.map(({ title, dataType, name }: any) => {
-                return {
-                  label: title,
-                  value: name,
-                  dataType
-                }
-              })
-              formFieldListStore[formId] = list
-              resolve(list)
+              if (!res.body?.configs) {
+                return
+              }
+              if (res.body.types == 'setting') {
+                const list = res.body.configs.fields?.map(({ title, dataType, name }: any) => {
+                  return {
+                    label: title,
+                    value: name,
+                    dataType
+                  }
+                })
+                formFieldListStore[formId] = list
+                resolve(list)
+              }
+              if (res.body.types == 'form') {
+                const dataModels = res.body.configs?.form?.dataModels || []
+                const list = dataModels.map(({ title, dsn, fields }: any) => {
+                  return {
+                    label: title,
+                    value: dsn,
+                    children: fields?.map(({ title, dataType, name }: any) => {
+                      return {
+                        label: title,
+                        value: dsn + '.' + name,
+                        dataType
+                      }
+                    })
+                  }
+                })
+                formFieldListStore[formId] = list
+                console.log('list', list)
+                resolve(list)
+              }
             } else {
               reject(res.message)
             }

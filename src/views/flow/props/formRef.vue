@@ -68,8 +68,8 @@ const formSelectObj = ref({
         formSelectObj.value.visible = true
     },
     handelSelect: (selected: any) => {
-        modelValue.value = selected.id
-        formMap.value[selected.id] = selected.title + '(V' + selected.vers + ')'
+        modelValue.value = selected.sn
+        formMap.value[selected.sn] = selected.title + '(V' + selected.vers + ')'
         formSelectObj.value.visible = false
         formMap.value = { ...formMap.value }
         emit('change', modelValue.value)
@@ -84,7 +84,9 @@ const loadFormTitle = useDebounce(() => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            data: modelValue.value
+            data: {
+                sn: modelValue.value
+            }
         }).then((res: any) => {
             if (res.success && res.body) {
                 formMap.value[mvid] = res.body.title + '(V' + res.body.vers + ')'
