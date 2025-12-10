@@ -78,6 +78,22 @@ registerNode([{
       control: 'flow-copy-to',
     },
   }
+}, {
+  shape: 'data',
+  props: {
+    'base.formId': {
+      name: 'formId',
+      control: 'flow-form-ref'
+    },
+    'base.loadFields': {
+      name: 'loadFields',
+      control: 'flow-data-field'
+    },
+    'base.sorts': {
+      name: 'sorts',
+      control: 'flow-data-sort'
+    },
+  }
 }])
 setNodeProps({
   'base.formId': {

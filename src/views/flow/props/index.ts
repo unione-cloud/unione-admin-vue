@@ -6,6 +6,8 @@ import FlowCopyTo from './copyto.vue'
 import FlowNotice from './notice.vue'
 import FlowFormRef from './formRef.vue'
 import FlowFormVar from './formVar.vue'
+import FlowDataField from './dataField.vue'
+import FlowDataSort from './dataSort.vue'
 
 export default {
   install(app: App, options?: any) {
@@ -16,5 +18,7 @@ export default {
     app.component('FlowNotice', FlowNotice)
     app.component('FlowFormRef', FlowFormRef)
     app.component('FlowFormVar', FlowFormVar)
+    app.component('FlowDataField', FlowDataField)
+    app.component('FlowDataSort', FlowDataSort)
   }
 }

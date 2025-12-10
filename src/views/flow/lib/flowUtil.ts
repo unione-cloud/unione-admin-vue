@@ -71,6 +71,56 @@ export function loadPreForm(flowChart: UFDefine, currNode: UFNode) {
  * @returns
  */
 const formDataModelStore: any = {}
+export function loadFormDataModelById(formId: string, force?: boolean) {
+  return new Promise((resolve, reject) => {
+    if (formDataModelStore[formId] && force != true) {
+      resolve(formDataModelStore[formId])
+      return
+    }
+    // 根据formId加载表单字段列表
+    axios
+      .form({
+        url: '/api/data/define/load/' + formId,
+        method: 'POST'
+      })
+      .then((res: any) => {
+        if (res.success) {
+          if (!res.body?.configs) {
+            return
+          }
+          if (res.body.types == 'setting') {
+            const list = res.body.configs.fields?.map(({ title, dataType, name }: any) => {
+              return {
+                title,
+                name,
+                dataType
+              }
+            })
+            formDataModelStore[formId] = [
+              {
+                title: res.body.title,
+                dsn: formId,
+                vers: res.body.vers,
+                group: 'master',
+                fields: list
+              }
+            ]
+            resolve(formDataModelStore[formId])
+          }
+          if (res.body.types == 'form') {
+            const dataModels = res.body.configs?.form?.dataModels || []
+            formDataModelStore[formId] = dataModels
+            resolve(dataModels)
+          }
+        } else {
+          reject(res.message)
+        }
+      })
+      .catch((err: any) => {
+        reject(err)
+      })
+  })
+}
 export function loadFormDataModels(flowChart: any, node: UFNode | UFRoute, force?: boolean) {
   if (!node) {
     // 当前节点为空，获取流程起点
@@ -89,47 +139,9 @@ export function loadFormDataModels(flowChart: any, node: UFNode | UFRoute, force
     //@ts-ignore
     loadPreForm(flowChart.getJson(), node)
       .then((formId: any) => {
-        if (formDataModelStore[formId] && force != true) {
-          resolve(formDataModelStore[formId])
-          return
-        }
-        // 根据formId加载表单字段列表
-        axios
-          .form({
-            url: '/api/data/define/load/' + formId,
-            method: 'POST'
-          })
+        loadFormDataModelById(formId, force)
           .then((res: any) => {
-            if (res.success) {
-              if (!res.body?.configs) {
-                return
-              }
-              if (res.body.types == 'setting') {
-                const list = res.body.configs.fields?.map(({ title, dataType, name }: any) => {
-                  return {
-                    title,
-                    name,
-                    dataType
-                  }
-                })
-                formDataModelStore[formId] = [
-                  {
-                    title: res.body.title,
-                    dsn: formId,
-                    vers: res.body.vers,
-                    fields: list
-                  }
-                ]
-                resolve(formDataModelStore[formId])
-              }
-              if (res.body.types == 'form') {
-                const dataModels = res.body.configs?.form?.dataModels || []
-                formDataModelStore[formId] = dataModels
-                resolve(dataModels)
-              }
-            } else {
-              reject(res.message)
-            }
+            resolve(res)
           })
           .catch((err: any) => {
             reject(err)
