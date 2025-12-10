@@ -49,7 +49,7 @@ defineOptions({
 registerNode([{
   shape: 'sql',
   props: {
-    'dsId': {
+    'base.dsId': {
       name: 'dsId',
       control: 'unione-select-box',
       convert: {
@@ -58,7 +58,7 @@ registerNode([{
         search: true
       }
     },
-    'sql': {
+    'base.sql': {
       name: 'sql',
       control: 'unione-code-editor',
       props: {
@@ -69,22 +69,22 @@ registerNode([{
 }, {
   shape: 'start',
   props: {
-    'formId': {
+    'base.formId': {
       name: 'formId',
       control: 'flow-form-ref'
     },
-    'copyOption': {
+    'base.copyOption': {
       name: 'copyOption',
       control: 'flow-copy-to',
     },
   }
 }])
 setNodeProps({
-  'formId': {
+  'base.formId': {
     name: 'formId',
     control: 'flow-form-ref'
   },
-  'approve.specify': {
+  'base.approve.specify': {
     title: '指定审批人',
     name: 'approve.specify',
     control: 'flow-candidate',
@@ -98,7 +98,7 @@ setNodeProps({
       }
     }
   },
-  'approve.flowVar': {
+  'base.approve.flowVar': {
     title: '指定审批人',
     name: 'approve.flowVar',
     control: 'flow-candidate',
@@ -113,7 +113,7 @@ setNodeProps({
       }
     }
   },
-  'approve.formVar': {
+  'base.approve.formVar': {
     title: '指定审批人',
     name: 'approve.formVar',
     control: 'flow-candidate',
@@ -128,7 +128,7 @@ setNodeProps({
       }
     }
   },
-  'approve.chainLevel': {
+  'base.approve.chainLevel': {
     title: '审批层级',
     name: 'approve.chainLevel',
     control: 'a-input-number',
@@ -155,7 +155,7 @@ setNodeProps({
       }
     }
   },
-  'approve.flowNode': {
+  'base.approve.flowNode': {
     title: '流程节点',
     name: 'approve.flowNode',
     control: 'flow-node-select',
@@ -170,36 +170,36 @@ setNodeProps({
       }
     }
   },
-  'copyOption': {
+  'base.copyOption': {
     title: '抄送设置',
     name: 'copyOption',
     control: 'flow-copy-to',
   },
-  'notify.remind': {
+  'notice.notify.remind': {
     name: 'notify.remind',
     control: 'flow-notice',
   },
-  'notify.agree': {
+  'notice.notify.agree': {
     name: 'notify.agree',
     control: 'flow-notice',
   },
-  'notify.reject': {
+  'notice.notify.reject': {
     name: 'notify.reject',
     control: 'flow-notice',
   },
-  'notify.back': {
+  'notice.notify.back': {
     name: 'notify.back',
     control: 'flow-notice',
   },
-  'notify.copy': {
+  'notice.notify.copy': {
     name: 'notify.copy',
     control: 'flow-notice',
   },
-  'notify.timeout': {
+  'notice.notify.timeout': {
     name: 'notify.timeout',
     control: 'flow-notice',
   },
-  'timeOut.transferTarget': {
+  'time.timeOut.transferTarget': {
     name: 'timeOut.transferTarget',
     control: 'flow-candidate',
   }
