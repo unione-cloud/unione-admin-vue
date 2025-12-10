@@ -89,6 +89,10 @@ registerNode([{
       name: 'loadFields',
       control: 'flow-data-field'
     },
+    // 'base.bindFields': {
+    //   name: 'bindFields',
+    //   control: 'flow-param'
+    // },
     'base.sorts': {
       name: 'sorts',
       control: 'flow-data-sort'

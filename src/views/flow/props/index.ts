@@ -8,6 +8,7 @@ import FlowFormRef from './formRef.vue'
 import FlowFormVar from './formVar.vue'
 import FlowDataField from './dataField.vue'
 import FlowDataSort from './dataSort.vue'
+import FlowParam from './flowParam.vue'
 
 export default {
   install(app: App, options?: any) {
@@ -20,5 +21,6 @@ export default {
     app.component('FlowFormVar', FlowFormVar)
     app.component('FlowDataField', FlowDataField)
     app.component('FlowDataSort', FlowDataSort)
+    app.component('FlowParam', FlowParam)
   }
 }
