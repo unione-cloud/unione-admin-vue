@@ -73,6 +73,7 @@ const formSelectObj = ref({
         formSelectObj.value.visible = false
         formMap.value = { ...formMap.value }
         emit('change', modelValue.value)
+        flowGraph().trigger('formRef:change', selected)
     }
 })
 const loadFormTitle = useDebounce(() => {

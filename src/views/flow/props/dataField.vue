@@ -30,7 +30,7 @@
 </template>
 <script setup lang="ts">
 import { DeleteOutlined } from '@ant-design/icons-vue'
-import { onMounted, watch } from 'vue'
+import { inject, onMounted, watch } from 'vue'
 import { loadFormDataModelById } from '../lib/flowUtil'
 import { useDialog } from 'unione-base-vue'
 
@@ -53,16 +53,7 @@ const emit = defineEmits(['change'])
 const modelValue = defineModel('value', {
   type: Array<any>,
 })
-watch(() => props.formValue.formId, (newVal, oldVal) => {
-  if (newVal !== oldVal) {
-    if (!newVal) {
-      modelValue.value = []
-      handleChange()
-    } else if (!modelValue.value?.length) {
-      doreload()
-    }
-  }
-})
+
 
 /**
  * 重新加载数据
@@ -123,10 +114,17 @@ function handleChange() {
   emit('change', modelValue.value)
 }
 
+const flowGraph: any = inject('flowGraph')
 onMounted(() => {
   if (!modelValue.value) {
     modelValue.value = []
   }
+  flowGraph().on('formRef:change', (selected: any) => {
+    modelValue.value = []
+    if (selected) {
+      doreload()
+    }
+  })
 })
 
 </script>

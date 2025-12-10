@@ -49,7 +49,7 @@
 </template>
 <script setup lang="ts">
 import { DeleteOutlined } from '@ant-design/icons-vue'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, inject, onMounted, ref, watch } from 'vue'
 import { loadFormDataModelById } from '../lib/flowUtil'
 import { useDialog } from 'unione-base-vue'
 import draggable from 'vuedraggable'
@@ -174,10 +174,15 @@ function handleChange() {
   emit('change', modelValue.value)
 }
 
+const flowGraph: any = inject('flowGraph')
 onMounted(() => {
   if (!modelValue.value) {
     modelValue.value = []
   }
+  flowGraph().on('formRef:change', (selected: any) => {
+    modelValue.value = []
+    handleChange()
+  })
 })
 
 </script>
