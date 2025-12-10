@@ -47,15 +47,25 @@ defineOptions({
   name: 'DemoIndex',
 })
 registerNode([{
-  shape: 'custom',
-  component: Custome,
-  icon: 'AndroidOutlined',
-  width: 200,
-  height: 90,
-  data: {
-    title: '自定义节点',
-    info: '发起人'
-  },
+  shape: 'sql',
+  props: {
+    'dsId': {
+      name: 'dsId',
+      control: 'unione-select-box',
+      convert: {
+        types: 'local',
+        url: '/api/data/source/find',
+        search: true
+      }
+    },
+    'sql': {
+      name: 'sql',
+      control: 'unione-code-editor',
+      props: {
+        lang: 'sql'
+      }
+    }
+  }
 }, {
   shape: 'start',
   props: {
