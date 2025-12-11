@@ -27,10 +27,13 @@
 <script setup lang="ts">
 import { inject, onMounted, ref, type PropType } from 'vue'
 import { loadFormDataModels } from '../../lib/flowUtil'
+import { useConfigStore } from '@/config'
 
 defineOptions({
     name: 'VarSelectList',
 })
+
+const config = useConfigStore()
 
 const props = defineProps({
     scope: {
@@ -81,16 +84,13 @@ const varData = ref<any>([
     }, {
         title: '系统变量',
         key: 'sysVar',
-        vars: [{ title: '当前时间', name: 'now', dataType: 'Timestamp' },
-        { title: '用户ID', name: 'userId', dataType: 'Long' },
-        { title: '用户名', name: 'userName', dataType: 'String' },
-        { title: '机构ID', name: 'orgId', dataType: 'Long' },
-        { title: '机构名称', name: 'orgName', dataType: 'String' },
-        { title: '租户ID', name: 'tenantId', dataType: 'Long' },
-        { title: '流程定义ID', name: 'flowDefId', dataType: 'Long' },
-        { title: '流程实例ID', name: 'flowInsId', dataType: 'Long' },
-        { title: '流程节点ID', name: 'flowNodeId', dataType: 'Long' },
-        { title: '流程任务ID', name: 'flowTaskId', dataType: 'Long' }]
+        vars: config.config.flow.systemFieldList.map((f: any) => {
+            return {
+                title: f.label,
+                name: f.value,
+                dataType: f.dataType
+            }
+        })
     }
 ])
 const columns = ref([{

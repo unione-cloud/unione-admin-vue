@@ -87,7 +87,9 @@ import { utils } from 'unione-base-vue'
 import { onMounted, ref, reactive, watch, computed, inject } from 'vue'
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons-vue'
 import type { FormInstance } from 'ant-design-vue'
+import { useConfigStore } from '@/config'
 
+const config = useConfigStore()
 const props = defineProps({
   scope: {
     type: Array<string>,
@@ -159,18 +161,7 @@ function showModal(mode: 'add' | 'edit', varItem?: any) {
   visible.value = true
 }
 
-const systemVars = ref([
-  { label: '当前时间', value: 'now', dataType: 'Timestamp' },
-  { label: '用户ID', value: 'userId', dataType: 'Long' },
-  { label: '用户名', value: 'userName', dataType: 'String' },
-  { label: '机构ID', value: 'orgId', dataType: 'Long' },
-  { label: '机构名称', value: 'orgName', dataType: 'String' },
-  { label: '租户ID', value: 'tenantId', dataType: 'Long' },
-  { label: '流程定义ID', value: 'flowDefId', dataType: 'Long' },
-  { label: '流程实例ID', value: 'flowInsId', dataType: 'Long' },
-  { label: '流程节点ID', value: 'flowNodeId', dataType: 'Long' },
-  { label: '流程任务ID', value: 'flowTaskId', dataType: 'Long' }
-])
+const systemVars = ref(config.config.flow.systemFieldList)
 const flowGraph = inject<Function>('flowGraph')
 const activeNode = inject<Function>('activeNode')
 const flowVars = computed(() => {

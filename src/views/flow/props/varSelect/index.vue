@@ -61,7 +61,7 @@ const props = defineProps({
     },
     scope: {
         type: Array<String>,
-        default: () => ['flowVar', 'nodeVar']   // formField:表单变量，dataNode：数据节点
+        default: () => ['flowVar', 'nodeVar']   // formVar:表单变量，dataNode：数据节点,sysVar:系统变量
     },
     show: {
         type: String,

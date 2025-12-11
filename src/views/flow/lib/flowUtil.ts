@@ -2,6 +2,113 @@ import { axios } from 'unione-base-vue'
 import type { UFNode, UFDefine, UFRoute } from 'unione-flow-vue/dist/typing'
 
 /**
+ * 加载节点变量,仅获取start，task节点
+ * @param flowChart
+ * @param currNode
+ * @returns
+ */
+export function loadNodeVar(flowChart: UFDefine, currNode: UFNode) {
+  return new Promise((resolve, reject) => {
+    const ntypes = ['start', 'task']
+    if (ntypes.includes(currNode.types)) {
+      resolve(currNode.data?.vars)
+      return
+    }
+    const edgeMap: any = {}
+    flowChart.routes.forEach((item) => {
+      if (!edgeMap[item.attr.target.cell]) {
+        edgeMap[item.attr.target.cell] = []
+      }
+      edgeMap[item.attr.target.cell].push(item.attr.source.cell)
+    })
+    const nodeMap: any = {}
+    flowChart.nodes.forEach((item) => {
+      if (item.sn) {
+        nodeMap[item.sn] = item
+      }
+    })
+
+    const process = (node: any) => {
+      if (!edgeMap[node.sn]?.length) {
+        return
+      }
+      if (edgeMap[node.sn].length > 1) {
+        reject('存在多个前置节点')
+        return
+      }
+      const preNodeSn = edgeMap[node.sn][0]
+      if (!nodeMap[preNodeSn]) {
+        return
+      }
+      if (nodeMap[preNodeSn].data?.vars && ntypes.includes(nodeMap[preNodeSn].types)) {
+        return nodeMap[preNodeSn].data.vars
+      }
+      return process(nodeMap[preNodeSn])
+    }
+
+    const result = process(currNode)
+    if (result) {
+      resolve(result)
+      return
+    }
+    reject(null)
+  })
+}
+
+/**
+ * 加载前置数据加载节点
+ * @param flowChart
+ * @param currNode
+ * @returns
+ */
+export function loadPreLoadDataNode(flowChart: UFDefine, currNode: UFNode) {
+  return new Promise((resolve, reject) => {
+    const ntypes = ['data']
+    const edgeMap: any = {}
+    flowChart.routes.forEach((item) => {
+      if (!edgeMap[item.attr.target.cell]) {
+        edgeMap[item.attr.target.cell] = []
+      }
+      edgeMap[item.attr.target.cell].push(item.attr.source.cell)
+    })
+    const nodeMap: any = {}
+    flowChart.nodes.forEach((item) => {
+      if (item.sn) {
+        nodeMap[item.sn] = item
+      }
+    })
+
+    const process = (node: any) => {
+      if (!edgeMap[node.sn]?.length) {
+        return
+      }
+      if (edgeMap[node.sn].length > 1) {
+        reject('存在多个前置节点')
+        return
+      }
+      const preNodeSn = edgeMap[node.sn][0]
+      if (!nodeMap[preNodeSn]) {
+        return
+      }
+      if (
+        nodeMap[preNodeSn].data?.operation == 'load' &&
+        ntypes.includes(nodeMap[preNodeSn].types)
+      ) {
+        return nodeMap[preNodeSn]
+      }
+      return process(nodeMap[preNodeSn])
+    }
+
+    const result = process(currNode)
+    if (result) {
+      resolve(result)
+      return
+    }
+    reject(null)
+  })
+}
+
+/**
  * 加载当前节点绑定的表单或前置表单
  * @param flowChart 流程定义
  * @param currNode 当前节点

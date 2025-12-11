@@ -83,7 +83,10 @@ registerNode([{
   props: {
     'base.formId': {
       name: 'formId',
-      control: 'flow-form-ref'
+      control: 'flow-form-ref',
+      props: {
+        scope: 'lol'
+      }
     },
     'base.loadFields': {
       name: 'loadFields',
@@ -92,6 +95,14 @@ registerNode([{
     'base.bindFields': {
       name: 'bindFields',
       control: 'flow-data-bind'
+    },
+    'base.filter': {
+      name: 'filter',
+      control: 'flow-data-filter'
+    },
+    'base.validate': {
+      name: 'validate',
+      control: 'flow-data-filter'
     },
     'base.sorts': {
       name: 'sorts',
