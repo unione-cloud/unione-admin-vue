@@ -1,6 +1,6 @@
 <template>
   <div class="filter-item">
-    <div class="field-opts">
+    <div :class="['field-opts', { 'edit': modelValue.edit }]">
       <a-switch v-model:checked="modelValue.fun" checked-value="AND" un-checked-value="OR" checked-children="AND"
         un-checked-children="OR" @change="handelChange"></a-switch>
       <div>
@@ -421,6 +421,12 @@ onMounted(() => {
     }
 
     &:hover {
+      :deep(.ant-btn) {
+        display: inline-block;
+      }
+    }
+
+    &.edit {
       :deep(.ant-btn) {
         display: inline-block;
       }
