@@ -9,7 +9,7 @@ import FlowFormVar from './formVar.vue'
 import FlowDataField from './dataField.vue'
 import FlowDataBind from './dataBind.vue'
 import FlowDataSort from './dataSort.vue'
-import FlowDataFilter from './dataFilter.vue'
+import FlowDataFilter from './dataFilter/index.vue'
 import FlowParam from './flowParam.vue'
 
 export default {
