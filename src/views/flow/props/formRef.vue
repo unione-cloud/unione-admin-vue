@@ -19,6 +19,12 @@ import { useDebounce } from 'unione-form-vue'
 import { ref, onMounted, computed, watch, inject, nextTick } from 'vue'
 import { loadPreForm } from '@/views/flow/lib/flowUtil'
 
+const props = defineProps({
+    scope: {
+        type: String,
+        default: 'lap'   //lap:当前节点和前置节点，lol：仅当前节点
+    }
+})
 const modelValue = defineModel('value', {
     type: String
 })
@@ -99,7 +105,7 @@ watch(() => modelValue.value, (val, old) => {
     error.value = ''
     if (val) {
         loadFormTitle()
-    } else {
+    } else if (props.scope == 'lap') {
         toloadPreForm()
     }
 }, { immediate: true })
