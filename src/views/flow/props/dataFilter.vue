@@ -9,7 +9,7 @@
       <draggable v-model="modelValue" @end="handleChange" :animation="300" ghost-class="ghost" handle=".drag-handle">
         <template #item="{ element, index }">
           <div class="filter-item" :key="index">
-            <div class="field-opts">
+            <div class="field-opts drag-handle">
               <a-switch v-model:checked="element.fun" checked-value="AND" un-checked-value="OR" checked-children="AND"
                 un-checked-children="OR"></a-switch>
               <div>
@@ -461,7 +461,7 @@ onMounted(() => {
     transition: color 0.3s;
 
     &:hover {
-      color: #1890ff;
+      background-color: #d9dde0;
     }
   }
 
@@ -483,6 +483,7 @@ onMounted(() => {
       display: flex;
       flex-direction: row;
       justify-content: space-between;
+      align-items: center;
 
       .btn-cancel {
         margin-right: 5px;
