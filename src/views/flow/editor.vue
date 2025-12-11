@@ -108,7 +108,7 @@ setNodeProps({
     title: '指定审批人',
     name: 'approve.specify',
     control: 'flow-candidate',
-    after: 'approve.handlerType',
+    after: 'base.approve.handlerType',
     props: {
       help: '通过选定的成员，作为审批人'
     },
@@ -122,7 +122,7 @@ setNodeProps({
     title: '指定审批人',
     name: 'approve.flowVar',
     control: 'flow-candidate',
-    after: 'approve.handlerType',
+    after: 'base.approve.handlerType',
     props: {
       types: 'flowVar',
       help: '通过流程变量，作为审批人'
@@ -137,7 +137,7 @@ setNodeProps({
     title: '指定审批人',
     name: 'approve.formVar',
     control: 'flow-candidate',
-    after: 'approve.handlerType',
+    after: 'base.approve.handlerType',
     props: {
       types: 'formVar',
       help: '通过前置节点表单变量，作为审批人'
@@ -152,7 +152,7 @@ setNodeProps({
     title: '审批层级',
     name: 'approve.chainLevel',
     control: 'a-input-number',
-    after: 'approve.handlerType',
+    after: 'base.approve.handlerType',
     value: 3,
     props: {
       min: 0,
@@ -179,7 +179,7 @@ setNodeProps({
     title: '流程节点',
     name: 'approve.flowNode',
     control: 'flow-node-select',
-    after: 'approve.handlerType',
+    after: 'base.approve.handlerType',
     props: {
       help: '指定当前流程中其他节点，和目标节点保持一样的候选人',
       //  scope: 'pre',
