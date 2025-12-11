@@ -9,12 +9,13 @@ import type { UFNode, UFDefine, UFRoute } from 'unione-flow-vue/dist/typing'
  */
 export function loadPreForm(flowChart: UFDefine, currNode: UFNode) {
   return new Promise((resolve, reject) => {
-    if (currNode.data?.formType != 1) {
+    const ntypes = ['start', 'task']
+    if (currNode.data?.formType != 1 && ntypes.includes(currNode.types)) {
       // 非动态表单，直接返回
       reject(null)
       return
     }
-    if (currNode.data?.formId) {
+    if (currNode.data?.formId && ntypes.includes(currNode.types)) {
       resolve(currNode.data.formId)
       return
     }
@@ -48,7 +49,7 @@ export function loadPreForm(flowChart: UFDefine, currNode: UFNode) {
       if (!nodeMap[preNodeSn]) {
         return
       }
-      if (nodeMap[preNodeSn].data?.formId) {
+      if (nodeMap[preNodeSn].data?.formId && ntypes.includes(nodeMap[preNodeSn].types)) {
         return nodeMap[preNodeSn].data.formId
       }
       return process(nodeMap[preNodeSn])

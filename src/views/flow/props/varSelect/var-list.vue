@@ -1,9 +1,23 @@
 <template>
     <div class="var-select-list">
-        <a-tabs v-model:activeKey="activeKey" tab-position="left">
+        <a-tabs v-model:activeKey="activeKey" tab-position="left" @change="handelTabChange">
             <template v-for="item in varData" :key="item.key">
                 <a-tab-pane v-if="props.scope.includes(item.key)" :key="item.key" :tab="item.title">
-                    <a-table :columns="columns" :row-selection="selection" :data-source="item.vars" :pagination="false"
+                    <div v-if="item.key == 'formVar'" class="form-var-select">
+                        数据模型：
+                        <a-select :options="item.tables" style="width: 300px;" @select="handelTableChange"
+                            v-model:value="activeTable"></a-select>
+                    </div>
+                    <a-table
+                        :columns="['flowVar', 'nodeVar'].includes(item.key) ? columns : columns.filter((col: any) => col.dataIndex != 'scope')"
+                        :customRow="(record: any) => {
+                            return {
+                                ...record,
+                                onClick: (event: any) => {
+                                    selection.onClick(record)
+                                }
+                            }
+                        }" :row-selection="selection" :data-source="doVarFilter(item.vars)" :pagination="false"
                         :scroll="{ x: props.width - 100 }" size="small" row-key="name"></a-table>
                 </a-tab-pane>
             </template>
@@ -11,7 +25,8 @@
     </div>
 </template>
 <script setup lang="ts">
-import { inject, onMounted, ref } from 'vue'
+import { inject, onMounted, ref, type PropType } from 'vue'
+import { loadFormDataModels } from '../../lib/flowUtil'
 
 defineOptions({
     name: 'VarSelectList',
@@ -20,24 +35,62 @@ defineOptions({
 const props = defineProps({
     scope: {
         type: Array<String>,
-        default: () => ['flow', 'node']
+        default: () => ['flowVar', 'nodeVar']
     },
     width: {
         type: Number,
         default: 550
+    },
+    target: {
+        type: Object as PropType<{ title: string, name: string, dataType: string }>,
+    },
+    varFilter: {
+        type: String // title,name,dataType
     }
 })
+
+const varMatchStats = defineModel('varMatchStats', {
+    type: Object as PropType<{ title: boolean, name: boolean, dataType: boolean }>,
+    default() {
+        return { title: false, name: false, dataType: false }
+    }
+})
+
 const activeKey = ref(props.scope[0])
-const varData = ref([
+const activeTable = ref('')
+const varData = ref<any>([
     {
         title: '流程变量',
-        key: 'flow',
+        key: 'flowVar',
         vars: []
     },
     {
         title: '节点变量',
-        key: 'node',
+        key: 'nodeVar',
         vars: []
+    }, {
+        title: '表单变量',
+        key: 'formVar',
+        tables: [],
+        active: '',
+        vars: []
+    }, {
+        title: '数据节点',
+        key: 'dataNode',
+        vars: []
+    }, {
+        title: '系统变量',
+        key: 'sysVar',
+        vars: [{ title: '当前时间', name: 'now', dataType: 'Timestamp' },
+        { title: '用户ID', name: 'userId', dataType: 'Long' },
+        { title: '用户名', name: 'userName', dataType: 'String' },
+        { title: '机构ID', name: 'orgId', dataType: 'Long' },
+        { title: '机构名称', name: 'orgName', dataType: 'String' },
+        { title: '租户ID', name: 'tenantId', dataType: 'Long' },
+        { title: '流程定义ID', name: 'flowDefId', dataType: 'Long' },
+        { title: '流程实例ID', name: 'flowInsId', dataType: 'Long' },
+        { title: '流程节点ID', name: 'flowNodeId', dataType: 'Long' },
+        { title: '流程任务ID', name: 'flowTaskId', dataType: 'Long' }]
     }
 ])
 const columns = ref([{
@@ -63,7 +116,7 @@ const columns = ref([{
     title: '数据类型',
     dataIndex: 'dataType',
     key: 'dataType',
-    width: 80,
+    width: 90,
     fixed: 'right',
 },
 {
@@ -83,51 +136,178 @@ const selection = ref<any>({
     onChange: (rowKeys: any[], selectedRows: any[]) => {
         selection.value.selectedRowKeys = rowKeys.length ? [rowKeys[rowKeys.length - 1]] : []
         selection.value.selectedRowList = selectedRows.length ? [selectedRows[selectedRows.length - 1]] : []
+
+        if (props.target) {
+            const varItem = selection.value.selectedRowList[0]
+            varMatchStats.value.title = false
+            varMatchStats.value.name = false
+            varMatchStats.value.dataType = false
+            if (varItem.title == props.target?.title) {
+                varMatchStats.value.title = true
+            }
+            if (varItem.name == props.target?.name) {
+                varMatchStats.value.name = true
+            }
+            if (varItem.dataType == props.target?.dataType) {
+                varMatchStats.value.dataType = true
+            }
+            varMatchStats.value = { ...varMatchStats.value }
+        }
     },
+    onClick: (record: any) => {
+        selection.value.selectedRowKeys = [record.name]
+        selection.value.selectedRowList = [record]
+        if (props.target) {
+            const varItem = selection.value.selectedRowList[0]
+            varMatchStats.value.title = false
+            varMatchStats.value.name = false
+            varMatchStats.value.dataType = false
+            if (varItem.title == props.target?.title) {
+                varMatchStats.value.title = true
+            }
+            if (varItem.name == props.target?.name) {
+                varMatchStats.value.name = true
+            }
+            if (varItem.dataType == props.target?.dataType) {
+                varMatchStats.value.dataType = true
+            }
+            varMatchStats.value = { ...varMatchStats.value }
+        }
+    }
 })
+
+function doVarFilter(vars: any[]) {
+    if (props.target && props.varFilter) {
+        return vars.filter((item: any) => {
+            if (props.varFilter && props.target) {
+                //@ts-ignore
+                return item[props.varFilter] == props.target[props.varFilter]
+            }
+            return true
+        })
+    }
+    return vars;
+}
 
 const flowGraph: any = inject('flowGraph')
 const activeNode: any = inject('activeNode')
 
+
+/**
+ * 初始化变量列表
+ */
 function init() {
-    const flowVars = flowGraph().getJson().setting?.vars || []
-    const nodeVars = activeNode().data?.vars || []
-    varData.value[0].vars = []
-    if (flowVars?.global) {
-        varData.value[0].vars = flowVars.global.map((item: any) => {
-            return {
-                ...item,
-                scope: 'global'
+    selection.value.selectedRowKeys = []
+    selection.value.selectedRowList = []
+
+    const flowChart = flowGraph().getJson()
+    const currNode = activeNode()
+    if (props.scope.includes('flowVar')) {
+        const flowVars = flowChart.setting?.vars || []
+        varData.value[0].vars = []
+        if (flowVars?.global) {
+            varData.value[0].vars = flowVars.global.map((item: any) => {
+                return {
+                    ...item,
+                    scope: 'global'
+                }
+            })
+        }
+    }
+    if (props.scope.includes('nodeVar')) {
+        const nodeVars = currNode.data?.vars || []
+        varData.value[1].vars = []
+        if (nodeVars) {
+            if (!nodeVars.local) {
+                nodeVars.local = []
+            }
+            if (!nodeVars.global) {
+                nodeVars.global = []
+            }
+            //@ts-ignore
+            varData.value[1].vars = [...nodeVars.local.map((item: any) => {
+                return {
+                    ...item,
+                    scope: 'local'
+                }
+            }), ...nodeVars.global.map((item: any) => {
+                return {
+                    ...item,
+                    scope: 'global'
+                }
+            })]
+        }
+    }
+    if (props.scope.includes('formVar')) {
+        // 加载表单数据模型
+        loadFormDataModels(flowGraph(), currNode).then((models: any) => {
+            if (models?.length) {
+                varData.value[2].tables = models.filter((item: any) => item.group != 'sub').map((item: any) => {
+                    return {
+                        ...item,
+                        label: item.title,
+                        value: item.dsn
+                    }
+                })
+                activeTable.value = varData.value[2].tables[0]?.value || ''
+                varData.value[2].vars = varData.value[2].tables[0]?.fields || []
             }
         })
     }
-    varData.value[1].vars = []
-    if (nodeVars) {
-        if (!nodeVars.local) {
-            nodeVars.local = []
-        }
-        if (!nodeVars.global) {
-            nodeVars.global = []
-        }
-        //@ts-ignore
-        varData.value[1].vars = [...nodeVars.local.map((item: any) => {
-            return {
-                ...item,
-                scope: 'local'
-            }
-        }), ...nodeVars.global.map((item: any) => {
-            return {
-                ...item,
-                scope: 'global'
-            }
-        })]
+}
+function handelTabChange() {
+    if (props.target) {
+        // 自动匹配
+        const vars = varData.value.find((item: any) => item.key == activeKey.value).vars;
+        processVarMatch(vars)
     }
 }
+function processVarMatch(vars: any[]) {
+    if (vars?.length && props.target) {
+        varMatchStats.value.title = false
+        varMatchStats.value.name = false
+        varMatchStats.value.dataType = false
+        const matchVars = vars.filter((item: any) => {
+            const flag = (item.name == props.target?.name || item.title == props.target?.title) && item.dataType == props.target?.dataType
+            if (flag) {
+                if (item.title == props.target?.title) {
+                    varMatchStats.value.title = true
+                }
+                if (item.name == props.target?.name) {
+                    varMatchStats.value.name = true
+                }
+                varMatchStats.value.dataType = true
+            }
+            return flag
+        })
+        if (matchVars?.length) {
+            selection.value.selectedRowKeys = [matchVars[0].name]
+            selection.value.selectedRowList = [matchVars[0]]
+        }
+        varMatchStats.value = { ...varMatchStats.value }
+    }
+}
+
 function getSelected() {
+    if (activeKey.value == 'formVar') {
+        const model = varData.value[2].tables.find((item: any) => item.value == activeTable.value)
+        return {
+            type: activeKey,
+            table: { title: model.title, dsn: model.dsn },
+            names: selection.value.selectedRowKeys,
+            list: selection.value.selectedRowList,
+        }
+    }
     return {
+        type: activeKey,
         names: selection.value.selectedRowKeys,
         list: selection.value.selectedRowList,
     }
+}
+
+function handelTableChange(value: any, options: any) {
+    varData.value[2].vars = options.fields || []
+    processVarMatch(varData.value[2].vars)
 }
 
 onMounted(() => {
@@ -144,6 +324,10 @@ defineExpose({
 .var-select-list {
     :deep(.ant-tabs-tabpane) {
         padding: 0 2px 0 0 !important;
+    }
+
+    .form-var-select {
+        margin: 5px 15px;
     }
 }
 </style>

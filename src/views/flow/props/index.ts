@@ -7,6 +7,7 @@ import FlowNotice from './notice.vue'
 import FlowFormRef from './formRef.vue'
 import FlowFormVar from './formVar.vue'
 import FlowDataField from './dataField.vue'
+import FlowDataBind from './dataBind.vue'
 import FlowDataSort from './dataSort.vue'
 import FlowParam from './flowParam.vue'
 
@@ -20,6 +21,7 @@ export default {
     app.component('FlowFormRef', FlowFormRef)
     app.component('FlowFormVar', FlowFormVar)
     app.component('FlowDataField', FlowDataField)
+    app.component('FlowDataBind', FlowDataBind)
     app.component('FlowDataSort', FlowDataSort)
     app.component('FlowParam', FlowParam)
   }

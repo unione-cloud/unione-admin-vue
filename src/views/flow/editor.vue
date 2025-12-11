@@ -89,10 +89,10 @@ registerNode([{
       name: 'loadFields',
       control: 'flow-data-field'
     },
-    // 'base.bindFields': {
-    //   name: 'bindFields',
-    //   control: 'flow-param'
-    // },
+    'base.bindFields': {
+      name: 'bindFields',
+      control: 'flow-data-bind'
+    },
     'base.sorts': {
       name: 'sorts',
       control: 'flow-data-sort'
@@ -250,7 +250,7 @@ const toolbar = ref<any>([
 ])
 
 // 获取当前节点绑定的表单字段
-provide('loadFormDataModels', loadFormDataModels)
+// provide('loadFormDataModels', loadFormDataModels)
 
 const dialog = useDialog()
 const visible = ref(false)
