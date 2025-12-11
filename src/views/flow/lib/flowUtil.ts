@@ -108,7 +108,9 @@ export function loadFormDataModelById(formId: string, force?: boolean) {
             resolve(formDataModelStore[formId])
           }
           if (res.body.types == 'form') {
-            const dataModels = res.body.configs?.form?.dataModels || []
+            const dataModels = (res.body.configs?.form?.dataModels || []).filter(
+              (item: any) => item.group != 'sub'
+            )
             formDataModelStore[formId] = dataModels
             resolve(dataModels)
           }
