@@ -109,6 +109,20 @@ registerNode([{
       control: 'flow-data-sort'
     },
   }
+}, {
+  shape: 'subflow',
+  props: {
+    'base.flowKey': {
+      name: 'flowKey',
+      control: 'unione-select-box',
+      convert: {
+        types: 'local',
+        ctx: 'flow',
+        url: '/api/tmpl/find',
+        search: true
+      }
+    },
+  }
 }])
 setNodeProps({
   'base.formId': {
