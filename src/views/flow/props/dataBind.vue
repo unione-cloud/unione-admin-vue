@@ -46,7 +46,7 @@
 import { DeleteOutlined } from '@ant-design/icons-vue'
 import { inject, onMounted, ref, watch } from 'vue'
 import { loadFormDataModelById } from '../lib/flowUtil'
-import { useDialog } from 'unione-base-vue'
+import { axios, useDialog } from 'unione-base-vue'
 
 const props = defineProps({
   scope: {
@@ -89,7 +89,7 @@ function toreload() {
  */
 function doreload() {
   const dataType = props.formValue[props.dataType]
-  if (dataType == 'form') {
+  if (props.dataType == 'form' || dataType == 'form') {
     // 获取数据表单字段
     if (!props.formValue.formId) {
       return
@@ -104,8 +104,22 @@ function doreload() {
       }
       handleChange()
     })
-  } else {
+  } else if (props.dataType == 'api' || dataType == 'api') {
     // 获取接口字段列表
+  } else if (props.dataType == 'subflow' || dataType == 'subflow') {
+    if (!props.formValue.flowId) {
+      return
+    }
+    // 获取子流程字段
+    axios.flow({
+      url: '/api/tmpl/load/flowChart/' + props.formValue.flowId,
+      method: 'POST',
+    }).then((result: any) => {
+      if (result.success && result.body) {
+        // 子流程参数
+        modelValue.value = result.body.setting?.vars?.global || []
+      }
+    })
   }
 }
 
@@ -148,6 +162,12 @@ onMounted(() => {
     modelValue.value = []
   }
   flowGraph().on('formRef:change', (selected: any) => {
+    modelValue.value = []
+    if (selected) {
+      doreload()
+    }
+  })
+  flowGraph().on('flowRef:change', (selected: any) => {
     modelValue.value = []
     if (selected) {
       doreload()

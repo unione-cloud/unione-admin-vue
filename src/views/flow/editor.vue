@@ -112,14 +112,28 @@ registerNode([{
 }, {
   shape: 'subflow',
   props: {
-    'base.flowKey': {
-      name: 'flowKey',
+    'base.flowId': {
+      name: 'flowId',
       control: 'unione-select-box',
       convert: {
         types: 'local',
         ctx: 'flow',
         url: '/api/tmpl/find',
         search: true
+      },
+      event: {
+        select: (val: any, { option, formValue }: any) => {
+          formValue.flowKey = option.sn
+          formValue.vers = option.vers
+          ufEditor.value.trigger('flowRef:change', val)
+        },
+      }
+    },
+    'base.flowParams': {
+      name: 'flowParams',
+      control: 'flow-data-bind',
+      props: {
+        dataType: 'subflow',
       }
     },
   }
