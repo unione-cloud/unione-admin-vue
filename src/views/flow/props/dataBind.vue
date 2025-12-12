@@ -38,8 +38,8 @@
       暂无参数，请先绑定数据对象
     </div>
 
-    <flow-var-select title="绑定字段" :scope="['flowVar', 'nodeVar', 'formVar', 'dataNode', 'sysVar']"
-      v-model:visible="dataBind.visible" @ok="dataBind.handleBind" :target="dataBind.field" />
+    <flow-var-select title="绑定字段" :scope="scope" v-model:visible="dataBind.visible" @ok="dataBind.handleBind"
+      :target="dataBind.field" />
   </div>
 </template>
 <script setup lang="ts">
@@ -51,7 +51,7 @@ import { useDialog } from 'unione-base-vue'
 const props = defineProps({
   scope: {
     type: Array<string>,
-    default: () => ['global', 'local']
+    default: () => ['flowVar', 'nodeVar', 'formVar', 'dataNode', 'sysVar']
   },
   dataType: {
     type: String,
