@@ -80,7 +80,12 @@ const define = ref({
     },
     {
       title: '修改时间',
-      name: 'lastUpdated'
+      name: 'lastUpdated',
+      sort: {
+        enable: true,
+        asc: false,
+        defoult: true
+      }
     }
   ],
   operation: {
