@@ -728,9 +728,7 @@ function toPublish() {
     }
     // 节点属性验证
     const nodeProps = getNodeProps(node.types)
-    console.log('node props shape:' + node.types, nodeProps)
     const result = utils.form.validate(nodeProps, node.data || {})
-    console.log('node props validate result', result)
     if (result.error?.length) {
       error.value.list.push({
         node: {
@@ -739,9 +737,15 @@ function toPublish() {
         },
         error: result.error
       })
+    } else {
+      result.data.title = node.title
+      nodeMap[node.sn].data = result.data
     }
   })
+  // 设置异常信息显示状态
   error.value.visible = error.value.list.length > 0
+
+  console.log('flowChart', flowChart)
 
 }
 function close() {
