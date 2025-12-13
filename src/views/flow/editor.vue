@@ -145,6 +145,14 @@ setNodeProps({
     name: 'formId',
     control: 'flow-form-ref'
   },
+  'base.approve.handlerType': {
+    name: 'handlerType',
+    event: {
+      select: (val: any, { option, formValue }: any) => {
+        formValue.info = option.label
+      }
+    }
+  },
   'base.approve.specify': {
     title: '指定审批人',
     name: 'approve.specify',
