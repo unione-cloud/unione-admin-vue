@@ -14,7 +14,7 @@
         </div>
       </template>
     </a-drawer>
-    <Editor ref="editor"></Editor>
+    <Editor ref="editor" @refresh="refresh"></Editor>
   </div>
 </template>
 
@@ -335,6 +335,11 @@ const drawer = ref({
     })
   }
 })
+
+function refresh() {
+  page.value.reload()
+}
+
 </script>
 
 <style scoped lang="less">

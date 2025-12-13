@@ -46,6 +46,8 @@ import { computed, nextTick, ref } from 'vue'
 defineOptions({
   name: 'FlowEditor',
 })
+
+const emit = defineEmits(['refresh'])
 registerNode([{
   shape: 'sql',
   props: {
@@ -501,6 +503,7 @@ function toSave() {
             }
           }
           stepsCurrentIndex.value = 1
+          emit('refresh')
         } else {
           message.error(res.message || '提交失败')
         }
