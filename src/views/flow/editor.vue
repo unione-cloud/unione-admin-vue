@@ -238,6 +238,19 @@ setNodeProps({
     event: {
       visible: (val: any, formValue: any) => {
         return formValue.approve?.handlerType === 'flowVar'
+      },
+      validate: (val: any) => {
+        if (!val) {
+          return '请指定审批人不能为空'
+        }
+        const keys = ['users', 'roles', 'groups', 'posts', 'organs']
+        for (let i in keys) {
+          const key = keys[i]
+          if (val[key]?.length) {
+            return false
+          }
+        }
+        return '请指定审批人不能为空'
       }
     }
   },
@@ -254,6 +267,19 @@ setNodeProps({
     event: {
       visible: (val: any, formValue: any) => {
         return formValue.approve?.handlerType === 'formVar'
+      },
+      validate: (val: any) => {
+        if (!val) {
+          return '请指定审批人不能为空'
+        }
+        const keys = ['users', 'roles', 'groups', 'posts', 'organs']
+        for (let i in keys) {
+          const key = keys[i]
+          if (val[key]?.length) {
+            return false
+          }
+        }
+        return '请指定审批人不能为空'
       }
     }
   },
@@ -332,6 +358,21 @@ setNodeProps({
   'time.timeOut.transferTarget': {
     name: 'timeOut.transferTarget',
     control: 'flow-candidate',
+    event: {
+      validate: (val: any) => {
+        if (!val) {
+          return '转审对象不能为空'
+        }
+        const keys = ['users', 'roles', 'groups', 'posts', 'organs']
+        for (let i in keys) {
+          const key = keys[i]
+          if (val[key]?.length) {
+            return false
+          }
+        }
+        return '转审对象不能为空'
+      }
+    }
   }
 })
 
