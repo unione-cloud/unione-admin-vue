@@ -209,6 +209,19 @@ setNodeProps({
     event: {
       visible: (val: any, formValue: any) => {
         return formValue.approve?.handlerType === 'specify'
+      },
+      validate: (val: any) => {
+        if (!val) {
+          return '请指定审批人不能为空'
+        }
+        const keys = ['users', 'roles', 'groups', 'posts', 'organs']
+        for (let i in keys) {
+          const key = keys[i]
+          if (val[key]?.length) {
+            return false
+          }
+        }
+        return '请指定审批人不能为空'
       }
     }
   },

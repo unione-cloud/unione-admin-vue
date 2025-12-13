@@ -24,7 +24,7 @@
                 :selected="modelValue[item.name]" @ok="(e: any) => handelSelected(item, e)" />
         </div>
         <div class="isAssembly" v-if="modelValue">
-            <a-checkbox v-model:checked="modelValue.isAssembly">
+            <a-checkbox v-model:checked="modelValue.isAssembly" @change="handelAssemblyChange">
                 启用组合
                 <a-tooltip title="开启组合功能后，候选用户是指定的用户、角色、分组、岗位、组织的组合逻辑">
                     <QuestionCircleOutlined class="icon" />
@@ -52,7 +52,15 @@ const props = defineProps({
 })
 
 const modelValue = defineModel('value', {
-    type: Object
+    type: Object,
+    default: () => ({
+        isAssembly: false,
+        users: [],
+        roles: [],
+        groups: [],
+        posts: [],
+        organs: [],
+    })
 })
 const emit = defineEmits(['change'])
 const entryItems = ref([{
@@ -137,6 +145,10 @@ function handelSelectedVar({ list }: any) {
         return { title: r.title, name: r.name }
     })
     varVisible.value = false
+    emit('change', modelValue.value)
+}
+function handelAssemblyChange() {
+    modelValue.value = { ...modelValue.value }
     emit('change', modelValue.value)
 }
 
