@@ -146,7 +146,7 @@ setNodeProps({
     control: 'flow-form-ref'
   },
   'base.approve.handlerType': {
-    name: 'handlerType',
+    name: 'approve.handlerType',
     event: {
       select: (val: any, { option, formValue }: any) => {
         formValue.info = option.label
