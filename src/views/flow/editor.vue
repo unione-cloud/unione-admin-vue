@@ -210,9 +210,9 @@ setNodeProps({
       visible: (val: any, formValue: any) => {
         return formValue.approve?.handlerType === 'specify'
       },
-      validate: (val: any) => {
+      validate: (val: any, formValue: any) => {
         if (!val) {
-          return '请指定审批人不能为空'
+          return '指定审批人不能为空'
         }
         const keys = ['users', 'roles', 'groups', 'posts', 'organs']
         for (let i in keys) {
@@ -221,7 +221,7 @@ setNodeProps({
             return false
           }
         }
-        return '请指定审批人不能为空'
+        return '指定审批人不能为空'
       }
     }
   },
@@ -239,9 +239,9 @@ setNodeProps({
       visible: (val: any, formValue: any) => {
         return formValue.approve?.handlerType === 'flowVar'
       },
-      validate: (val: any) => {
+      validate: (val: any, formValue: any) => {
         if (!val) {
-          return '请指定审批人不能为空'
+          return '指定审批人不能为空'
         }
         const keys = ['users', 'roles', 'groups', 'posts', 'organs']
         for (let i in keys) {
@@ -250,7 +250,7 @@ setNodeProps({
             return false
           }
         }
-        return '请指定审批人不能为空'
+        return '指定审批人不能为空'
       }
     }
   },
@@ -268,9 +268,9 @@ setNodeProps({
       visible: (val: any, formValue: any) => {
         return formValue.approve?.handlerType === 'formVar'
       },
-      validate: (val: any) => {
+      validate: (val: any, formValue: any) => {
         if (!val) {
-          return '请指定审批人不能为空'
+          return '指定审批人不能为空'
         }
         const keys = ['users', 'roles', 'groups', 'posts', 'organs']
         for (let i in keys) {
@@ -279,7 +279,7 @@ setNodeProps({
             return false
           }
         }
-        return '请指定审批人不能为空'
+        return '指定审批人不能为空'
       }
     }
   },
