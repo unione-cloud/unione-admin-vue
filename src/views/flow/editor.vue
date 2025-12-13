@@ -14,9 +14,36 @@
           @change="handelStepChange"></a-steps>
       </div>
       <div class="opts">
+        <a-button danger v-if="error.list.length" shape="round" @click="error.visible = true">
+          {{ error.list.length }} 个错误
+          <DownOutlined />
+        </a-button>
         <a-button type="primary" @click="toSave" shape="round" v-if="flowObj.status != 2">保存</a-button>
         <a-button type="primary" @click="toPublish" shape="round" v-if="flowObj.status != 2">发布</a-button>
         <a-button @click="close" shape="round">关闭</a-button>
+
+        <draggable-resizable-vue :resizable="false" :z="10">
+          <a-card v-if="error.visible" class="flow-error-card" size="small" :bodyStyle="{ padding: 0 }">
+            <template #title>
+              <div class="title">
+                <CloseCircleOutlined class="icon" /> 异常信息
+              </div>
+            </template>
+            <template #extra>
+              <CloseOutlined @click="error.visible = false" />
+            </template>
+            <div class="node-error" v-for="item, i in error.list" :key="i" @click="setActiveNode(item.node.sn)">
+              <div class="title">{{ (i + 1) }}、{{ item.node.title }}节点</div>
+              <div class="error-list" v-for="err in item.error" :key="err">
+                <div class="error-item">
+                  <div class="prop-title">{{ err.title }}</div>
+                  <div class="prop-error">{{ err.message }}</div>
+                </div>
+              </div>
+            </div>
+          </a-card>
+        </draggable-resizable-vue>
+
       </div>
     </template>
 
@@ -42,6 +69,7 @@ import { UFEditor, getNodeProps, registerNode, registerOpts, setNodeProps } from
 import type { UFDefine } from 'unione-flow-vue/dist/typing'
 import { utils } from 'unione-form-vue'
 import { computed, nextTick, ref } from 'vue'
+import DraggableResizableVue from 'draggable-resizable-vue3'
 
 defineOptions({
   name: 'FlowEditor',
@@ -143,7 +171,15 @@ registerNode([{
 setNodeProps({
   'base.formId': {
     name: 'formId',
-    control: 'flow-form-ref'
+    control: 'flow-form-ref',
+    event: {
+      validate: (val: any, formValue: any) => {
+        if (!val) {
+
+          return '请绑定表单'
+        }
+      }
+    }
   },
   'base.approve.handlerType': {
     name: 'approve.handlerType',
@@ -308,7 +344,10 @@ const toolbar = ref([])
 
 const dialog = useDialog()
 const visible = ref(false)
-const error = ref<any>([])
+const error = ref<any>({
+  visible: false,
+  list: [],
+})
 const stepItems = computed(() => {
   const items = [
     {
@@ -575,7 +614,10 @@ function toSave() {
  * 发布流程
  */
 function toPublish() {
-  error.value = []
+  error.value = {
+    visible: false,
+    list: [],
+  }
   const flowChart: UFDefine = ufEditor.value.toJSON()
   const nodeMap: any = {}
   flowChart.nodes.forEach((node: any) => {
@@ -613,20 +655,31 @@ function toPublish() {
       error.value.push(`节点${node.title}不再流程图中，请检查连线`)
     }
     // 节点属性验证
-    const nodeProps = getNodeProps(node.shape)
+    const nodeProps = getNodeProps(node.types)
+    console.log('node props shape:' + node.types, nodeProps)
     const result = utils.form.validate(nodeProps, node.data || {})
     console.log('node props validate result', result)
     if (result.error?.length) {
-      error.value.push(`节点${node.title}属性验证失败：${result.error.length}个属性验证失败`)
+      error.value.list.push({
+        node: {
+          sn: node.sn,
+          title: node.title
+        },
+        error: result.error
+      })
     }
   })
+  error.value.visible = error.value.list.length > 0
 
-  console.log('flow validate result', error.value)
 }
 function close() {
   visible.value = false
 }
 async function open(flow: any) {
+  error.value = {
+    visible: false,
+    list: [],
+  }
   flowObj.value = utils.obj.ext(flow, {
     title: '流程',
     vers: 1,
@@ -690,6 +743,10 @@ function hadStartNode(nodes: any[]) {
   return nodes.some((item: any) => item.types == 'start')
 }
 
+function setActiveNode(sn: string) {
+  ufEditor.value.setActiveNode(sn)
+}
+
 defineExpose({
   open,
   close
@@ -699,7 +756,7 @@ defineExpose({
 <style lang="less">
 .flow-editor {
   height: 100%;
-  overflow: hidden;
+  overflow: hidden !important;
 
   .ant-modal-title {
     padding: 5px 10px;
@@ -720,13 +777,7 @@ defineExpose({
       display: flex;
 
       .ant-steps {
-        width: 400px;
-      }
-
-      &.step-len-3 {
-        .ant-steps {
-          width: 320px;
-        }
+        width: 300px;
       }
     }
 
@@ -764,6 +815,63 @@ defineExpose({
       height: 100%;
       padding: 20px 30px;
       border-radius: 10px;
+    }
+
+  }
+
+  .flow-error-card {
+    position: fixed;
+    top: 0;
+    right: 5px;
+    width: 400px;
+    height: calc(100vh - 50px);
+    box-shadow: 0 2px 8px #FDD0D0;
+
+    .ant-card-head {
+      background-color: #FDD0D0;
+    }
+
+    .title {
+      .icon {
+        color: red;
+      }
+    }
+
+
+    .node-error {
+      padding: 10px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #F2F7FA;
+
+      .title {
+        font-size: 14px;
+        font-weight: bold;
+        padding: 5px 0;
+      }
+
+      .error-list {
+        .error-item {
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: center;
+          padding: 5px;
+        }
+      }
+
+      .error-list:nth-child(odd) {
+        background-color: #e5ebee;
+        border-radius: 5px;
+      }
+
+    }
+
+    .node-error:hover {
+      background-color: #F2F7FA;
+
+      .title {
+        color: red;
+      }
     }
 
   }
