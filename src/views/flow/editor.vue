@@ -28,8 +28,10 @@
       <UnioneForm :form="settingFormDef" ref="settingFormRef" class="base-form"></UnioneForm>
     </div>
 
-    <UFEditor ref="ufEditor" :toolbar="toolbar" v-show="stepCurrentItem.name == 'flowEditor'"
-      :model="flowObj?.status == 2 ? 'readonly' : 'edit'" :value="ufmValue"></UFEditor>
+    <template v-if="flowObj.id">
+      <UFEditor ref="ufEditor" :toolbar="toolbar" v-show="stepCurrentItem.name == 'flowEditor'"
+        :model="flowObj?.status == 2 ? 'readonly' : 'edit'" :value="ufmValue"></UFEditor>
+    </template>
 
   </a-modal>
 </template>
@@ -39,12 +41,10 @@ import { axios, useDialog } from 'unione-base-vue'
 import { UFEditor, registerNode, registerOpts, setNodeProps } from 'unione-flow-vue'
 import type { UFDefine } from 'unione-flow-vue/dist/typing'
 import { utils } from 'unione-form-vue'
-import { computed, nextTick, provide, ref } from 'vue'
-import Custome from './nodes/node.vue'
-import { loadFormDataModels } from './lib/flowUtil'
+import { computed, nextTick, ref } from 'vue'
 
 defineOptions({
-  name: 'DemoIndex',
+  name: 'FlowEditor',
 })
 registerNode([{
   shape: 'sql',
@@ -264,29 +264,30 @@ setNodeProps({
   }
 })
 
-registerOpts({
-  name: 'custom',
-  title: '自定义节点',
-  icon: 'AndroidOutlined',
-  color: '#1890ff',
-  // click:()=>{
-  //   alert(22)
-  // }
-})
+// registerOpts({
+//   name: 'custom',
+//   title: '自定义节点',
+//   icon: 'AndroidOutlined',
+//   color: '#1890ff',
+//   // click:()=>{
+//   //   alert(22)
+//   // }
+// })
 
-const toolbar = ref<any>([
-  {
-    widget: 'AndroidOutlined',
-    name: 'custom',
-    title: '自定义节点',
-    location: 'left',
-    props: {
-      style: {
-        color: '#1890ff',
-      }
-    },
-  }
-])
+const toolbar = ref([])
+// const toolbar = ref<any>([
+//   {
+//     widget: 'AndroidOutlined',
+//     name: 'custom',
+//     title: '自定义节点',
+//     location: 'left',
+//     props: {
+//       style: {
+//         color: '#1890ff',
+//       }
+//     },
+//   }
+// ])
 
 // 获取当前节点绑定的表单字段
 // provide('loadFormDataModels', loadFormDataModels)
@@ -457,6 +458,7 @@ function toSave() {
           isOpen: 0,
           status: 1,
           ordered: 1,
+          flowChart: {}
         }, true)
       }
       // 提交数据
@@ -474,7 +476,30 @@ function toSave() {
         message.destroy()
         if (res.success) {
           message.success('提交成功')
-          flowObj.value.id = res.body
+          if (!flowObj.value.id) {
+            flowObj.value.id = res.body
+            utils.obj.ext(flowObj.value, {
+              flowChart: {
+                setting: {
+                },
+                nodes: [],
+                routes: [],
+              }
+            }, true)
+            ufmValue.value = flowObj.value.flowChart
+            if (!hadStartNode(ufmValue.value.nodes)) {
+              ufmValue.value.nodes.push({
+                types: 'start',
+                title: '开始',
+                attr: {
+                  position: {
+                    x: 100,
+                    y: 100,
+                  }
+                }
+              })
+            }
+          }
           stepsCurrentIndex.value = 1
         } else {
           message.error(res.message || '提交失败')
