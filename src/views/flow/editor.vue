@@ -70,6 +70,7 @@ import type { UFDefine } from 'unione-flow-vue/dist/typing'
 import { utils } from 'unione-form-vue'
 import { computed, nextTick, ref } from 'vue'
 import DraggableResizableVue from 'draggable-resizable-vue3'
+import { loadPreForm, loadPreFormSync } from './lib/flowUtil'
 
 defineOptions({
   name: 'FlowEditor',
@@ -175,7 +176,14 @@ setNodeProps({
     event: {
       validate: (val: any, formValue: any) => {
         if (!val) {
-
+          const flowChart = ufEditor.value.toJSON()
+          const node = flowChart.nodes.find((item: any) => item.sn === formValue.sn)
+          if (node) {
+            const preFormId = loadPreFormSync(flowChart, node)
+            if (preFormId) {
+              return false
+            }
+          }
           return '请绑定表单'
         }
       }
@@ -652,7 +660,17 @@ function toPublish() {
   flowChart.nodes.forEach((node: any) => {
     // 节点连线验证
     if (!hadLinkStart(node)) {
-      error.value.push(`节点${node.title}不再流程图中，请检查连线`)
+      error.value.list.push({
+        node: {
+          title: node.title,
+          sn: node.sn,
+        },
+        error: [{
+          title: '连线错误',
+          message: '节点不再流程图中，请检查连线'
+        }]
+      })
+      return
     }
     // 节点属性验证
     const nodeProps = getNodeProps(node.types)

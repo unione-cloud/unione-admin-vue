@@ -172,6 +172,61 @@ export function loadPreForm(flowChart: UFDefine, currNode: UFNode) {
 }
 
 /**
+ * 同步加载当前节点绑定的表单或前置表单
+ * @param flowChart 流程定义
+ * @param currNode 当前节点
+ * @returns
+ */
+export function loadPreFormSync(flowChart: UFDefine, currNode: UFNode) {
+  const ntypes = ['start', 'task']
+  if (currNode.data?.formType != 1 && ntypes.includes(currNode.types)) {
+    // 非动态表单，直接返回
+    return
+  }
+  if (currNode.data?.formId && ntypes.includes(currNode.types)) {
+    return currNode.data.formId
+  }
+  if (!flowChart.routes?.length || !currNode.sn) {
+    return
+  }
+  const edgeMap: any = {}
+  flowChart.routes.forEach((item) => {
+    if (!edgeMap[item.attr.target.cell]) {
+      edgeMap[item.attr.target.cell] = []
+    }
+    edgeMap[item.attr.target.cell].push(item.attr.source.cell)
+  })
+  const nodeMap: any = {}
+  flowChart.nodes.forEach((item) => {
+    if (item.sn) {
+      nodeMap[item.sn] = item
+    }
+  })
+
+  const process = (node: any) => {
+    if (!edgeMap[node.sn]?.length) {
+      return
+    }
+    if (edgeMap[node.sn].length > 1) {
+      return
+    }
+    const preNodeSn = edgeMap[node.sn][0]
+    if (!nodeMap[preNodeSn]) {
+      return
+    }
+    if (nodeMap[preNodeSn].data?.formId && ntypes.includes(nodeMap[preNodeSn].types)) {
+      return nodeMap[preNodeSn].data.formId
+    }
+    return process(nodeMap[preNodeSn])
+  }
+
+  const result = process(currNode)
+  if (result) {
+    return result
+  }
+}
+
+/**
  * 加载当前节点绑定的表单字段
  * @param flowChart 流程定义
  * @param currNode 当前节点
