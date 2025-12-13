@@ -321,6 +321,26 @@ const stepCurrentItem = computed(() => stepItems.value[stepsCurrentIndex.value] 
 const baseFormRef = ref<any>()
 const baseFormDef = ref({
   fields: [{
+    title: '所属应用',
+    name: 'appId',
+    control: 'unione-select-box',
+    props: {
+      required: true
+    },
+    convert: {
+      types: 'local',
+      url: '/api/system/appInfo/find',
+      labelField: 'name',
+      params: {
+        category: 'app'
+      }
+    },
+    event: {
+      select: (val: any, { option, formValue }: any) => {
+        formValue.appName = option.name
+      }
+    }
+  }, {
     title: '流程标题',
     name: 'title',
     props: {
@@ -437,7 +457,6 @@ function toSave() {
           isOpen: 0,
           status: 1,
           ordered: 1,
-          flowChart: '{}'
         }, true)
       }
       // 提交数据
@@ -445,10 +464,12 @@ function toSave() {
         content: '提交中...',
         duration: 3
       })
+      data = { ...flowObj.value }
+      data.flowChart = '{}'
       axios.flow({
         url: '/api/tmpl/save',
         method: 'POST',
-        data: flowObj.value
+        data
       }).then((res: any) => {
         message.destroy()
         if (res.success) {
