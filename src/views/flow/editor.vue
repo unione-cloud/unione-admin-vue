@@ -38,7 +38,7 @@
 <script setup lang="ts">
 import { message } from 'ant-design-vue'
 import { axios, useDialog } from 'unione-base-vue'
-import { UFEditor, registerNode, registerOpts, setNodeProps } from 'unione-flow-vue'
+import { UFEditor, getNodeProps, registerNode, registerOpts, setNodeProps } from 'unione-flow-vue'
 import type { UFDefine } from 'unione-flow-vue/dist/typing'
 import { utils } from 'unione-form-vue'
 import { computed, nextTick, ref } from 'vue'
@@ -308,6 +308,7 @@ const toolbar = ref([])
 
 const dialog = useDialog()
 const visible = ref(false)
+const error = ref<any>([])
 const stepItems = computed(() => {
   const items = [
     {
@@ -570,8 +571,57 @@ function toSave() {
     })
   }
 }
+/**
+ * 发布流程
+ */
 function toPublish() {
+  error.value = []
+  const flowChart: UFDefine = ufEditor.value.toJSON()
+  const nodeMap: any = {}
+  flowChart.nodes.forEach((node: any) => {
+    nodeMap[node.sn] = node
+  })
+  const edgeFromMap: any = {}
+  flowChart.routes.forEach((edge: any) => {
+    if (!edgeFromMap[edge.attr?.target?.cell]) {
+      edgeFromMap[edge.attr?.target?.cell] = []
+    }
+    if (edge.attr?.source?.cell) {
+      edgeFromMap[edge.attr?.target?.cell].push(edge.attr.source.cell)
+    }
+  })
 
+  const hadLinkStart = (node: any) => {
+    if (node.types == 'start') {
+      return true
+    }
+    const froms: any = edgeFromMap[node.sn] || []
+    if (froms.length) {
+      for (let i = 0; i < froms.length; i++) {
+        if (hadLinkStart(nodeMap[froms[i]])) {
+          return true
+        }
+      }
+    }
+    return false
+  }
+
+  // 节点验证
+  flowChart.nodes.forEach((node: any) => {
+    // 节点连线验证
+    if (!hadLinkStart(node)) {
+      error.value.push(`节点${node.title}不再流程图中，请检查连线`)
+    }
+    // 节点属性验证
+    const nodeProps = getNodeProps(node.shape)
+    const result = utils.form.validate(nodeProps, node.data || {})
+    console.log('node props validate result', result)
+    if (result.error?.length) {
+      error.value.push(`节点${node.title}属性验证失败：${result.error.length}个属性验证失败`)
+    }
+  })
+
+  console.log('flow validate result', error.value)
 }
 function close() {
   visible.value = false
