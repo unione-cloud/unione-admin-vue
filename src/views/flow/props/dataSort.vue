@@ -138,10 +138,10 @@ function doreload() {
   const dataType = props.formValue[props.dataType]
   if (dataType == 'form') {
     // 获取数据表单字段
-    if (!props.formValue.formId) {
+    if (!props.formValue.formSn) {
       return
     }
-    loadFormDataModelById(props.formValue.formId).then((res: any) => {
+    loadFormDataModelById(props.formValue.formSn).then((res: any) => {
       dataFields.value = []
       if (res) {
         const dataModel = res.filter((item: any) => item.group == 'master')

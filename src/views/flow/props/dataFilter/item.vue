@@ -326,8 +326,8 @@ function loadVars() {
   if (props.scope.includes('dataNode')) {
     paramFields.value.dataNode = []
     loadPreLoadDataNode(flowChart, currNode).then((node: any) => {
-      if (node.data?.process == 'form' && node.data?.formId) {
-        loadFormDataModelById(node.data.formId).then((models: any) => {
+      if (node.data?.process == 'form' && node.data?.formSn) {
+        loadFormDataModelById(node.data.formSn).then((models: any) => {
           const master = models.filter((m: any) => m.group == 'master')[0]
           if (master) {
             paramFields.value.dataNode = master.fields.map((f: any) => {
@@ -352,10 +352,10 @@ function doreload() {
   const dataType = props.formValue[props.dataType]
   if (dataType == 'form') {
     // 获取数据表单字段
-    if (!props.formValue.formId) {
+    if (!props.formValue.formSn) {
       return
     }
-    loadFormDataModelById(props.formValue.formId).then((res: any) => {
+    loadFormDataModelById(props.formValue.formSn).then((res: any) => {
       dataFields.value = []
       if (res) {
         const dataModel = res.filter((item: any) => item.group == 'master')

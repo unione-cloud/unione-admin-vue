@@ -122,8 +122,8 @@ export function loadPreForm(flowChart: UFDefine, currNode: UFNode) {
       reject(null)
       return
     }
-    if (currNode.data?.formId && ntypes.includes(currNode.types)) {
-      resolve(currNode.data.formId)
+    if (currNode.data?.formSn && ntypes.includes(currNode.types)) {
+      resolve(currNode.data.formSn)
       return
     }
     if (!flowChart.routes?.length || !currNode.sn) {
@@ -156,8 +156,8 @@ export function loadPreForm(flowChart: UFDefine, currNode: UFNode) {
       if (!nodeMap[preNodeSn]) {
         return
       }
-      if (nodeMap[preNodeSn].data?.formId && ntypes.includes(nodeMap[preNodeSn].types)) {
-        return nodeMap[preNodeSn].data.formId
+      if (nodeMap[preNodeSn].data?.formSn && ntypes.includes(nodeMap[preNodeSn].types)) {
+        return nodeMap[preNodeSn].data.formSn
       }
       return process(nodeMap[preNodeSn])
     }
@@ -183,8 +183,8 @@ export function loadPreFormSync(flowChart: UFDefine, currNode: UFNode) {
     // 非动态表单，直接返回
     return
   }
-  if (currNode.data?.formId && ntypes.includes(currNode.types)) {
-    return currNode.data.formId
+  if (currNode.data?.formSn && ntypes.includes(currNode.types)) {
+    return currNode.data.formSn
   }
   if (!flowChart.routes?.length || !currNode.sn) {
     return
@@ -214,8 +214,8 @@ export function loadPreFormSync(flowChart: UFDefine, currNode: UFNode) {
     if (!nodeMap[preNodeSn]) {
       return
     }
-    if (nodeMap[preNodeSn].data?.formId && ntypes.includes(nodeMap[preNodeSn].types)) {
-      return nodeMap[preNodeSn].data.formId
+    if (nodeMap[preNodeSn].data?.formSn && ntypes.includes(nodeMap[preNodeSn].types)) {
+      return nodeMap[preNodeSn].data.formSn
     }
     return process(nodeMap[preNodeSn])
   }
@@ -234,16 +234,16 @@ export function loadPreFormSync(flowChart: UFDefine, currNode: UFNode) {
  * @returns
  */
 const formDataModelStore: any = {}
-export function loadFormDataModelById(formId: string, force?: boolean) {
+export function loadFormDataModelById(formSn: string, force?: boolean) {
   return new Promise((resolve, reject) => {
-    if (formDataModelStore[formId] && force != true) {
-      resolve(formDataModelStore[formId])
+    if (formDataModelStore[formSn] && force != true) {
+      resolve(formDataModelStore[formSn])
       return
     }
-    // 根据formId加载表单字段列表
+    // 根据formSn加载表单字段列表
     axios
       .form({
-        url: '/api/data/define/load/' + formId,
+        url: '/api/data/define/load/' + formSn,
         method: 'POST'
       })
       .then((res: any) => {
@@ -259,22 +259,22 @@ export function loadFormDataModelById(formId: string, force?: boolean) {
                 dataType
               }
             })
-            formDataModelStore[formId] = [
+            formDataModelStore[formSn] = [
               {
                 title: res.body.title,
-                dsn: formId,
+                dsn: formSn,
                 vers: res.body.vers,
                 group: 'master',
                 fields: list
               }
             ]
-            resolve(formDataModelStore[formId])
+            resolve(formDataModelStore[formSn])
           }
           if (res.body.types == 'form') {
             const dataModels = (res.body.configs?.form?.dataModels || []).filter(
               (item: any) => item.group != 'sub'
             )
-            formDataModelStore[formId] = dataModels
+            formDataModelStore[formSn] = dataModels
             resolve(dataModels)
           }
         } else {
@@ -303,8 +303,8 @@ export function loadFormDataModels(flowChart: any, node: UFNode | UFRoute, force
   return new Promise((resolve, reject) => {
     //@ts-ignore
     loadPreForm(flowChart.getJson(), node)
-      .then((formId: any) => {
-        loadFormDataModelById(formId, force)
+      .then((formSn: any) => {
+        loadFormDataModelById(formSn, force)
           .then((res: any) => {
             resolve(res)
           })

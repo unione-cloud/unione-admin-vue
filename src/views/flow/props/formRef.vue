@@ -23,6 +23,10 @@ const props = defineProps({
     scope: {
         type: String,
         default: 'lap'   //lap:当前节点和前置节点，lol：仅当前节点
+    },
+    formValue: {
+        type: Object,
+        default: () => { }
     }
 })
 const modelValue = defineModel('value', {
@@ -48,18 +52,18 @@ function toloadPreForm() {
     const graph = flowGraph()
     const currNode = activeNode()
     if (graph && currNode) {
-        const formId = currNode.data?.formId || ''
+        const formSn = currNode.data?.formSn || ''
         nextTick(() => {
             if (formRef.value) {
-                if (formId) {
+                if (formSn) {
                     formRef.value.querySelector('.ant-input-clear-icon').style.display = 'block'
                 } else {
                     formRef.value.querySelector('.ant-input-clear-icon').style.display = 'none'
                 }
             }
         })
-        loadPreForm(graph.getJson(), currNode).then((formId: any) => {
-            modelValue.value = formId
+        loadPreForm(graph.getJson(), currNode).then((formSn: any) => {
+            modelValue.value = formSn
         }).catch((e: any) => {
             if (e) {
                 error.value = e
@@ -75,6 +79,11 @@ const formSelectObj = ref({
     },
     handelSelect: (selected: any) => {
         modelValue.value = selected.sn
+        // eslint-disable-next-line vue/no-mutating-props
+        props.formValue.formId = selected.id
+        // eslint-disable-next-line vue/no-mutating-props
+        props.formValue.formVers = selected.vers
+
         formMap.value[selected.sn] = selected.title + '(V' + selected.vers + ')'
         formSelectObj.value.visible = false
         formMap.value = { ...formMap.value }
@@ -119,10 +128,10 @@ onMounted(() => {
         flowGraph().onActiveNode((node: any) => {
             if (node) {
                 error.value = ''
-                modelValue.value = node.data?.formId || ''
+                modelValue.value = node.data?.formSn || ''
                 nextTick(() => {
                     if (formRef.value) {
-                        if (node.data?.formId) {
+                        if (node.data?.formSn) {
                             formRef.value.querySelector('.ant-input-clear-icon').style.display = 'block'
                         } else {
                             formRef.value.querySelector('.ant-input-clear-icon').style.display = 'none'

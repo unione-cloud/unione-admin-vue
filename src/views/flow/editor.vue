@@ -18,8 +18,10 @@
           {{ error.list.length }} 个错误
           <DownOutlined />
         </a-button>
-        <a-button type="primary" @click="toSave" shape="round" v-if="flowObj.status != 2">保存</a-button>
-        <a-button type="primary" @click="toPublish" shape="round" v-if="flowObj.status != 2">发布</a-button>
+        <a-button type="primary" @click="toSave" shape="round" v-if="flowObj.status != 2"
+          :loading="loading">保存</a-button>
+        <a-button type="primary" @click="toPublish" shape="round" v-if="flowObj.status != 2"
+          :loading="loading">发布</a-button>
         <a-button @click="close" shape="round">关闭</a-button>
 
         <draggable-resizable-vue :resizable="false" :z="10">
@@ -101,8 +103,8 @@ registerNode([{
   shape: 'start',
   props: {
     'base.formId': {
-      name: 'formId',
-      control: 'flow-form-ref'
+      name: 'formSn',
+      control: 'flow-form-ref',
     },
     'base.copyOption': {
       name: 'copyOption',
@@ -113,7 +115,7 @@ registerNode([{
   shape: 'data',
   props: {
     'base.formId': {
-      name: 'formId',
+      name: 'formSn',
       control: 'flow-form-ref',
       props: {
         scope: 'lol'
@@ -171,7 +173,7 @@ registerNode([{
 }])
 setNodeProps({
   'base.formId': {
-    name: 'formId',
+    name: 'formSn',
     control: 'flow-form-ref',
     event: {
       validate: (val: any, formValue: any) => {
@@ -672,9 +674,11 @@ function toSave() {
     })
   }
 }
+
 /**
  * 发布流程
  */
+const loading = ref(false)
 function toPublish() {
   error.value = {
     visible: false,
@@ -746,7 +750,23 @@ function toPublish() {
   error.value.visible = error.value.list.length > 0
 
   console.log('flowChart', flowChart)
-
+  loading.value = true
+  message.loading({
+    content: '发布中...',
+  })
+  axios.flow({
+    url: '/api/tmpl/publish/' + flowObj.value.id,
+    method: 'POST',
+    data: flowChart
+  }).then((res: any) => {
+    message.destroy()
+    loading.value = false
+    if (res.success) {
+      message.success('发布成功')
+    } else {
+      message.error(res.message || '发布失败')
+    }
+  })
 }
 function close() {
   visible.value = false
