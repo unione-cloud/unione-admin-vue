@@ -2,11 +2,11 @@
   <a-modal wrapClassName="unione-modal-full flow-editor" v-model:visible="visible" :footer="null" :mask="false"
     :closable="false" :bodyStyle="{ padding: '0 5px' }" destroyOnClose>
     <template #title>
-      <div class="title">
+      <div class="flow-title">
         <ApartmentOutlined />
         {{ flowObj.title }}<a-tag :color="flowObj.status == 2 ? 'green' : 'red'" style="margin-left: 5px;">版本v{{
           flowObj.vers }}</a-tag>
-        <span class="btn-upgrade" v-if="flowObj.status == 2">流程已发布，<span
+        <span class="btn-upgrade" v-if="flowObj.status == 2" @click="toUpgrade">流程已发布，<span
             style="color: #1890ff;">请先升级版本</span>后进行编辑</span>
       </div>
       <div :class="['steps', 'step-len-' + stepItems.length]">
@@ -25,7 +25,7 @@
         <a-button @click="close" shape="round">关闭</a-button>
 
         <draggable-resizable-vue :resizable="false" :z="10">
-          <a-card v-if="error.visible" class="flow-error-card" size="small" :bodyStyle="{ padding: 0 }">
+          <a-card class="flow-error-card" size="small" :bodyStyle="{ padding: 0 }" v-if="error.visible">
             <template #title>
               <div class="title">
                 <CloseCircleOutlined class="icon" /> 异常信息
@@ -73,6 +73,7 @@ import { utils } from 'unione-form-vue'
 import { computed, nextTick, ref } from 'vue'
 import DraggableResizableVue from 'draggable-resizable-vue3'
 import { loadPreForm, loadPreFormSync } from './lib/flowUtil'
+import { Axis } from 'echarts'
 
 defineOptions({
   name: 'FlowEditor',
@@ -690,12 +691,19 @@ function toPublish() {
     nodeMap[node.sn] = node
   })
   const edgeFromMap: any = {}
+  const edgeToMap: any = {}
   flowChart.routes.forEach((edge: any) => {
     if (!edgeFromMap[edge.attr?.target?.cell]) {
       edgeFromMap[edge.attr?.target?.cell] = []
     }
     if (edge.attr?.source?.cell) {
       edgeFromMap[edge.attr?.target?.cell].push(edge.attr.source.cell)
+    }
+    if (!edgeToMap[edge.attr?.source?.cell]) {
+      edgeToMap[edge.attr?.source?.cell] = []
+    }
+    if (edge.attr?.target?.cell) {
+      edgeToMap[edge.attr?.source?.cell].push(edge.attr.target.cell)
     }
   })
 
@@ -713,10 +721,24 @@ function toPublish() {
     }
     return false
   }
+  const hadLinkEnd = (node: any) => {
+    if (node.types == 'end') {
+      return true
+    }
+    const tos: any = edgeToMap[node.sn] || []
+    if (tos.length) {
+      for (let i = 0; i < tos.length; i++) {
+        if (hadLinkEnd(nodeMap[tos[i]])) {
+          return true
+        }
+      }
+    }
+    return false
+  }
 
   // 节点验证
   flowChart.nodes.forEach((node: any) => {
-    // 节点连线验证
+    // 节点连线验证:开始节点
     if (!hadLinkStart(node)) {
       error.value.list.push({
         node: {
@@ -730,6 +752,21 @@ function toPublish() {
       })
       return
     }
+    // 节点连线验证:结束节点
+    if (node.types == 'task' && !hadLinkEnd(node)) {
+      error.value.list.push({
+        node: {
+          title: node.title,
+          sn: node.sn,
+        },
+        error: [{
+          title: '连线错误',
+          message: '审批节点必须连通结束节点'
+        }]
+      })
+      return
+    }
+
     // 节点属性验证
     const nodeProps = getNodeProps(node.types)
     const result = utils.form.validate(nodeProps, node.data || {})
@@ -748,6 +785,9 @@ function toPublish() {
   })
   // 设置异常信息显示状态
   error.value.visible = error.value.list.length > 0
+  if (error.value.visible) {
+    return
+  }
 
   console.log('flowChart', flowChart)
   loading.value = true
@@ -762,12 +802,44 @@ function toPublish() {
     message.destroy()
     loading.value = false
     if (res.success) {
+      flowObj.value.status = 2
       message.success('发布成功')
     } else {
       message.error(res.message || '发布失败')
     }
   })
 }
+function toUpgrade() {
+  if (flowObj.value.status != 2) {
+    dialog.warning({
+      content: '当前流程未发布，不可升级版本'
+    })
+    return
+  }
+  loading.value = true
+  message.loading({
+    content: '升级中...',
+  })
+  axios.flow({
+    url: '/api/tmpl/upgrad',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    data: flowObj.value.id
+  }).then((res: any) => {
+    message.destroy()
+    loading.value = false
+    if (res.success) {
+      flowObj.value.vers++
+      flowObj.value.status = 1
+      message.success('升级成功')
+    } else {
+      message.error(res.message || '升级失败')
+    }
+  })
+}
+
 function close() {
   visible.value = false
 }
@@ -862,11 +934,16 @@ defineExpose({
     align-items: center;
     margin-top: 5px;
 
-    .btn-upgrade {
-      font-size: 11px;
-      margin-left: 10px;
-      cursor: pointer;
+    .flow-title {
+      width: calc(50% - 180px);
+
+      .btn-upgrade {
+        font-size: 11px;
+        margin-left: 10px;
+        cursor: pointer;
+      }
     }
+
 
     .steps {
       justify-content: center;
@@ -878,6 +955,9 @@ defineExpose({
     }
 
     .opts {
+      width: calc(50% - 150px);
+      text-align: right;
+
       .ant-btn {
         margin-right: 5px;
       }
@@ -928,6 +1008,8 @@ defineExpose({
     }
 
     .title {
+      text-align: left;
+
       .icon {
         color: red;
       }
@@ -963,7 +1045,8 @@ defineExpose({
     }
 
     .node-error:hover {
-      background-color: #F2F7FA;
+      background-color: #e4e6e7;
+      box-shadow: 0 5px 8px #e4e6e7;
 
       .title {
         color: red;
