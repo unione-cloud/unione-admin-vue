@@ -94,25 +94,13 @@ const define = ref({
     btns: [
       'view',
       {
-        name: 'status',
-        title: '状态',
-        widget: 'dropdown',
-        items: [
-          {
-            name: 'sts-2',
-            title: '发布',
-            disabled: ({ row }: any) => {
-              return row.status == 2
-            }
-          },
-          {
-            name: 'sts-3',
-            title: '下架',
-            disabled: ({ row }: any) => {
-              return row.status != 2
-            }
-          },
-        ]
+        name: 'sts-3',
+        title: '下架',
+        event: {
+          disable: ({ row }: any) => {
+            return row.status != 2
+          }
+        }
       },
       {
         name: 'vers',
@@ -137,17 +125,15 @@ async function btnClick({ btn, event, row, keys }: any) {
   if (btn.name == 'vers') {
     //
   }
-  if (btn.name.startsWith('sts-')) {
-    const status = btn.name.split('-')[1]
-    const stsLable = await stsConvert.convert(status)
+  if (btn.name.startsWith('sts-3')) {
     dialog.confirm({
-      content: '确定要设置应用状态为：' + stsLable,
+      content: '确定要下架该流程么？',
       onOk: () => {
         page.value
           .storage()
           .request({
             url: '/status',
-            data: { id: row.id, status }
+            data: { id: row.id, status: 3 }
           })
           .then(() => {
             page.value.reload()
