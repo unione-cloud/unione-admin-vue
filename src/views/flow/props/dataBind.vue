@@ -146,8 +146,9 @@ const dataBind = ref<any>({
   },
   handleBind: ({ type, table, names, list }: any) => {
     dataBind.value.visible = false
+    dataBind.value.field.bindType = type
     dataBind.value.field.bindTitle = list[0].title
-    dataBind.value.field.bindValue = list[0].name
+    dataBind.value.field.bindValue = table.dsn + '.' + list[0].name
   }
 })
 

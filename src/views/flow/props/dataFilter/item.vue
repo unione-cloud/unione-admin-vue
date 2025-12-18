@@ -137,14 +137,17 @@ const paramFields = ref<any>({
   })
 })
 const actions = ref([{
-  label: '精确查询',
+  label: '等于',
   value: 'EQ'
 }, {
+  label: '不等于',
+  value: 'NEQ'
+}, {
   label: '小余等于',
-  value: 'LT'
+  value: 'LTE'
 }, {
   label: '大于等于',
-  value: 'GT'
+  value: 'GTE'
 }, {
   label: '模糊查询',
   value: 'LIKE'
