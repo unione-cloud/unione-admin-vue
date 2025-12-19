@@ -216,13 +216,13 @@ setNodeProps({
     control: 'flow-form-ref',
     event: {
       validate: (val: any, formValue: any) => {
-        if (!val) {
+        if (!val && ufEditor.value) {
           const flowChart = ufEditor.value.toJSON()
           const node = flowChart.nodes.find((item: any) => item.sn === formValue.sn)
           if (node) {
             const preFormId = loadPreFormSync(flowChart, node)
             if (preFormId) {
-              return false
+              return
             }
           }
           return { error: '请绑定表单' }
@@ -820,6 +820,7 @@ function toPublish() {
       })
     } else {
       result.data.title = node.title
+      result.data.info = node.info
       nodeMap[node.sn].data = result.data
     }
   })
