@@ -120,6 +120,20 @@ registerNode([{
       control: 'flow-form-ref',
       props: {
         scope: 'lol'
+      },
+      event: {
+        validate: (val: any, formValue: any) => {
+          if (!val) {
+            return { error: '请绑定表单' }
+          }
+          return {
+            data: {
+              formId: formValue.formId,
+              formSn: formValue.formSn,
+              formVers: formValue.formVers
+            }
+          }
+        }
       }
     },
     'base.loadFields': {
@@ -128,7 +142,20 @@ registerNode([{
     },
     'base.bindFields': {
       name: 'bindFields',
-      control: 'flow-data-bind'
+      control: 'flow-data-bind',
+      event: {
+        validate: (val: any, formValue: any) => {
+          if (!val || !val.length) {
+            return { error: '请绑定字段' }
+          }
+          for (let i in val) {
+            if (!val[i].bindValue) {
+              console.log('val[i]', val[i])
+              return { error: '请绑定字段' }
+            }
+          }
+        }
+      }
     },
     'base.filter': {
       name: 'filter',
@@ -136,7 +163,18 @@ registerNode([{
     },
     'base.validate': {
       name: 'validate',
-      control: 'flow-data-filter'
+      control: 'flow-data-filter',
+      event: {
+        validate: (val: any, formValue: any) => {
+          if (val && val.length) {
+            for (let i in val) {
+              if (!val[i].paramValue) {
+                return { error: '请绑定字段' }
+              }
+            }
+          }
+        }
+      }
     },
     'base.sorts': {
       name: 'sorts',

@@ -292,14 +292,14 @@ function getSelected() {
     if (activeKey.value == 'formVar') {
         const model = varData.value[2].tables.find((item: any) => item.value == activeTable.value)
         return {
-            type: activeKey,
+            type: activeKey.value,
             table: { title: model.title, dsn: model.dsn },
             names: selection.value.selectedRowKeys,
             list: selection.value.selectedRowList,
         }
     }
     return {
-        type: activeKey,
+        type: activeKey.value,
         names: selection.value.selectedRowKeys,
         list: selection.value.selectedRowList,
     }

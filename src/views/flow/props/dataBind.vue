@@ -148,7 +148,12 @@ const dataBind = ref<any>({
     dataBind.value.visible = false
     dataBind.value.field.bindType = type
     dataBind.value.field.bindTitle = list[0].title
-    dataBind.value.field.bindValue = table.dsn + '.' + list[0].name
+    if (table) {
+      dataBind.value.field.bindValue = table.dsn + '.' + list[0].name
+    } else {
+      dataBind.value.field.bindValue = list[0].name
+    }
+    handleChange()
   }
 })
 
