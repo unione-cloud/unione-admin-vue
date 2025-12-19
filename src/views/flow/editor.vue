@@ -187,7 +187,7 @@ setNodeProps({
               return false
             }
           }
-          return '请绑定表单'
+          return { error: '请绑定表单' }
         }
       }
     }
@@ -224,7 +224,9 @@ setNodeProps({
             return false
           }
         }
-        return '指定审批人不能为空'
+        return {
+          error: '指定审批人不能为空'
+        }
       }
     }
   },
@@ -253,7 +255,7 @@ setNodeProps({
             return false
           }
         }
-        return '指定审批人不能为空'
+        return { error: '指定审批人不能为空' }
       }
     }
   },
@@ -273,7 +275,7 @@ setNodeProps({
       },
       validate: (val: any, formValue: any) => {
         if (!val) {
-          return '指定审批人不能为空'
+          return { error: '指定审批人不能为空' }
         }
         const keys = ['users', 'roles', 'groups', 'posts', 'organs']
         for (let i in keys) {
@@ -282,7 +284,7 @@ setNodeProps({
             return false
           }
         }
-        return '指定审批人不能为空'
+        return { error: '指定审批人不能为空' }
       }
     }
   },
@@ -364,7 +366,7 @@ setNodeProps({
     event: {
       validate: (val: any) => {
         if (!val) {
-          return '转审对象不能为空'
+          return { error: '转审对象不能为空' }
         }
         const keys = ['users', 'roles', 'groups', 'posts', 'organs']
         for (let i in keys) {
@@ -373,7 +375,7 @@ setNodeProps({
             return false
           }
         }
-        return '转审对象不能为空'
+        return { error: '转审对象不能为空' }
       }
     }
   }
@@ -789,7 +791,6 @@ function toPublish() {
     return
   }
 
-  console.log('flowChart', flowChart)
   loading.value = true
   message.loading({
     content: '发布中...',
@@ -834,6 +835,7 @@ function toUpgrade() {
       flowObj.value.vers++
       flowObj.value.status = 1
       message.success('升级成功')
+      emit('refresh')
     } else {
       message.error(res.message || '升级失败')
     }
