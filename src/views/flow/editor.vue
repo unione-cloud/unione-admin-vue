@@ -720,6 +720,7 @@ function toSave() {
         if (res.success) {
           message.success('提交成功')
           stepsCurrentIndex.value = 2
+          emit('refresh')
         } else {
           message.error(res.message || '提交失败')
         }
