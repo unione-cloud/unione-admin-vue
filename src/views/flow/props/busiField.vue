@@ -1,6 +1,6 @@
 <template>
   <div class="flow-data-bind">
-    <a-button type="primary" size="small" @click="toadd()" class="btn-add">
+    <a-button type="primary" size="small" @click="toadd()" class="btn-add" v-if="model != 'view'">
       <template #icon>
         <PlusOutlined style="transform: scale(0.95);" />
       </template>
@@ -26,9 +26,10 @@
           <span class="field-item-bind">绑定字段</span>
         </div>
       </div>
-      <div class="field-item-actions" style="width:50px;"></div>
+      <div class="field-item-actions" style="width:50px;" v-if="model != 'view'"></div>
     </div>
-    <draggable v-model="busiFields" @end="handleChange" :animation="300" ghost-class="ghost" handle=".drag-handle">
+    <draggable v-model="busiFields" @end="handleChange" :animation="300" ghost-class="ghost"
+      :handle="[model != 'view' && '.drag-handle']">
       <template #item="{ element, index }">
         <div class="field-item" :key="index">
           <div class="field-item-info">
@@ -39,7 +40,7 @@
               <span class="field-item-title" :title="element.title">{{ element.title }}</span>
               <span class="field-item-name" :title="element.name">{{ element.name }}</span>
               <span class="field-item-index">{{ element.index }}</span>
-              <span class="field-item-convert">{{ element.convert?.types || '无' }}</span>
+              <span class="field-item-convert">{{ convertTypes[element.convert?.types] || '无' }}</span>
               <span class="field-item-bind" @click="dataBind.toBind(element)" :title="element.bindTitle">{{
                 element.bindTitle || '未绑定' }}</span>
             </div>
@@ -51,8 +52,8 @@
               <a-input class="field-item-name" v-model:value="element.name"></a-input>
               <a-input-number class="field-item-index" v-model:value="element.index" :min="-1" :max="99"
                 :step="1"></a-input-number>
-              <div class="field-item-convert" @click="toEditConvert(element, index)">{{
-                element.convert?.types && convertTypes[element.convert?.types] || '无' }}
+              <div class="field-item-convert" @click="toEditConvert(element, index)">
+                {{ convertTypes[element.convert?.types] || '无' }}
                 <div class="field-convert-setting" v-if="editConvert && element.convert">
                   <unione-convert-setting v-model:value="element.convert"></unione-convert-setting>
                   <div class="opts">
@@ -63,7 +64,7 @@
               <div class="field-item-bind" @click="dataBind.toBind(element)">{{ element.bindTitle || '未绑定' }}</div>
             </div>
           </div>
-          <div class="field-item-actions">
+          <div class="field-item-actions" v-if="model != 'view'">
             <a-button type="text" size="small" @click="toedit(index)" title="编辑" v-if="index !== editIndex">
               <template #icon>
                 <FormOutlined />
@@ -95,7 +96,7 @@
 <script setup lang="ts">
 import { DeleteOutlined, EditFilled } from '@ant-design/icons-vue'
 import { useDialog } from 'unione-base-vue'
-import { inject, onMounted, ref, watch } from 'vue'
+import { computed, inject, onMounted, ref, watch } from 'vue'
 import draggable from 'vuedraggable'
 
 const props = defineProps({
@@ -103,6 +104,9 @@ const props = defineProps({
     type: Array<string>,
     default: () => ['flowVar', 'sysVar', 'formVar']
   },
+  engine: {
+    type: Object
+  }
 })
 const dialog = useDialog()
 const emit = defineEmits(['change'])
@@ -126,22 +130,12 @@ const convertTypes = ref<any>({
 })
 
 const flowChart = inject<Function>('flowChart')
+const model = computed(() => props.engine?.model)
 
 /**
  * 添加业务字段
  */
 function toadd() {
-  // editField.value = {
-  //   title: '新建',
-  //   name: 'new',
-  //   index: -1,
-  //   bindTitle: '',
-  //   bindType: '',
-  //   convert: {}
-  // }
-  // busiFields.value.push(editField.value)
-  // editIndex.value = busiFields.value.length - 1
-  // dataBind.value.toBind(editField.value)
   dataBind.value.field = null
   dataBind.value.multi = true
   dataBind.value.visible = true
@@ -188,6 +182,9 @@ const dataBind = ref<any>({
   field: null,
   multi: false,
   toBind: (field: any) => {
+    if (model.value == 'view') {
+      return
+    }
     dataBind.value.field = field
     dataBind.value.visible = true
     dataBind.value.multi = false

@@ -50,11 +50,13 @@
     </template>
 
     <div class="flow-base-info" v-if="stepCurrentItem.name == 'baseInfo'">
-      <UnioneForm :form="baseFormDef" ref="baseFormRef" class="base-form">
+      <UnioneForm :form="baseFormDef" ref="baseFormRef" class="base-form"
+        :model="flowObj?.status == 2 ? 'view' : 'run'">
       </UnioneForm>
     </div>
     <div class="flow-setting-info" v-if="stepCurrentItem.name == 'flowSetting'">
-      <UnioneForm :form="settingFormDef" ref="settingFormRef" class="base-form"></UnioneForm>
+      <UnioneForm :form="settingFormDef" ref="settingFormRef" class="base-form"
+        :model="flowObj?.status == 2 ? 'view' : 'run'"></UnioneForm>
     </div>
 
     <template v-if="flowObj.id">
@@ -583,6 +585,7 @@ const settingFormDef = ref({
     props: {
       help: '业务字段将在该流程的待办，已办列表中显示，并支持查询'
     },
+    view: 'self'
   }]
 })
 
