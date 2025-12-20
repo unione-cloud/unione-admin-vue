@@ -29,6 +29,10 @@
                     <div class="label">李四</div>
                 </div>
             </div>
+            <div class="footer">
+                <div class="approve-model">或签</div>
+                <RightOutlined class="icon" />
+            </div>
         </div>
     </div>
 </template>
@@ -63,9 +67,25 @@ import type transform from 'ant-design-vue/es/_util/cssinjs/transformers/legacyL
         .condidate {
             display: flex;
             flex-direction: row;
+            margin: 5px 0;
 
             .item {
                 margin: 5px;
+            }
+        }
+
+        .footer {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            border-top: 2px solid rgba(5, 5, 5, 0.06);
+            padding: 5px;
+            cursor: pointer;
+
+            .approve-model {
+                background-color: #E2E2E2;
+                border-radius: 5px;
+                padding: 0px 5px;
             }
         }
     }
