@@ -4,7 +4,7 @@
             :placement="props.position" :maskClosable="false" :bodyStyle="{ padding: 0 }"
             class="var-select var-select-drawer">
             <template #extra>
-                <div class="target-info" v-if="props.target">
+                <div class="target-info" v-if="props.target && !props.multi">
                     <div :class="['target-title', { 'active': varFilter.type == 'title' }]"
                         @click="varFilter.toFilter('title')">标题：<span
                             :style="{ 'color': varMatchStats.title ? '#1890ff' : '#666' }">{{
@@ -14,13 +14,14 @@
                             :style="{ 'color': varMatchStats.name ? '#1890ff' : '#666' }">{{
                                 props.target.name }}</span></div>
                     <div :class="['target-dataType', { 'active': varFilter.type == 'dataType' }]"
-                        @click="varFilter.toFilter('dataType')">数据类型：<span
+                        @click="varFilter.toFilter('dataType')" v-if="props.target.dataType">数据类型：<span
                             :style="{ 'color': varMatchStats.dataType ? '#1890ff' : 'red' }">{{ props.target.dataType
                             }}</span></div>
                 </div>
             </template>
             <VarList :scope="props.scope" ref="varListRef" :width="props.width" :target="props.target"
-                :varFilter="varFilter.type" v-model:varMatchStats="varMatchStats" />
+                :multi="props.multi" :flowChart="props.flowChart" :varFilter="varFilter.type"
+                v-model:varMatchStats="varMatchStats" />
             <template #footer>
                 <a-button type="primary" @click="handelOk">确定</a-button>
                 <a-button @click="visible = false">取消</a-button>
@@ -37,14 +38,15 @@
                 </div>
             </template>
             <VarList :scope="props.scope" ref="varListRef" :width="props.width" :target="props.target"
-                :varFilter="varFilter.type" v-model:varMatchStats="varMatchStats" />
+                :multi="props.multi" :flowChart="props.flowChart" :varFilter="varFilter.type"
+                v-model:varMatchStats="varMatchStats" />
         </a-modal>
     </div>
 </template>
 <script setup lang="ts">
 import { useDialog } from 'unione-base-vue';
-import { computed, inject, onMounted, ref, watch, type PropType } from 'vue';
-import VarList from './var-list.vue'
+import { ref, watch, type PropType } from 'vue';
+import VarList from './var-list.vue';
 
 defineOptions({
     name: 'FlowVarSelect'
@@ -74,6 +76,13 @@ const props = defineProps({
     width: {
         type: Number,
         default: 750
+    },
+    flowChart: {
+        type: Object
+    },
+    multi: {
+        type: Boolean,
+        default: false
     }
 })
 const varMatchStats = defineModel('varMatchStats', {
@@ -103,7 +112,7 @@ const varListRef = ref()
 function handelOk() {
     const selected = varListRef.value?.getSelected()
     if (selected?.names?.length > 0) {
-        if (props.target && !varMatchStats.value.dataType) {
+        if (props.target?.dataType && !varMatchStats.value.dataType) {
             if (props.target.dataType != 'String') {
                 dialog.error({ content: '数据类型不匹配，不能绑定' })
                 return

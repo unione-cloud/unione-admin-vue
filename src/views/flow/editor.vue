@@ -53,7 +53,7 @@
       <UnioneForm :form="baseFormDef" ref="baseFormRef" class="base-form">
       </UnioneForm>
     </div>
-    <div class="flow-base-info" v-if="stepCurrentItem.name == 'flowSetting'">
+    <div class="flow-setting-info" v-if="stepCurrentItem.name == 'flowSetting'">
       <UnioneForm :form="settingFormDef" ref="settingFormRef" class="base-form"></UnioneForm>
     </div>
 
@@ -70,7 +70,7 @@ import { axios, useDialog } from 'unione-base-vue'
 import { UFEditor, getNodeProps, registerNode, registerOpts, setNodeProps } from 'unione-flow-vue'
 import type { UFDefine } from 'unione-flow-vue/dist/typing'
 import { utils } from 'unione-form-vue'
-import { computed, nextTick, ref } from 'vue'
+import { computed, nextTick, provide, ref } from 'vue'
 import DraggableResizableVue from 'draggable-resizable-vue3'
 import { loadPreForm, loadPreFormSync } from './lib/flowUtil'
 import { Axis } from 'echarts'
@@ -446,6 +446,9 @@ const toolbar = ref([])
 
 // 获取当前节点绑定的表单字段
 // provide('loadFormDataModels', loadFormDataModels)
+provide('flowChart', () => {
+  return ufmValue.value
+})
 
 const dialog = useDialog()
 const visible = ref(false)
@@ -573,6 +576,13 @@ const settingFormDef = ref({
     props: {
       help: '公开流程不需要分配节点候选人，任何人都可以操作流程'
     }
+  }, {
+    title: '业务字段',
+    name: 'busiField',
+    control: 'flow-busi-field',
+    props: {
+      help: '业务字段将在该流程的待办，已办列表中显示，并支持查询'
+    },
   }]
 })
 
@@ -694,6 +704,8 @@ function toSave() {
     // 保存基本信息
     settingFormRef.value.validate().then((data: any) => {
       utils.obj.ext(flowObj.value, data, true)
+      data = { ...flowObj.value }
+      delete data.flowChart
       // 提交数据
       message.loading({
         content: '提交中...',
@@ -702,12 +714,12 @@ function toSave() {
       axios.flow({
         url: '/api/tmpl/save',
         method: 'POST',
-        data: flowObj.value
+        data: data
       }).then((res: any) => {
         message.destroy()
         if (res.success) {
           message.success('提交成功')
-          stepsCurrentIndex.value = 1
+          stepsCurrentIndex.value = 2
         } else {
           message.error(res.message || '提交失败')
         }
@@ -1019,10 +1031,10 @@ defineExpose({
   }
 
 
-  .flow-base-info {
+  .flow-base-info,
+  .flow-setting-info {
     background-color: #f5f5f5;
     padding: 10px;
-    height: 100%;
     display: flex;
     justify-content: center;
 
@@ -1032,6 +1044,8 @@ defineExpose({
       height: 100%;
       padding: 20px 30px;
       border-radius: 10px;
+      height: calc(100vh - 75px);
+      overflow-y: auto;
     }
 
   }

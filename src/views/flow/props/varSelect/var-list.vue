@@ -26,7 +26,7 @@
 </template>
 <script setup lang="ts">
 import { inject, onMounted, ref, type PropType } from 'vue'
-import { loadFormDataModels } from '../../lib/flowUtil'
+import { loadFormDataModelById, loadFormDataModels } from '../../lib/flowUtil'
 import { useConfigStore } from '@/config'
 
 defineOptions({
@@ -49,6 +49,13 @@ const props = defineProps({
     },
     varFilter: {
         type: String // title,name,dataType
+    },
+    flowChart: {
+        type: Object
+    },
+    multi: {
+        type: Boolean,
+        default: false
     }
 })
 
@@ -134,8 +141,14 @@ const selection = ref<any>({
     selectedRowKeys: [],
     selectedRowList: [],
     onChange: (rowKeys: any[], selectedRows: any[]) => {
-        selection.value.selectedRowKeys = rowKeys.length ? [rowKeys[rowKeys.length - 1]] : []
-        selection.value.selectedRowList = selectedRows.length ? [selectedRows[selectedRows.length - 1]] : []
+
+        if (props.multi) {
+            selection.value.selectedRowKeys = rowKeys
+            selection.value.selectedRowList = selectedRows
+        } else {
+            selection.value.selectedRowKeys = rowKeys.length ? [rowKeys[rowKeys.length - 1]] : []
+            selection.value.selectedRowList = selectedRows.length ? [selectedRows[selectedRows.length - 1]] : []
+        }
 
         if (props.target) {
             const varItem = selection.value.selectedRowList[0]
@@ -155,9 +168,21 @@ const selection = ref<any>({
         }
     },
     onClick: (record: any) => {
-        selection.value.selectedRowKeys = [record.name]
-        selection.value.selectedRowList = [record]
-        if (props.target) {
+
+        if (props.multi) {
+            if (selection.value.selectedRowKeys.includes(record.name)) {
+                selection.value.selectedRowKeys = selection.value.selectedRowKeys.filter((item: string) => item != record.name)
+                selection.value.selectedRowList = selection.value.selectedRowList.filter((item: any) => item.name != record.name)
+            } else {
+                selection.value.selectedRowKeys.push(record.name)
+                selection.value.selectedRowList.push(record)
+            }
+        } else {
+            selection.value.selectedRowKeys = [record.name]
+            selection.value.selectedRowList = [record]
+        }
+
+        if (props.target && selection.value.selectedRowList[0]) {
             const varItem = selection.value.selectedRowList[0]
             varMatchStats.value.title = false
             varMatchStats.value.name = false
@@ -200,8 +225,8 @@ function init() {
     selection.value.selectedRowKeys = []
     selection.value.selectedRowList = []
 
-    const flowChart = flowGraph().getJson()
-    const currNode = activeNode()
+    const flowChart = props.flowChart || flowGraph && flowGraph().getJson()
+
     if (props.scope.includes('flowVar')) {
         const flowVars = flowChart.setting?.vars || []
         varData.value[0].vars = []
@@ -214,6 +239,30 @@ function init() {
             })
         }
     }
+    if (props.flowChart) {
+        if (props.scope.includes('formVar')) {
+            // 获取开始节点表单
+            const startNode = flowChart.nodes.find((item: any) => item.types == 'start')
+            if (startNode?.data?.formType == 1 && startNode?.data?.formSn) {
+                loadFormDataModelById(startNode.data.formSn).then((models: any) => {
+                    if (models?.length) {
+                        varData.value[2].tables = models.filter((item: any) => item.group != 'sub').map((item: any) => {
+                            return {
+                                ...item,
+                                label: item.title,
+                                value: item.dsn
+                            }
+                        })
+                        activeTable.value = varData.value[2].tables[0]?.value || ''
+                        varData.value[2].vars = varData.value[2].tables[0]?.fields || []
+                    }
+                })
+            }
+        }
+        return
+    }
+
+    const currNode = activeNode()
     if (props.scope.includes('nodeVar')) {
         const nodeVars = currNode.data?.vars || []
         varData.value[1].vars = []

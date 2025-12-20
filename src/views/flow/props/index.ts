@@ -11,6 +11,7 @@ import FlowDataBind from './dataBind.vue'
 import FlowDataSort from './dataSort.vue'
 import FlowDataFilter from './dataFilter/index.vue'
 import FlowParam from './flowParam.vue'
+import FlowBusiField from './busiField.vue'
 
 export default {
   install(app: App, options?: any) {
@@ -26,5 +27,6 @@ export default {
     app.component('FlowDataSort', FlowDataSort)
     app.component('FlowDataFilter', FlowDataFilter)
     app.component('FlowParam', FlowParam)
+    app.component('FlowBusiField', FlowBusiField)
   }
 }

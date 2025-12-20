@@ -275,6 +275,19 @@ export function loadFormDataModelById(formSn: string, force?: boolean) {
               (item: any) => item.group != 'sub'
             )
             formDataModelStore[formSn] = dataModels
+            dataModels.forEach((item: any) => {
+              if (item.group == 'master') {
+                const fieldMap: any = {}
+                res.body.configs.fields.forEach((field: any) => {
+                  fieldMap[field.name] = field.configs?.convert
+                })
+                item.fields.forEach((field: any) => {
+                  if (fieldMap[field.name]) {
+                    field.convert = fieldMap[field.name]
+                  }
+                })
+              }
+            })
             resolve(dataModels)
           }
         } else {
