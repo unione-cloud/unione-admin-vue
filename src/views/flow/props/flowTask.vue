@@ -71,6 +71,11 @@ import type transform from 'ant-design-vue/es/_util/cssinjs/transformers/legacyL
 
             .item {
                 margin: 5px;
+
+                .label {
+                    font-size: 10px;
+                    text-align: center;
+                }
             }
         }
 

@@ -37,14 +37,16 @@
         </div>
         <div class="flow-left" v-if="leftPanel.open">
             <a-tabs v-model:active="leftPanel.active">
-                <a-tab-pane tab="流转" key="task">
+                <a-tab-pane tab="流转" key="task" class="flow-task-tab">
                     <a-timeline>
                         <a-timeline-item color="blue"><flow-task></flow-task></a-timeline-item>
                         <a-timeline-item color="green"><flow-task></flow-task></a-timeline-item>
                         <a-timeline-item color="green"><flow-task></flow-task></a-timeline-item>
                     </a-timeline>
                 </a-tab-pane>
-                <a-tab-pane tab="沟通" key="comment"></a-tab-pane>
+                <a-tab-pane tab="沟通" key="comment" class="flow-comment-tab">
+                    <flow-comment :fid="1"></flow-comment>
+                </a-tab-pane>
             </a-tabs>
         </div>
     </div>
@@ -173,24 +175,41 @@ const leftPanel = ref({
         background-color: #fff;
         border-radius: 5px;
 
-        :deep(.ant-tabs-tab) {
-            padding: 12px 20px;
+        :deep(.ant-tabs) {
+            height: 100%;
+
+            .ant-tabs-tab {
+                padding: 12px 20px;
+            }
+
+            .ant-tabs .ant-tabs-tab+.ant-tabs-tab {
+                margin-left: 10px;
+            }
+
+            .ant-tabs-content-holder {
+                height: 100%;
+
+                .ant-tabs-content {
+                    height: 100%;
+                }
+            }
         }
 
-        :deep(.ant-tabs .ant-tabs-tab+.ant-tabs-tab) {
-            margin-left: 10px;
-        }
 
-        :deep(.ant-tabs-content-holder) {
+        .flow-task-tab {
             padding: 5px 15px;
+
+            :deep(.ant-timeline-item-head-green) {
+                background-color: #52c41a;
+            }
+
+            :deep(.ant-timeline-item-head-blue) {
+                background-color: #1677ff;
+            }
         }
 
-        :deep(.ant-timeline-item-head-green) {
-            background-color: #52c41a;
-        }
-
-        :deep(.ant-timeline-item-head-blue) {
-            background-color: #1677ff;
+        .flow-comment-tab {
+            height: 100%;
         }
 
     }
