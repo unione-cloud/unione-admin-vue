@@ -330,3 +330,61 @@ export function loadFormDataModels(flowChart: any, node: UFNode | UFRoute, force
       })
   })
 }
+
+/**
+ * 处理任务状态
+ * @param flowChart 流程定义
+ * @param overs 已完成任务列表
+ * @param runs 正在运行任务列表
+ * @returns
+ */
+export function processTaskStatus(flowChart: any, overs: any[], runs: any[]) {
+  if (!overs?.length && !runs?.length) {
+    return
+  }
+  const edgeMap: any = {}
+  flowChart.routes.forEach((item: any) => {
+    if (!edgeMap[item.attr.target.cell]) {
+      edgeMap[item.attr.target.cell] = []
+    }
+    edgeMap[item.attr.target.cell].push(item)
+  })
+  const nodeMap: any = {}
+  flowChart.nodes.forEach((item: any) => {
+    if (item.sn) {
+      nodeMap[item.sn] = item
+    }
+  })
+
+  const tasks = [...(overs || []), ...(runs || [])]
+  const doprocess = (task: any) => {
+    const node = nodeMap[task.sn]
+    if (!node || node.dsflag) {
+      return
+    }
+    const preNode = nodeMap[task.preNodeId]
+    if (task.status == 1) {
+      // 设置前置节点已完成
+      if (preNode) {
+        doprocess(preNode)
+      }
+      node.data.status = 'active'
+    } else if (task.status == 2) {
+      node.data.status = 'running'
+    } else if (task.status == 3) {
+      node.data.status = 'complete'
+    }
+
+    if (preNode) {
+      const edge = edgeMap[task.sn]?.find((item: any) => item.attr.source.cell == preNode.sn)
+      if (edge) {
+        edge.data.status = task.status == 2 ? 'running' : task.status == 1 ? 'running' : 'complete'
+      }
+    }
+
+    node.dsflag = true
+  }
+  tasks.forEach((item: any) => {
+    doprocess(item)
+  })
+}

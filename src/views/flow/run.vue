@@ -25,23 +25,25 @@
             <div class="flow-area">
                 <div :class="['flow-form', !flowChartVisible && 'visible']"
                     v-if="flowForm.type == 'form' && flowForm.sn">
-                    <unione-page-form :psn="flowForm.sn" :btns="false" v-show="!flowChartVisible"></unione-page-form>
+                    <unione-page-form ref="formRef" :psn="flowForm.sn" :btns="false" :params="{ id: busiId }"
+                        v-show="!flowChartVisible" :model="formModel"></unione-page-form>
                 </div>
-                <UFEditor v-if="flowChartVisible && flowInfo?.flowChart" model="run"
-                    :value="JSON.parse(JSON.stringify(flowInfo.flowChart))">
+                <UFEditor v-if="flowChartVisible && flowInfo?.flowChart" model="run" :value="processFlowChart()">
                 </UFEditor>
             </div>
             <div class="flow-tools">
                 <a-button class="btn" danger>撤回</a-button>
                 <a-button class="btn">催办</a-button>
                 <a-button class="btn">加签</a-button>
-                <a-button class="btn">暂存</a-button>
+                <a-button class="btn" @click="save">暂存</a-button>
+                <a-button class="btn" type="primary" @click="submit">提交</a-button>
                 <a-button class="btn" type="primary">办理</a-button>
                 <a-button class="btn" danger>放弃</a-button>
                 <a-button class="btn">转审</a-button>
                 <a-button class="btn">协办</a-button>
                 <a-button class="btn" type="primary">同意</a-button>
                 <a-button class="btn" danger>拒绝</a-button>
+                <a-button class="btn" danger type="primary" @click="stop">终止</a-button>
             </div>
         </div>
         <div class="flow-right" v-if="rightPanel.open">
@@ -64,6 +66,7 @@
 import { axios, useDialog } from 'unione-base-vue';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
+import { loadPreFormSync, processTaskStatus } from './lib/flowUtil';
 
 defineOptions({
     name: "UnioneFlowRun",
@@ -78,14 +81,15 @@ const props = defineProps({
     fid: {
         type: String,
     },
+    // 模式：start:启动，run：运行，view：详情，archive：归档
+    fmd: {
+        type: String,
+    },
     // 业务id
     bid: {
         type: String,
     },
-    // 模式：start:启动，run：运行，view：详情，archive：归档
-    model: {
-        type: String,
-    }
+
 })
 const route = useRoute()
 const dialog = useDialog()
@@ -98,6 +102,9 @@ const rightPanel = ref({
 const flowChartVisible = ref(false)
 // 流程信息
 const flowInfo = ref<any>()
+const currTask = ref<any>()
+
+const flowLoading = ref(false)
 // 流程编码
 const flowSn = computed(() => {
     return props.fsn || route.query.fsn;
@@ -108,11 +115,14 @@ const flowId = computed(() => {
 })
 // 业务id
 const busiId = computed(() => {
-    return props.bid || route.query.bid;
+    return props.bid || route.query.bid || flowForm.value.bid;
 })
 // 流程模式
 const flowModel = computed(() => {
-    return props.model || route.query.model;
+    return props.fmd || route.query.fmd;
+})
+const formModel = computed(() => {
+    return (flowModel.value == 'run' || flowModel.value == 'start') ? 'run' : 'view'
 })
 
 // 流程表单
@@ -120,17 +130,98 @@ const flowForm = ref<any>({
     type: 'form',   //form,custom
     url: '',
     sn: null,
-    define: null
+    define: null,
+    bid: null,
 })
+const formRef = ref()
+
+/**
+ * 暂存表单数据
+ */
+function save() {
+    if (formRef.value) {
+        formRef.value.save().then((data: any) => {
+            if (data.body) {
+                flowForm.value.bid = data.body.id
+            }
+        })
+    }
+}
+
+/**
+ * 提交流程
+ */
+function submit() {
+    dialog.confirm({
+        content: '确定提交当前流程吗？',
+        onOk: () => {
+            // 提交流程
+            formRef.value.getData().then((data: any) => {
+                console.log('form data', data)
+                if (data) {
+                    flowLoading.value = true
+                    axios.flow({
+                        method: 'POST',
+                        url: '/api/engine/instance/run',
+                        data: {
+                            sn: flowSn.value,
+                            form: data
+                        }
+                    }).then((res: any) => {
+                        flowLoading.value = false
+                        console.log('submit res', res)
+                        if (res.success && res.body) {
+                            dialog.success('提交成功')
+                            if (res.body.tasks?.[0]) {
+                                currTask.value = res.body.tasks[0]
+                            }
+                        } else {
+                            dialog.error(res.message)
+                        }
+                    })
+                } else {
+                    dialog.error('表单数据获取失败')
+                }
+
+            })
+        }
+    })
+}
+
+function stop() {
+    dialog.confirm({
+        content: '确定要终止当前流程么？',
+        onOk: () => {
+            // 终止流程
+            axios.flow({
+                method: 'POST',
+                url: '/api/engine/instance/stop?insId=' + flowInfo.value.id,
+            }).then((res: any) => {
+                flowLoading.value = false
+                console.log('stop res', res)
+                if (res.success) {
+                    dialog.success('终止成功')
+                } else {
+                    dialog.error(res.message)
+                }
+            })
+        }
+    })
+}
 
 function loadFlowForm() {
     if (!flowInfo.value?.flowChart) {
         return;
     }
 
-    if (flowModel.value == 'run') {
+    if (flowModel.value == 'run' || currTask.value) {
         // 获取当前活动任务节点表单
-
+        //@ts-ignore
+        const result = loadPreFormSync(flowInfo.value.flowChart, flowInfo.value.flowChart.nodes.find((node: any) => node.sn == currTask.value.sn))
+        if (result) {
+            flowForm.value.type = 'form'
+            flowForm.value.sn = result + ':form'
+        }
     } else {
         // 获取开始节点表单
         const startNode = flowInfo.value?.flowChart.nodes.find((node: any) => node.types == 'start')
@@ -181,6 +272,10 @@ function loadFlowInfo() {
     }).then((res: any) => {
         if (res.success && res.body) {
             flowInfo.value = res.body
+            flowForm.value.bid = res.body.busiKey || busiId.value
+            if (flowInfo.value?.runs?.[0]) {
+                currTask.value = flowInfo.value.runs[0]
+            }
             loadFlowForm()
         } else {
             dialog.error(res.message)
@@ -189,6 +284,12 @@ function loadFlowInfo() {
 
 }
 
+function processFlowChart() {
+    const flowChart = JSON.parse(JSON.stringify(flowInfo.value.flowChart))
+    // 处理任务状态
+    processTaskStatus(flowChart, flowInfo.value.tasks, flowInfo.value.runs)
+    return flowChart
+}
 
 onMounted(() => {
     loadFlowInfo()
