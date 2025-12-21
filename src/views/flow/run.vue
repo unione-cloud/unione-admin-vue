@@ -1,6 +1,6 @@
 <template>
     <div class="unione-flow-run">
-        <div :class="['flow-content', !leftPanel.open && 'max-width']">
+        <div :class="['flow-content', !rightPanel.open && 'max-width']">
             <div class="flow-header">
                 <div class="flow-title">
                     <ArrowLeftOutlined class="btn-back" /><span class="label">请假申请流程</span><span
@@ -15,9 +15,9 @@
                     <div class="opts">
                         <FullscreenOutlined title="全屏" class="opt" />
                         <ClusterOutlined title="流程图" class="opt" />
-                        <DoubleRightOutlined title="收起" class="opt" v-if="leftPanel.open"
-                            @click="leftPanel.open = false" />
-                        <DoubleLeftOutlined title="展开" class="opt" v-else @click="leftPanel.open = true" />
+                        <DoubleRightOutlined title="收起" class="opt" v-if="rightPanel.open"
+                            @click="rightPanel.open = false" />
+                        <DoubleLeftOutlined title="展开" class="opt" v-else @click="rightPanel.open = true" />
                     </div>
                 </div>
             </div>
@@ -35,8 +35,8 @@
                 <a-button class="btn" danger>拒绝</a-button>
             </div>
         </div>
-        <div class="flow-left" v-if="leftPanel.open">
-            <a-tabs v-model:active="leftPanel.active">
+        <div class="flow-right" v-if="rightPanel.open">
+            <a-tabs v-model:active="rightPanel.active">
                 <a-tab-pane tab="流转" key="task" class="flow-task-tab">
                     <a-timeline>
                         <a-timeline-item color="blue"><flow-task></flow-task></a-timeline-item>
@@ -79,7 +79,7 @@ const props = defineProps({
     }
 })
 
-const leftPanel = ref({
+const rightPanel = ref({
     open: true,
     active: 'task',
 })
@@ -170,7 +170,7 @@ const leftPanel = ref({
 
     }
 
-    .flow-left {
+    .flow-right {
         width: 350px;
         background-color: #fff;
         border-radius: 5px;
