@@ -14,14 +14,23 @@
 
                     <div class="opts">
                         <FullscreenOutlined title="全屏" class="opt" />
-                        <ClusterOutlined title="流程图" class="opt" />
+                        <ClusterOutlined title="流程图" :class="['opt', flowChartVisible && 'active']"
+                            @click="flowChartVisible = !flowChartVisible" />
                         <DoubleRightOutlined title="收起" class="opt" v-if="rightPanel.open"
                             @click="rightPanel.open = false" />
                         <DoubleLeftOutlined title="展开" class="opt" v-else @click="rightPanel.open = true" />
                     </div>
                 </div>
             </div>
-            <div class="flow-form"></div>
+            <div class="flow-area">
+                <div :class="['flow-form', !flowChartVisible && 'visible']"
+                    v-if="flowForm.type == 'form' && flowForm.sn">
+                    <unione-page-form :psn="flowForm.sn" :btns="false" v-show="!flowChartVisible"></unione-page-form>
+                </div>
+                <UFEditor v-if="flowChartVisible && flowInfo?.flowChart" model="run"
+                    :value="JSON.parse(JSON.stringify(flowInfo.flowChart))">
+                </UFEditor>
+            </div>
             <div class="flow-tools">
                 <a-button class="btn" danger>撤回</a-button>
                 <a-button class="btn">催办</a-button>
@@ -52,8 +61,9 @@
     </div>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue';
-
+import { axios, useDialog } from 'unione-base-vue';
+import { computed, onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 
 defineOptions({
     name: "UnioneFlowRun",
@@ -72,18 +82,117 @@ const props = defineProps({
     bid: {
         type: String,
     },
-    // 模式：run：运行，view：详情，archive：归档
+    // 模式：start:启动，run：运行，view：详情，archive：归档
     model: {
         type: String,
-        default: 'run',
     }
 })
+const route = useRoute()
+const dialog = useDialog()
 
 const rightPanel = ref({
     open: true,
     active: 'task',
 })
 
+const flowChartVisible = ref(false)
+// 流程信息
+const flowInfo = ref<any>()
+// 流程编码
+const flowSn = computed(() => {
+    return props.fsn || route.query.fsn;
+})
+// 流程实例id
+const flowId = computed(() => {
+    return props.fid || route.query.fid;
+})
+// 业务id
+const busiId = computed(() => {
+    return props.bid || route.query.bid;
+})
+// 流程模式
+const flowModel = computed(() => {
+    return props.model || route.query.model;
+})
+
+// 流程表单
+const flowForm = ref<any>({
+    type: 'form',   //form,custom
+    url: '',
+    sn: null,
+    define: null
+})
+
+function loadFlowForm() {
+    if (!flowInfo.value?.flowChart) {
+        return;
+    }
+
+    if (flowModel.value == 'run') {
+        // 获取当前活动任务节点表单
+
+    } else {
+        // 获取开始节点表单
+        const startNode = flowInfo.value?.flowChart.nodes.find((node: any) => node.types == 'start')
+        if (startNode) {
+            if (startNode.data?.formType == 1) {
+                //动态表单
+                if (!startNode.data?.formSn) {
+                    dialog.error('流程配置异常，开始节点未配置表单')
+                    return
+                }
+                flowForm.value.type = 'form'
+                flowForm.value.sn = startNode.data.formSn + ':form'
+            } else if (startNode.data?.formType == 2) {
+                // 外部表单
+            }
+        }
+    }
+}
+
+
+// 加载流程信息
+function loadFlowInfo() {
+    if (flowModel.value == 'start') {
+        if (!flowSn.value) {
+            dialog.error('参数fsn不能为空')
+            return;
+        }
+    } else {
+        if (!flowId.value) {
+            dialog.error('参数fid不能为空')
+            return;
+        }
+    }
+
+    let url = '/api/engine/instance/view/' + flowId.value
+    if (flowModel.value == 'start') {
+        // 加载流程模版
+        url = '/api/engine/profile/' + flowSn.value
+    } else if (flowModel.value == 'archive' || flowModel.value == 'view') {
+        // 加载流程历史信息
+        url = '/api/engine/instance/detail/' + flowId.value
+    }
+
+    // 加载流程信息
+    axios.flow({
+        url,
+        method: 'post',
+    }).then((res: any) => {
+        if (res.success && res.body) {
+            flowInfo.value = res.body
+            loadFlowForm()
+        } else {
+            dialog.error(res.message)
+        }
+    })
+
+}
+
+
+onMounted(() => {
+    loadFlowInfo()
+})
 
 </script>
 <style lang="less" scoped>
@@ -151,11 +260,31 @@ const rightPanel = ref({
                     .opt {
                         margin-right: 10px;
                         cursor: pointer;
+
+                        &.active {
+                            color: #1677ff;
+                        }
                     }
                 }
             }
         }
 
+        .flow-area {
+            width: 100%;
+            height: calc(100% - 110px);
+            overflow: auto;
+
+            .flow-form {
+
+                &.visible {
+                    padding: 10px 20px;
+                }
+
+                :deep(.unione-page-form) {
+                    padding: 0;
+                }
+            }
+        }
 
         .flow-tools {
             text-align: right;
