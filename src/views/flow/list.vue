@@ -161,6 +161,14 @@ async function btnClick({ btn, event, row, keys }: any) {
       }
     })
   }
+  if (btn.name == 'todo') {
+    router.push({
+      path: '/dev/flow/todo',
+      query: {
+        fsn: row.sn,
+      }
+    })
+  }
   if (btn.name.startsWith('sts-3')) {
     dialog.confirm({
       content: '确定要下架该流程么？',

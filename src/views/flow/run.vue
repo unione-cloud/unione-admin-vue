@@ -3,8 +3,10 @@
         <div :class="['flow-content', !rightPanel.open && 'max-width']">
             <div class="flow-header">
                 <div class="flow-title">
-                    <ArrowLeftOutlined class="btn-back" /><span class="label">请假申请流程</span><span
-                        class="priority">•（普通）</span>
+                    <ArrowLeftOutlined class="btn-back" @click="goback" />
+                    <span class="label">请假申请流程</span>
+                    <span class="curr-task" v-if="currTask">/{{ currTask.title }}</span>
+                    <span class="priority">•（普通）</span>
                 </div>
                 <div class="flow-info">
 
@@ -65,7 +67,7 @@
 <script setup lang="ts">
 import { axios, useDialog } from 'unione-base-vue';
 import { computed, onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { loadPreFormSync, processTaskStatus } from './lib/flowUtil';
 
 defineOptions({
@@ -92,6 +94,7 @@ const props = defineProps({
 
 })
 const route = useRoute()
+const router = useRouter()
 const dialog = useDialog()
 
 const rightPanel = ref({
@@ -175,6 +178,8 @@ function submit() {
                             if (res.body.tasks?.[0]) {
                                 currTask.value = res.body.tasks[0]
                             }
+                            flowInfo.value.tasks = [...(flowInfo.value.tasks || []), ...(res.body.tasks || [])]
+                            flowInfo.value.runs = [...(flowInfo.value.runs || []), ...(res.body.runs || [])]
                         } else {
                             dialog.error(res.message)
                         }
@@ -207,6 +212,10 @@ function stop() {
             })
         }
     })
+}
+
+function goback() {
+    router.back()
 }
 
 function loadFlowForm() {

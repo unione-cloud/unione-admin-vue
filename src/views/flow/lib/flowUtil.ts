@@ -366,6 +366,7 @@ export function processTaskStatus(flowChart: any, overs: any[], runs: any[]) {
     if (task.status == 1) {
       // 设置前置节点已完成
       if (preNode) {
+        preNode.status = 3
         doprocess(preNode)
       }
       node.data.status = 'active'
