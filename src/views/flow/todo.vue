@@ -13,14 +13,22 @@
       <UnionePageSetting :engine="engine"></UnionePageSetting>
     </template>
 
-    <UnioneFlowAudit ref="audit" @success="reload()"></UnioneFlowAudit>
+
     <UnioneFlowOpinion ref="opinion"></UnioneFlowOpinion>
+    <a-drawer :title="auditDrawer.title" v-model:visible="auditDrawer.visible" :width="600"
+      rootClassName="flow-audit-drawer">
+      <UnioneFlowAudit ref="audit" @success="reload()"></UnioneFlowAudit>
+      <template #footer>
+        <a-button type="primary" @click="auditDrawer.commit(true)">同意</a-button>
+        <a-button type="primary" danger @click="auditDrawer.commit(false)">拒绝</a-button>
+      </template>
+    </a-drawer>
 
   </UnionePage>
 </template>
 
 <script setup lang="ts">
-import { computed, inject, onMounted, ref } from 'vue'
+import { computed, inject, nextTick, onMounted, ref } from 'vue'
 import type { PropType } from 'vue'
 import { UnionePage, UnionePageSetting, UFEngine, Convertor } from 'unione-form-vue'
 
@@ -28,6 +36,8 @@ import { UnionePage, UnionePageSetting, UFEngine, Convertor } from 'unione-form-
 import { axios, useDialog, useSession, utils } from 'unione-base-vue'
 import type { ButtonSetting, PageDefine } from 'unione-form-vue/dist/typing'
 import { useRoute, useRouter } from 'vue-router'
+import UnioneFlowAudit from './comps/audit.vue'
+import UnioneFlowOpinion from './comps/opinion.vue'
 
 const dialog = useDialog()
 const session = useSession()
@@ -81,6 +91,13 @@ const props = defineProps({
 const table = ref<any>(null)
 const audit = ref<any>(null)
 const opinion = ref<any>(null)
+const auditDrawer = ref<any>({
+  visible: false,
+  title: '',
+  commit: (flag: boolean) => {
+    audit.value.commit(flag)
+  }
+})
 
 const flowSn = computed(() => {
   return props.fsn || route.query.fsn || ''
@@ -190,7 +207,7 @@ const define: PageDefine = {
         rightBtns: ['impData', 'downTmpl'],
         operation: {
           title: '操作',
-          width: 250,
+          width: 300,
           btns: ['edit', 'delete', {
             title: '签收',
             name: 'sign',
@@ -211,6 +228,10 @@ const define: PageDefine = {
                 },
               }
             }, {
+              title: '办理',
+              name: 'handle',
+              type: 'primary',
+            }, {
               title: '意见',
               name: 'opinion',
             }, {
@@ -218,7 +239,7 @@ const define: PageDefine = {
               name: 'audit',
               type: 'primary',
             }],
-          count: 4,
+          count: 5,
           more: {
             layout: 'vertical'
           }
@@ -281,10 +302,18 @@ function btnClick(e: any) {
     return
   }
   if (btn.name == 'audit') {
-    audit.value.open(row ? row.id : keys, { flowKey: row?.instance?.sn, nodeKey: row?.sn, nodeTitle: row?.title })
+    auditDrawer.value.visible = true
+    auditDrawer.value.title = row?.title || '审核'
+    nextTick(() => {
+      audit.value.init(row ? row.id : keys, { fsn: row?.instance?.sn, nsn: row?.sn, ntitle: row?.title })
+    })
   }
   if (btn.name == 'auditBatch') {
-    audit.value.open(keys, { nodeTitle: '批量审核' })
+    auditDrawer.value.visible = true
+    auditDrawer.value.title = '批量审核'
+    nextTick(() => {
+      audit.value.init(keys, { ntitle: '批量审核' })
+    })
   }
   if (btn.name == 'sign') {
     toSignTask(row.id)
@@ -317,6 +346,16 @@ function btnClick(e: any) {
       query: {
         fsn: row.instance.fsn,
         fmd: 'view',
+        fid: row.instance.id,
+      }
+    })
+  }
+  if (btn.name == 'handle') {
+    router.push({
+      path: '/dev/flow/run',
+      query: {
+        fsn: row.instance.fsn,
+        fmd: 'run',
         fid: row.instance.id,
       }
     })
@@ -448,4 +487,12 @@ function clearSelected() {
 defineExpose({ storage, engine, reload, setParams, getTable, getSelected, clearSelected })
 </script>
 
-<style scoped lang="less"></style>
+<style lang="less">
+.flow-audit-drawer {
+  .handel-opinion {
+    .ant-input {
+      min-height: 400px;
+    }
+  }
+}
+</style>

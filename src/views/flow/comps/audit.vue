@@ -1,126 +1,160 @@
 <template>
-    <a-drawer :title="title" v-model:visible="visible" :width="600" rootClassName="flow-audit-drawer">
-        <a-form layout="vertical" :model="form.data" :rules="form.rules" ref="formRef">
-
+    <a-form layout="vertical" :model="form.data" :rules="form.rules" ref="formRef">
         <div class="handel-opinion">
             <a-form-item label="处理意见：" name="handelOpinion">
-                <a-textarea v-model:value="form.data.handelOpinion" autoSize :rows="10" placeholder="请输入处理意见"></a-textarea>
+                <a-textarea v-model:value="form.data.handelOpinion" autoSize :rows="5"
+                    placeholder="请输入处理意见"></a-textarea>
+                <a-button type="link" class="save-preset" @click="savePresetOpinion">设为常用语</a-button>
             </a-form-item>
         </div>
-
-        <div class="preset-opinions" v-if="presetOpininList && presetOpininList.length">
+        <div class="preset-opinions" v-if="presetListOk?.length || presetListReject?.length">
             <a-form-item label="预设意见：">
-                <div class="ok">
-                    <template v-for="item in presetOpininList.filter((item) => item.types == 1)" :key="item.id">
-                        <a-tag color="success" @click="toUsePresetOpinion(item)">{{ item.title }}</a-tag>
-                    </template>
+                <div class="ok" v-if="presetListOk">
+                    <draggable v-model="presetListOk" @change="handleChange" :animation="300" ghost-class="ghost"
+                        group="preopinion" handle=".drag-handle">
+                        <template #item="{ element }">
+                            <a-tag color="success" @click="toUsePresetOpinion(element)"
+                                :class="[element.isGlobal != 1 && 'drag-handle']">{{ element.title }}</a-tag>
+                        </template>
+                    </draggable>
                 </div>
                 <div class="reject">
-                    <template v-for="item in presetOpininList.filter((item) => item.types == 2)" :key="item.id">
-                        <a-tag color="orange" @click="toUsePresetOpinion(item)">{{ item.title }}</a-tag>
-                    </template>
+                    <draggable v-model="presetListReject" @change="handleChange" :animation="300" ghost-class="ghost"
+                        group="preopinion" handle=".drag-handle">
+                        <template #item="{ element }">
+                            <a-tag color="orange" @click="toUsePresetOpinion(element)"
+                                :class="[element.isGlobal != 1 && 'drag-handle']">{{ element.title }}</a-tag>
+                        </template>
+                    </draggable>
                 </div>
             </a-form-item>
         </div>
-        </a-form>
-
-        <template #footer>
-            <a-button type="primary" @click="gotoCommit(true)">同意</a-button>
-            <a-button type="primary" danger @click="gotoCommit(false)">拒绝</a-button>
-        </template>
-    </a-drawer>
+    </a-form>
 </template>
 <script setup lang="ts">
+import { message } from 'ant-design-vue';
 import { axios, useDialog } from 'unione-base-vue';
 import { ref } from 'vue';
+import draggable from 'vuedraggable'
 defineOptions({ name: 'FlowAudit' })
 
-const dialog=useDialog()
-const props=defineProps({
-    vars:{
-        type:Object,
-        required:false
+const dialog = useDialog()
+const props = defineProps({
+    vars: {
+        type: Object,
+        required: false
     }
 })
 
-const emit=defineEmits(['success'])
+const emit = defineEmits(['success'])
 
-const title=ref('审核')
+const title = ref('审核')
 const visible = ref(false)
 const tids = ref<string | Array<string>>()
 const flowInfo = ref({
-    flowKey: '',
-    nodeKey: ''
+    fsn: '',
+    nsn: ''
 })
 // 预设意见列表
-const presetOpininList = ref<Array<any>>([])
-const formRef=ref()
-const form=ref({
-    data:{
-        handelOpinion:''
+const presetListOk = ref<Array<any>>([])
+const presetListReject = ref<Array<any>>([])
+
+const formRef = ref()
+const form = ref({
+    data: {
+        handelOpinion: ''
     },
-    rules:{
-        handelOpinion:[
+    rules: {
+        handelOpinion: [
             { required: true, message: '请输入处理意见' }
         ]
     }
 })
 
-function close(){
-    visible.value=false;
+function close() {
+    visible.value = false;
 }
-function open(tid: string | Array<string>, { flowKey, nodeKey,nodeTitle }: any = {}) {
+function init(tid: string | Array<string>, { fsn, nsn, ntitle }: any = {}) {
     tids.value = tid
-    title.value=nodeTitle||'审核'
-    if(!tid){
+    title.value = ntitle || '审核'
+    console.log('ntitle', ntitle)
+    if (!tid) {
         dialog.error('任务id不能为空')
         return
     }
     visible.value = true
-    flowInfo.value.flowKey = flowKey
-    flowInfo.value.nodeKey = nodeKey
-    form.value.data.handelOpinion=''
+    flowInfo.value.fsn = fsn
+    flowInfo.value.nsn = nsn
+    form.value.data.handelOpinion = ''
     loadPresetOpinionList()
 }
 
 function loadPresetOpinionList() {
-    const { flowKey, nodeKey } = flowInfo.value
     axios.flow({
-        url: `/api/engine/opinion/preset/${flowKey || '-1'}/${nodeKey || '-1'}`,
+        url: `/api/engine/opinion/preset/-1/-1`,
         method: 'post'
     }).then((res: any) => {
-        presetOpininList.value = res.body
+        presetListOk.value = res.body.filter((item: any) => item.types == 1)
+        presetListReject.value = res.body.filter((item: any) => item.types == 2)
     })
 }
 function toUsePresetOpinion(op: any) {
     form.value.data.handelOpinion = op.optxt
 }
-function gotoCommit(flag:boolean){
-    const label=title.value
-    formRef.value.validate().then(()=>{
+
+function savePresetOpinion() {
+    if (!form.value.data.handelOpinion) {
+        dialog.error('请输入处理意见')
+        return
+    }
+    axios.flow({
+        url: `/api/opinion/preset/save`,
+        method: 'post',
+        data: {
+            title: form.value.data.handelOpinion,
+            optxt: form.value.data.handelOpinion,
+            types: 1
+        }
+    }).then((res: any) => {
+        if (res.success) {
+            message.success('设为常用语成功')
+            loadPresetOpinionList()
+        } else {
+            dialog.error(res.message)
+        }
+    })
+}
+
+function handleChange(e: any) {
+    console.log('event', e)
+}
+
+function commit(flag: boolean) {
+    const label = title.value
+    formRef.value.validate().then(() => {
         dialog.confirm({
-            content:`确定提交${label}，并${flag?'同意':'拒绝'}该申请么？`,
-            onOk:()=>{
-                const data:any={
+            content: `确定提交${label}，并${flag ? '同意' : '拒绝'}该申请么？`,
+            onOk: () => {
+                const data: any = {
                     result: flag,
                     opinion: form.value.data.handelOpinion,
                     vars: props.vars
                 }
-                if(Array.isArray(tids.value)){
-                    data.taskIds=tids.value
-                }else{
-                    data.taskId=tids.value
+                if (Array.isArray(tids.value)) {
+                    data.taskIds = tids.value
+                } else {
+                    data.taskId = tids.value
                 }
                 axios.flow({
                     url: `/api/engine/task/submit`,
                     method: 'post',
                     data
                 }).then((res: any) => {
-                    if(res.success){
+                    if (res.success) {
                         dialog.success(`提交${label}成功`)
                         close()
                         emit('success')
-                    }else{
+                    } else {
                         dialog.error(res.msg)
                     }
                 })
@@ -129,47 +163,49 @@ function gotoCommit(flag:boolean){
     })
 }
 
-defineExpose({ open })
+defineExpose({ init, commit })
 </script>
 
-<style lang="less">
-.flow-audit-drawer {
-
-    .handel-opinion {
-        .line {
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
-
-        .ant-input {
-            min-height: 400px;
-        }
+<style lang="less" scoped>
+.handel-opinion {
+    .line {
+        font-size: 16px;
+        margin-bottom: 10px;
     }
 
-    .preset-opinions {
-        .line {
-            font-size: 16px;
-            margin: 20px 0 10px 0;
-        }
-
-        .ok,
-        .reject {
-            margin-bottom: 10px;
-        }
-
-        .ant-tag {
-            cursor: pointer;
-            margin: 5px 15px 0 15px;
-        }
+    .ant-input {
+        min-height: 140px;
     }
 
+    .save-preset {
+        float: right;
+        margin-top: -35px;
+    }
+}
 
-    .ant-drawer-footer {
-        text-align: right;
+.preset-opinions {
+    .line {
+        font-size: 16px;
+        margin: 20px 0 10px 0;
+    }
 
-        .ant-btn {
-            margin: auto 10px;
-        }
+    .ok,
+    .reject {
+        margin-bottom: 10px;
+    }
+
+    .ant-tag {
+        cursor: pointer;
+        margin: 5px 15px 0 15px;
+    }
+}
+
+
+.ant-drawer-footer {
+    text-align: right;
+
+    .ant-btn {
+        margin: auto 10px;
     }
 }
 </style>

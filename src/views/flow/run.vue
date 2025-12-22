@@ -24,11 +24,21 @@
                     </div>
                 </div>
             </div>
-            <div class="flow-area">
+            <div class="flow-area" ref="flowAreaRef">
                 <div :class="['flow-form', !flowChartVisible && 'visible']"
                     v-if="flowForm.type == 'form' && flowForm.sn">
                     <unione-page-form ref="formRef" :psn="flowForm.sn" :btns="false" :params="{ id: busiId }"
                         v-show="!flowChartVisible" :model="formModel"></unione-page-form>
+
+                    <a-card v-if="flowAuditObj.visible && currTask" class="audit-card" :style="flowAuditObj.style">
+                        <template #title>
+                            <UserOutlined />{{ currTask.title || '审核' }}
+                        </template>
+                        <template #extra>
+                            <DownOutlined @click="flowAuditObj.visible = false" />
+                        </template>
+                        <UnioneFlowAudit ref="flowAuditRef"></UnioneFlowAudit>
+                    </a-card>
                 </div>
                 <UFEditor v-if="flowChartVisible && flowInfo?.flowChart" model="run" :value="processFlowChart()">
                 </UFEditor>
@@ -43,8 +53,8 @@
                 <a-button class="btn" danger>放弃</a-button>
                 <a-button class="btn">转审</a-button>
                 <a-button class="btn">协办</a-button>
-                <a-button class="btn" type="primary">同意</a-button>
-                <a-button class="btn" danger>拒绝</a-button>
+                <a-button class="btn" type="primary" @click="audit(true)">同意</a-button>
+                <a-button class="btn" danger @click="audit(false)">拒绝</a-button>
                 <a-button class="btn" danger type="primary" @click="stop">终止</a-button>
             </div>
         </div>
@@ -68,10 +78,11 @@
 </template>
 <script setup lang="ts">
 import { axios, useDialog } from 'unione-base-vue';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { loadPreFormSync, processTaskStatus } from './lib/flowUtil';
 import { message } from 'ant-design-vue';
+import UnioneFlowAudit from './comps/audit.vue'
 import dayjs from 'dayjs';
 
 defineOptions({
@@ -153,6 +164,7 @@ watch(() => flowTasks.value, () => {
 })
 
 const flowLoading = ref(false)
+const flowAreaRef = ref()
 // 流程编码
 const flowSn = computed(() => {
     return props.fsn || route.query.fsn;
@@ -171,6 +183,12 @@ const flowModel = computed(() => {
 })
 const formModel = computed(() => {
     return (flowModel.value == 'run' || flowModel.value == 'start') ? 'run' : 'view'
+})
+// 流程审核
+const flowAuditRef = ref()
+const flowAuditObj = ref<any>({
+    visible: false,
+    style: {}
 })
 
 // 流程表单
@@ -290,6 +308,21 @@ function sign() {
                 }
             })
         }
+    })
+}
+
+function audit(result: boolean) {
+    if (!currTask.value) {
+        return
+    }
+    flowAuditObj.value.visible = true
+    flowAuditObj.value.style.width = flowAreaRef.value.clientWidth + 'px'
+    nextTick(() => {
+        flowAuditRef.value.init(currTask.value.id, {
+            fsn: flowSn.value,
+            nsn: currTask.value.sn,
+            ntitle: currTask.value.title
+        })
     })
 }
 
@@ -475,6 +508,20 @@ onMounted(() => {
                 :deep(.unione-page-form) {
                     padding: 0;
                 }
+            }
+
+            .audit-card {
+                position: absolute;
+                bottom: 0;
+                width: 100%;
+                height: 500px;
+                margin-left: -20px;
+
+                :deep(.ant-card-head) {
+                    background-color: #f5f5f5;
+                    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+                }
+
             }
         }
 
