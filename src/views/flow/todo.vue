@@ -27,10 +27,11 @@ import { UnionePage, UnionePageSetting, UFEngine, Convertor } from 'unione-form-
 
 import { axios, useDialog, useSession, utils } from 'unione-base-vue'
 import type { ButtonSetting, PageDefine } from 'unione-form-vue/dist/typing'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 const dialog = useDialog()
 const session = useSession()
+const route = useRoute()
 const router = useRouter()
 const dictStatus = new Convertor({
   types: 'dict',
@@ -80,6 +81,13 @@ const props = defineProps({
 const table = ref<any>(null)
 const audit = ref<any>(null)
 const opinion = ref<any>(null)
+
+const flowSn = computed(() => {
+  return props.fsn || route.query.fsn || ''
+})
+const flowVers = computed(() => {
+  return props.vers || route.query.vers || ''
+})
 
 // 页面定义对象
 const define: PageDefine = {
@@ -153,21 +161,31 @@ const define: PageDefine = {
             })
           }
         }],
-        leftBtns: ['delBatch', 'add', {
-          title: '批量审核',
-          name: 'auditBatch',
+        leftBtns: ['delBatch', {
+          name: 'add',
+          title: '发起流程',
           type: 'primary',
-          props: {
-            danger: true
+          event: {
+            visible: (ctx: any) => {
+              return !!flowSn.value
+            },
           }
         }, {
+            title: '批量审核',
+            name: 'auditBatch',
+            type: 'primary',
+            props: {
+              danger: true
+            }
+          }, {
             title: '批量签收',
             name: 'signBatch',
-            type: 'primary',
           }, {
             title: '批量放弃',
             name: 'waiveBatch',
-            type: 'primary',
+            props: {
+              danger: true
+            }
           }],
         rightBtns: ['impData', 'downTmpl'],
         operation: {
@@ -214,10 +232,10 @@ const define: PageDefine = {
 function processDefine() {
   // 加载流程定义
   axios.flow({
-    url: `/api/engine/profile/${props.fsn}${props.vers ? ('/' + props.vers) : ''}`,
+    url: `/api/engine/profile/${flowSn.value}${flowVers.value ? ('/' + flowVers.value) : ''}`,
     method: 'post'
   }).then((res: any) => {
-    console.log('loaded flow tmpl info', res)
+    // console.log('loaded flow tmpl info', res)
     if (res.success) {
       const busiField = res.body.busiField
       if (busiField) {
@@ -238,7 +256,7 @@ function processDefine() {
           }
         })
       }
-      session.setStorage('page-define-flow-todo:' + props.fsn, JSON.stringify(define.configs))
+      session.setStorage('page-define-flow-todo:' + flowSn.value, JSON.stringify(define.configs))
       engine.load(pagesn.value, define)
     }
   })
@@ -252,6 +270,16 @@ const widgets = computed(() => {
 const emit = defineEmits(['btnClick'])
 function btnClick(e: any) {
   const { btn, row, keys } = e;
+  if (btn.name == 'add' && flowSn.value) {
+    router.push({
+      path: '/dev/flow/run',
+      query: {
+        fsn: flowSn.value,
+        fmd: 'start',
+      }
+    })
+    return
+  }
   if (btn.name == 'audit') {
     audit.value.open(row ? row.id : keys, { flowKey: row?.instance?.sn, nodeKey: row?.sn, nodeTitle: row?.title })
   }
@@ -378,7 +406,7 @@ onMounted(() => {
     findParams: [{ name: 'flowSn', value: props.fsn }]
   })
 
-  if (props.fsn) {
+  if (flowSn.value) {
     processDefine()
   } else {
     engine.load(pagesn.value, define)
