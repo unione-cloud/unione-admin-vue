@@ -1,6 +1,8 @@
 <template>
     <div class="flow-task">
-        <div class="time">{{ task.created }}</div>
+        <div class="time">{{ task.created }}
+            <div class="count" v-if="condidates?.length > 5">共{{ condidates.length }}人</div>
+        </div>
         <div class="info">
             <div class="top" v-if="task.types == 'task'">
                 <div class="title">
@@ -69,6 +71,16 @@ function avatarUrl(condidate: any) {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+
+    .time {
+        .count {
+            font-size: 10px;
+            color: #999;
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+    }
 
     .info {
         background-color: #f5f5f5;
