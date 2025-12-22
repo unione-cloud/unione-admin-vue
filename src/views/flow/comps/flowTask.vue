@@ -1,35 +1,41 @@
 <template>
     <div class="flow-task">
-        <div class="time">2025-12-20 21:00</div>
+        <div class="time">{{ task.created }}</div>
         <div class="info">
-            <div class="top">
+            <div class="top" v-if="task.types == 'task'">
                 <div class="title">
-                    <UserOutlined />审核
+                    <UserOutlined />{{ task.title }}
                 </div>
-                <span :class="['status']">审核中</span>
+                <span :class="['status']">{{ task.status == 1 ? '审核中' : '已完成' }}</span>
             </div>
-            <div class="condidate">
-                <div class="item">
-                    <a-badge count="签收" size="small" color="#999" :numberStyle="{ transform: 'scale(0.9)' }"
+            <div class="top" v-if="task.types == 'start'">
+                <div class="title">
+                    <PlayCircleOutlined />{{ task.title }}
+                </div>
+                <span :class="['status']">已提交</span>
+            </div>
+            <div class="top" v-if="task.types == 'end'">
+                <div class="title">
+                    <MinusCircleOutlined />{{ task.title }}
+                </div>
+                <span :class="['status']">已完成</span>
+            </div>
+
+            <div class="condidate" v-if="(task.types == 'task' || task.types == 'start') && condidates?.length">
+                <div class="item" v-for="c in condidates" :key="c.id">
+                    <a-badge count="" size="small" color="#999" :numberStyle="{ transform: 'scale(0.9)' }"
                         :offset="[3, 21]">
-                        <a-avatar style="background-color: #87d068">
+                        <a-avatar style="background-color: #87d068" :src="avatarUrl(c)">
                             <template #icon>
                                 <UserOutlined />
                             </template>
                         </a-avatar>
                     </a-badge>
-                    <div class="label">张三</div>
-                </div>
-                <div class="item">
-                    <a-avatar style="background-color: #87d068">
-                        <template #icon>
-                            <UserOutlined />
-                        </template>
-                    </a-avatar>
-                    <div class="label">李四</div>
+                    <div class="label">{{ c.realName }}</div>
                 </div>
             </div>
-            <div class="footer">
+
+            <div class="footer" v-if="task.types == 'task'">
                 <div class="approve-model">或签</div>
                 <RightOutlined class="icon" />
             </div>
@@ -37,8 +43,24 @@
     </div>
 </template>
 <script setup lang="ts">
-import type transform from 'ant-design-vue/es/_util/cssinjs/transformers/legacyLogicalProperties';
+import { useConfigStore } from '@/config';
 
+
+const config = useConfigStore().config
+const props = defineProps({
+    task: {
+        type: Object,
+        required: true
+    },
+    condidates: {
+        type: Array<any>,
+        required: true
+    }
+})
+
+function avatarUrl(condidate: any) {
+    return condidate.avatar && (config.axios.admin + '/api/common/store/preview/public/' + condidate.avatar) || '/avatar.png'
+}
 
 </script>
 <style lang="less" scoped>

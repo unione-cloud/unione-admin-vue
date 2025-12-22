@@ -39,7 +39,7 @@
                 <a-button class="btn">加签</a-button>
                 <a-button class="btn" @click="save">暂存</a-button>
                 <a-button class="btn" type="primary" @click="submit">提交</a-button>
-                <a-button class="btn" type="primary">办理</a-button>
+                <a-button class="btn" type="primary" @click="sign">办理</a-button>
                 <a-button class="btn" danger>放弃</a-button>
                 <a-button class="btn">转审</a-button>
                 <a-button class="btn">协办</a-button>
@@ -52,10 +52,12 @@
             <a-tabs v-model:active="rightPanel.active">
                 <a-tab-pane tab="流转" key="task" class="flow-task-tab">
                     <a-timeline>
-                        <a-timeline-item color="blue"><flow-task></flow-task></a-timeline-item>
-                        <a-timeline-item color="green"><flow-task></flow-task></a-timeline-item>
-                        <a-timeline-item color="green"><flow-task></flow-task></a-timeline-item>
+                        <a-timeline-item v-for="item in flowTasks" :key="item.id"
+                            :color="item.status == 1 ? 'blue' : 'green'">
+                            <flow-task :task="item" :condidates="flowCondidates[item.id]"></flow-task>
+                        </a-timeline-item>
                     </a-timeline>
+                    <a-empty v-if="!flowTasks?.length"></a-empty>
                 </a-tab-pane>
                 <a-tab-pane tab="沟通" key="comment" class="flow-comment-tab">
                     <flow-comment :fid="1"></flow-comment>
@@ -66,9 +68,11 @@
 </template>
 <script setup lang="ts">
 import { axios, useDialog } from 'unione-base-vue';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { loadPreFormSync, processTaskStatus } from './lib/flowUtil';
+import { message } from 'ant-design-vue';
+import dayjs from 'dayjs';
 
 defineOptions({
     name: "UnioneFlowRun",
@@ -106,6 +110,47 @@ const flowChartVisible = ref(false)
 // 流程信息
 const flowInfo = ref<any>()
 const currTask = ref<any>()
+const flowTasks = computed(() => {
+    if (!flowInfo.value) {
+        return []
+    }
+    const tasks: any = [...(flowInfo.value.runs || []), ...(flowInfo.value.tasks || [])]
+    return tasks.sort((a: any, b: any) => {
+        return b.created - a.created
+    })
+})
+// 流程候选人：taskId->[]
+const flowCondidates = ref<any>({})
+watch(() => flowTasks.value, () => {
+    const ntids: any = []
+    flowTasks.value.forEach((item: any) => {
+        if (!flowCondidates.value[item.id]) {
+            ntids.push(item.id)
+        }
+    })
+    if (ntids.length) {
+        //加载候选人
+        axios.flow({
+            method: 'POST',
+            url: '/api/engine/condidate',
+            data: {
+                body: {
+                    tids: ntids
+                }
+            }
+        }).then((res: any) => {
+            if (res.success && res.body) {
+                res.body.forEach((item: any) => {
+                    item.tids.forEach((tid: any) => {
+                        let candidates = flowCondidates.value[tid] || []
+                        candidates.push(item)
+                        flowCondidates.value[tid] = candidates
+                    })
+                })
+            }
+        })
+    }
+})
 
 const flowLoading = ref(false)
 // 流程编码
@@ -193,6 +238,9 @@ function submit() {
     })
 }
 
+/**
+ * 停止流程
+ */
 function stop() {
     dialog.confirm({
         content: '确定要终止当前流程么？',
@@ -214,6 +262,40 @@ function stop() {
     })
 }
 
+/**
+ * 签收流程
+ */
+function sign() {
+    if (!currTask.value) {
+        return
+    }
+    dialog.confirm({
+        content: '确定签收当前任务吗？',
+        onOk: () => {
+            // 签收任务
+            flowLoading.value = true
+            axios.flow({
+                method: 'POST',
+                url: '/api/engine//task/sign"',
+                data: {
+                    taskId: currTask.value.id
+                }
+            }).then((res: any) => {
+                flowLoading.value = false
+                currTask.value.signTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
+                if (res.success) {
+                    message.success('签收成功')
+                } else {
+                    dialog.error(res.message)
+                }
+            })
+        }
+    })
+}
+
+/**
+ * 返回
+ */
 function goback() {
     router.back()
 }
