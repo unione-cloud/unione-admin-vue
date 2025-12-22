@@ -10,8 +10,8 @@
         <div class="preset-opinions" v-if="presetListOk?.length || presetListReject?.length">
             <a-form-item label="预设意见：">
                 <div class="ok" v-if="presetListOk">
-                    <draggable v-model="presetListOk" @change="handleChange" :animation="300" ghost-class="ghost"
-                        group="preopinion" handle=".drag-handle">
+                    <draggable v-model="presetListOk" @change="(e: any) => handleChange('ok', e)" :animation="300"
+                        ghost-class="ghost" group="preopinion" handle=".drag-handle">
                         <template #item="{ element }">
                             <a-tag color="success" @click="toUsePresetOpinion(element)"
                                 :class="[element.isGlobal != 1 && 'drag-handle']">{{ element.title }}</a-tag>
@@ -19,8 +19,8 @@
                     </draggable>
                 </div>
                 <div class="reject">
-                    <draggable v-model="presetListReject" @change="handleChange" :animation="300" ghost-class="ghost"
-                        group="preopinion" handle=".drag-handle">
+                    <draggable v-model="presetListReject" @change="(e: any) => handleChange('reject', e)"
+                        :animation="300" ghost-class="ghost" group="preopinion" handle=".drag-handle">
                         <template #item="{ element }">
                             <a-tag color="orange" @click="toUsePresetOpinion(element)"
                                 :class="[element.isGlobal != 1 && 'drag-handle']">{{ element.title }}</a-tag>
@@ -125,8 +125,15 @@ function savePresetOpinion() {
     })
 }
 
-function handleChange(e: any) {
+function handleChange(type: String, e: any) {
     console.log('event', e)
+    if (e.added?.element) {
+        axios.flow({
+            url: '/api/opinion/preset/setType',
+            method: 'POST',
+            data: { id: e.added.element.id, types: type == 'ok' ? 1 : 2 }
+        })
+    }
 }
 
 function commit(flag: boolean) {
