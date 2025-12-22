@@ -8,7 +8,6 @@ import {
   UnionePageList
 } from 'unione-form-vue'
 import { useAdminStore } from '@/stores/admin'
-import UnioneFlowRun from '@/views/flow/run.vue'
 
 export const local: Array<MenuItem> = [
   {
@@ -322,20 +321,6 @@ export const router = createRouter({
               name: 'dataListView',
               path: '/data/page/list/view',
               component: UnionePageForm
-            }
-          ]
-        },
-        {
-          name: 'flow',
-          path: '/dev/flow',
-          meta: {
-            icon: 'MailOutlined'
-          },
-          children: [
-            {
-              name: 'flowRun',
-              path: '/dev/flow/run',
-              component: UnioneFlowRun
             }
           ]
         }

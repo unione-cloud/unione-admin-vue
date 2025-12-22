@@ -94,6 +94,10 @@ const define = ref({
     btns: [
       'view',
       {
+        name: 'vers',
+        title: '版本管理'
+      },
+      {
         name: 'sts-3',
         title: '下架',
         event: {
@@ -103,8 +107,31 @@ const define = ref({
         }
       },
       {
-        name: 'vers',
-        title: '版本管理'
+        name: 'run',
+        title: '发起流程',
+        event: {
+          disable: ({ row }: any) => {
+            return row.status != 2
+          }
+        }
+      },
+      {
+        name: 'todo',
+        title: '待办列表',
+        event: {
+          disable: ({ row }: any) => {
+            return row.status != 2
+          }
+        }
+      },
+      {
+        name: 'done',
+        title: '已办列表',
+        event: {
+          disable: ({ row }: any) => {
+            return row.status != 2
+          }
+        }
       },
     ],
     count: 3,
@@ -124,6 +151,15 @@ async function btnClick({ btn, event, row, keys }: any) {
   }
   if (btn.name == 'vers') {
     //
+  }
+  if (btn.name == 'run') {
+    router.push({
+      path: '/dev/flow/run',
+      query: {
+        fsn: row.sn,
+        fmd: 'start'
+      }
+    })
   }
   if (btn.name.startsWith('sts-3')) {
     dialog.confirm({
