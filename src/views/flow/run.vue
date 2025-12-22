@@ -525,7 +525,8 @@ onMounted(() => {
             }
 
             :deep(.ant-timeline-item-head-blue) {
-                background-color: #1677ff;
+                background-color: #ee9208;
+                border-color: #ee9208;
             }
         }
 
