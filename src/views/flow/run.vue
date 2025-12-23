@@ -64,10 +64,12 @@
                     <a-timeline>
                         <a-timeline-item v-for="item in flowTasks" :key="item.id"
                             :color="(item.status == 1 || item.status == 4) ? 'blue' : 'green'">
-                            <flow-task :task="item" :condidates="flowCondidates[item.id]"></flow-task>
+                            <flow-task :task="item" :node="flowNodes[item.sn]"
+                                :condidates="flowCondidates[item.id]"></flow-task>
                         </a-timeline-item>
                     </a-timeline>
                     <a-empty v-if="!flowTasks?.length"></a-empty>
+                    <div v-if="flowTasks?.length" style="height: 50px;"></div>
                 </a-tab-pane>
                 <a-tab-pane tab="沟通" key="comment" class="flow-comment-tab">
                     <flow-comment :fid="1"></flow-comment>
@@ -120,6 +122,15 @@ const rightPanel = ref({
 const flowChartVisible = ref(false)
 // 流程信息
 const flowInfo = ref<any>()
+const flowNodes = computed<any>(() => {
+    if (flowInfo.value?.flowChart) {
+        const map: any = {}
+        flowInfo.value.flowChart.nodes.forEach((item: any) => {
+            map[item.sn] = item
+        })
+    }
+    return {}
+})
 const currTask = ref<any>()
 const flowTasks = computed(() => {
     if (!flowInfo.value) {
@@ -593,6 +604,7 @@ onMounted(() => {
 
             .ant-tabs-content-holder {
                 height: 100%;
+                overflow-y: auto;
 
                 .ant-tabs-content {
                     height: 100%;

@@ -38,7 +38,7 @@
             </div>
 
             <div class="footer" v-if="task.types == 'task'">
-                <div class="approve-model">或签</div>
+                <div class="approve-model">{{ approveModel }}</div>
                 <RightOutlined class="icon" />
             </div>
         </div>
@@ -46,6 +46,7 @@
 </template>
 <script setup lang="ts">
 import { useConfigStore } from '@/config';
+import { computed } from 'vue';
 
 
 const config = useConfigStore().config
@@ -54,10 +55,20 @@ const props = defineProps({
         type: Object,
         required: true
     },
+    node: {
+        type: Object,
+        required: true
+    },
     condidates: {
         type: Array<any>,
         required: true
     }
+})
+
+const approveModel = computed(() => {
+    const model = props.node?.data?.approve?.mode || 'or'
+    const map: any = { or: '或签', con: '会签', queue: '依次审批' }
+    return map[model] || '或签'
 })
 
 function avatarUrl(condidate: any) {
