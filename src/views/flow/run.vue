@@ -37,7 +37,7 @@
                         <template #extra>
                             <DownOutlined @click="flowAuditObj.visible = false" />
                         </template>
-                        <UnioneFlowAudit ref="flowAuditRef"></UnioneFlowAudit>
+                        <UnioneFlowAudit ref="flowAuditRef" @success="handleAuditSuccess"></UnioneFlowAudit>
                     </a-card>
                 </div>
                 <UFEditor v-if="flowChartVisible && flowInfo?.flowChart" model="run" :value="processFlowChart()">
@@ -49,7 +49,7 @@
                 <a-button class="btn">加签</a-button>
                 <a-button class="btn" @click="save">暂存</a-button>
                 <a-button class="btn" type="primary" @click="submit">提交</a-button>
-                <a-button class="btn" type="primary" @click="sign">办理</a-button>
+                <a-button class="btn" type="primary" @click="handle">办理</a-button>
                 <a-button class="btn" danger>放弃</a-button>
                 <a-button class="btn">转审</a-button>
                 <a-button class="btn">协办</a-button>
@@ -63,7 +63,7 @@
                 <a-tab-pane tab="流转" key="task" class="flow-task-tab">
                     <a-timeline>
                         <a-timeline-item v-for="item in flowTasks" :key="item.id"
-                            :color="item.status == 1 ? 'blue' : 'green'">
+                            :color="(item.status == 1 || item.status == 4) ? 'blue' : 'green'">
                             <flow-task :task="item" :condidates="flowCondidates[item.id]"></flow-task>
                         </a-timeline-item>
                     </a-timeline>
@@ -81,7 +81,6 @@ import { axios, useDialog } from 'unione-base-vue';
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { loadPreFormSync, processTaskStatus } from './lib/flowUtil';
-import { message } from 'ant-design-vue';
 import UnioneFlowAudit from './comps/audit.vue'
 import dayjs from 'dayjs';
 
@@ -111,6 +110,7 @@ const props = defineProps({
 const route = useRoute()
 const router = useRouter()
 const dialog = useDialog()
+const emit = defineEmits(['refresh'])
 
 const rightPanel = ref({
     open: true,
@@ -127,7 +127,7 @@ const flowTasks = computed(() => {
     }
     const tasks: any = [...(flowInfo.value.runs || []), ...(flowInfo.value.tasks || [])]
     return tasks.sort((a: any, b: any) => {
-        return b.created - a.created
+        return b.id - a.id
     })
 })
 // 流程候选人：taskId->[]
@@ -179,6 +179,12 @@ const busiId = computed(() => {
 })
 // 流程模式
 const flowModel = computed(() => {
+    if (currTask.value) {
+        if (currTask.value.status == 1 || currTask.value.status == 2 || currTask.value.status == 4) {
+            return 'run'
+        }
+        return 'view'
+    }
     return props.fmd || route.query.fmd;
 })
 const formModel = computed(() => {
@@ -218,6 +224,9 @@ function save() {
  * 提交流程
  */
 function submit() {
+    if (flowModel.value != 'start') {
+        return
+    }
     dialog.confirm({
         content: '确定提交当前流程吗？',
         onOk: () => {
@@ -238,11 +247,16 @@ function submit() {
                         console.log('submit res', res)
                         if (res.success && res.body) {
                             dialog.success('提交成功')
-                            if (res.body.tasks?.[0]) {
-                                currTask.value = res.body.tasks[0]
-                            }
                             flowInfo.value.tasks = [...(flowInfo.value.tasks || []), ...(res.body.tasks || [])]
                             flowInfo.value.runs = [...(flowInfo.value.runs || []), ...(res.body.runs || [])]
+                            if (res.body.runs?.[0]) {
+                                currTask.value = res.body.runs[0]
+                            } else {
+                                // 查看模式
+                                if (flowInfo.value.tasks) {
+                                    currTask.value = flowInfo.value.tasks[flowInfo.value.tasks.length - 1]
+                                }
+                            }
                         } else {
                             dialog.error(res.message)
                         }
@@ -272,6 +286,7 @@ function stop() {
                 console.log('stop res', res)
                 if (res.success) {
                     dialog.success('终止成功')
+                    goback()
                 } else {
                     dialog.error(res.message)
                 }
@@ -281,49 +296,71 @@ function stop() {
 }
 
 /**
- * 签收流程
+ * 办理
  */
-function sign() {
+function handle() {
     if (!currTask.value) {
         return
     }
-    dialog.confirm({
-        content: '确定签收当前任务吗？',
-        onOk: () => {
-            // 签收任务
-            flowLoading.value = true
-            axios.flow({
-                method: 'POST',
-                url: '/api/engine//task/sign"',
-                data: {
-                    taskId: currTask.value.id
-                }
-            }).then((res: any) => {
-                flowLoading.value = false
-                currTask.value.signTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
-                if (res.success) {
-                    message.success('签收成功')
-                } else {
-                    dialog.error(res.message)
-                }
+
+    const show = () => {
+        flowAuditObj.value.visible = true
+        flowAuditObj.value.style.width = flowAreaRef.value.clientWidth + 'px'
+        nextTick(() => {
+            flowAuditRef.value.init(currTask.value.id, {
+                fsn: flowSn.value,
+                nsn: currTask.value.sn,
+                ntitle: currTask.value.title
             })
-        }
-    })
+        })
+    }
+
+    if (!currTask.value.signTime) {
+        dialog.confirm({
+            content: '确定办理当前流程吗？',
+            onOk: () => {
+                // 办理流程
+                flowLoading.value = true
+                axios.flow({
+                    method: 'POST',
+                    url: '/api/engine/task/sign',
+                    data: {
+                        taskId: currTask.value.id
+                    }
+                }).then((res: any) => {
+                    flowLoading.value = false
+                    currTask.value.signTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
+                    if (res.success) {
+                        show()
+                    } else {
+                        dialog.error(res.message)
+                    }
+                })
+            }
+        })
+    } else {
+        show()
+    }
 }
 
 function audit(result: boolean) {
     if (!currTask.value) {
         return
     }
-    flowAuditObj.value.visible = true
-    flowAuditObj.value.style.width = flowAreaRef.value.clientWidth + 'px'
-    nextTick(() => {
-        flowAuditRef.value.init(currTask.value.id, {
-            fsn: flowSn.value,
-            nsn: currTask.value.sn,
-            ntitle: currTask.value.title
-        })
-    })
+    if (!flowAuditObj.value.visible) {
+        return;
+    }
+    // 提交流程
+    flowAuditRef.value.commit(result)
+}
+function handleAuditSuccess(task: any) {
+    currTask.value.status = 3
+    flowInfo.value.tasks = [...(flowInfo.value.tasks || []), { ...currTask.value }]
+    if (task) {
+        flowInfo.value.runs = [task]
+        currTask.value = task
+    }
+    flowAuditObj.value.visible = false
 }
 
 /**
@@ -341,7 +378,7 @@ function loadFlowForm() {
     if (flowModel.value == 'run' || currTask.value) {
         // 获取当前活动任务节点表单
         //@ts-ignore
-        const result = loadPreFormSync(flowInfo.value.flowChart, flowInfo.value.flowChart.nodes.find((node: any) => node.sn == currTask.value.sn))
+        const result = loadPreFormSync(flowInfo.value.flowChart, flowInfo.value.flowChart.nodes.find((node: any) => node.sn == currTask.value?.sn))
         if (result) {
             flowForm.value.type = 'form'
             flowForm.value.sn = result + ':form'
@@ -411,7 +448,7 @@ function loadFlowInfo() {
 function processFlowChart() {
     const flowChart = JSON.parse(JSON.stringify(flowInfo.value.flowChart))
     // 处理任务状态
-    processTaskStatus(flowChart, flowInfo.value.tasks, flowInfo.value.runs)
+    processTaskStatus(flowChart, flowInfo.value.runs)
     return flowChart
 }
 

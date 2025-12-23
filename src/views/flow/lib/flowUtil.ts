@@ -338,8 +338,8 @@ export function loadFormDataModels(flowChart: any, node: UFNode | UFRoute, force
  * @param runs 正在运行任务列表
  * @returns
  */
-export function processTaskStatus(flowChart: any, overs: any[], runs: any[]) {
-  if (!overs?.length && !runs?.length) {
+export function processTaskStatus(flowChart: any, runs: any[]) {
+  if (!runs?.length) {
     return
   }
   const edgeMap: any = {}
@@ -356,7 +356,9 @@ export function processTaskStatus(flowChart: any, overs: any[], runs: any[]) {
     }
   })
 
-  const tasks = [...(overs || []), ...(runs || [])]
+  const tasks = runs.sort((a: any, b: any) => {
+    return b.id - a.id
+  })
   const doprocess = (task: any) => {
     const node = nodeMap[task.sn]
     if (!node || node.dsflag) {
@@ -370,7 +372,7 @@ export function processTaskStatus(flowChart: any, overs: any[], runs: any[]) {
         doprocess(preNode)
       }
       node.data.status = 'active'
-    } else if (task.status == 2) {
+    } else if (task.status == 2 || task.status == 4) {
       node.data.status = 'running'
     } else if (task.status == 3) {
       node.data.status = 'complete'
@@ -379,7 +381,12 @@ export function processTaskStatus(flowChart: any, overs: any[], runs: any[]) {
     if (preNode) {
       const edge = edgeMap[task.sn]?.find((item: any) => item.attr.source.cell == preNode.sn)
       if (edge) {
-        edge.data.status = task.status == 2 ? 'running' : task.status == 1 ? 'running' : 'complete'
+        edge.data.status =
+          task.status == 2 || task.status == 4
+            ? 'running'
+            : task.status == 1
+              ? 'running'
+              : 'complete'
       }
     }
 

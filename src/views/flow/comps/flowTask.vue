@@ -14,7 +14,7 @@
                 <div class="title">
                     <PlayCircleOutlined />{{ task.title }}
                 </div>
-                <span :class="['status']">已提交</span>
+                <span :class="['status']">{{ task.status != 3 ? '待提交' : '已提交' }}</span>
             </div>
             <div class="top" v-if="task.types == 'end'">
                 <div class="title">

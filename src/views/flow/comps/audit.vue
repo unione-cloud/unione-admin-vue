@@ -49,7 +49,6 @@ const props = defineProps({
 const emit = defineEmits(['success'])
 
 const title = ref('审核')
-const visible = ref(false)
 const tids = ref<string | Array<string>>()
 const flowInfo = ref({
     fsn: '',
@@ -71,9 +70,7 @@ const form = ref({
     }
 })
 
-function close() {
-    visible.value = false;
-}
+
 function init(tid: string | Array<string>, { fsn, nsn, ntitle }: any = {}) {
     tids.value = tid
     title.value = ntitle || '审核'
@@ -82,7 +79,6 @@ function init(tid: string | Array<string>, { fsn, nsn, ntitle }: any = {}) {
         dialog.error('任务id不能为空')
         return
     }
-    visible.value = true
     flowInfo.value.fsn = fsn
     flowInfo.value.nsn = nsn
     form.value.data.handelOpinion = ''
@@ -158,9 +154,12 @@ function commit(flag: boolean) {
                     data
                 }).then((res: any) => {
                     if (res.success) {
-                        dialog.success(`提交${label}成功`)
-                        close()
-                        emit('success')
+                        dialog.success({
+                            content: `提交${label}成功`,
+                            onOk: () => {
+                                emit('success', res.body)
+                            }
+                        })
                     } else {
                         dialog.error(res.msg)
                     }
