@@ -26,7 +26,7 @@
                 <div class="title">
                     <MinusCircleOutlined />{{ task.title }}
                 </div>
-                <span :class="['status']">已完成</span>
+                <span :class="['status']"><a-tag color="success">已完成</a-tag></span>
             </div>
 
             <div class="condidate" v-if="(task.types == 'task' || task.types == 'start') && condidates?.length">

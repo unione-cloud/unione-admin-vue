@@ -361,24 +361,22 @@ export function processTaskStatus(flowChart: any, runs: any[]) {
   })
   const doprocess = (task: any) => {
     const node = nodeMap[task.sn]
-    if (!node || node.dsflag) {
+    if (!node) {
       return
     }
     const preNode = nodeMap[task.preNodeId]
     if (task.status == 1) {
       // 设置前置节点已完成
-      if (preNode) {
-        preNode.status = 3
-        doprocess(preNode)
-      }
       node.data.status = 'active'
     } else if (task.status == 2 || task.status == 4) {
       node.data.status = 'running'
     } else if (task.status == 3) {
       node.data.status = 'complete'
     }
-
     if (preNode) {
+      preNode.status = 3
+      doprocess(preNode)
+
       const edge = edgeMap[task.sn]?.find((item: any) => item.attr.source.cell == preNode.sn)
       if (edge) {
         edge.data.status =

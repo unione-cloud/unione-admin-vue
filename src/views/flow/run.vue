@@ -382,11 +382,6 @@ function handleAuditSuccess({ task, result }: any) {
     if (task) {
         flowInfo.value.runs = [task]
         currTask.value = task
-    } else {
-        // 查看模式
-        if (flowInfo.value.tasks) {
-            currTask.value = flowInfo.value.tasks[flowInfo.value.tasks.length - 1]
-        }
     }
     flowAuditObj.value.visible = false
 }
@@ -477,7 +472,7 @@ function loadFlowInfo() {
 function processFlowChart() {
     const flowChart = JSON.parse(JSON.stringify(flowInfo.value.flowChart))
     // 处理任务状态
-    processTaskStatus(flowChart, flowInfo.value.runs)
+    processTaskStatus(flowChart, [...(flowInfo.value.tasks || []), ...(flowInfo.value.runs || [])])
     return flowChart
 }
 
