@@ -235,9 +235,18 @@ function save() {
  * 提交流程
  */
 function submit() {
-    if (flowModel.value != 'start') {
+    if (flowModel.value != 'start' && (currTask.value?.types != 'start')) {
         return
     }
+    if (currTask.value?.types == 'start') {
+        // 流程驳回，重新提交
+        formRef.value.getData().then((data: any) => {
+            flowAuditRef.value.commit(true, data)
+        })
+        return
+    }
+
+    // 启动新流程
     dialog.confirm({
         content: '确定提交当前流程吗？',
         onOk: () => {
@@ -321,11 +330,13 @@ function handle() {
             flowAuditRef.value.init(currTask.value.id, {
                 fsn: flowSn.value,
                 nsn: currTask.value.sn,
+                types: currTask.value.types,
                 ntitle: currTask.value.title
             })
         })
     }
 
+    console.log('currTask.value', currTask.value)
     if (!currTask.value.signTime) {
         dialog.confirm({
             content: '确定办理当前流程吗？',
@@ -364,12 +375,18 @@ function audit(result: boolean) {
     // 提交流程
     flowAuditRef.value.commit(result)
 }
-function handleAuditSuccess(task: any) {
-    currTask.value.status = 3
+function handleAuditSuccess({ task, result }: any) {
+    currTask.value.status = result ? 3 : 4
+    currTask.value.handleResult = result ? 1 : 2
     flowInfo.value.tasks = [...(flowInfo.value.tasks || []), { ...currTask.value }]
     if (task) {
         flowInfo.value.runs = [task]
         currTask.value = task
+    } else {
+        // 查看模式
+        if (flowInfo.value.tasks) {
+            currTask.value = flowInfo.value.tasks[flowInfo.value.tasks.length - 1]
+        }
     }
     flowAuditObj.value.visible = false
 }
@@ -447,6 +464,7 @@ function loadFlowInfo() {
             flowForm.value.bid = res.body.busiKey || busiId.value
             if (flowInfo.value?.runs?.[0]) {
                 currTask.value = flowInfo.value.runs[0]
+                console.log('currTask.value1', currTask.value)
             }
             loadFlowForm()
         } else {

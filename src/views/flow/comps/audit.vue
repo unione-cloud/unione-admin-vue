@@ -1,9 +1,9 @@
 <template>
-    <a-form layout="vertical" :model="form.data" :rules="form.rules" ref="formRef">
+    <a-form layout="vertical" :model="formObj.data" :rules="formObj.rules" ref="formRef">
         <div class="handel-opinion">
-            <a-form-item label="处理意见：" name="handelOpinion">
-                <a-textarea v-model:value="form.data.handelOpinion" autoSize :rows="5"
-                    placeholder="请输入处理意见"></a-textarea>
+            <a-form-item :label="nodeObj.types == 'task' ? '处理意见：' : '反馈意见：'" name="handelOpinion">
+                <a-textarea v-model:value="formObj.data.handelOpinion" autoSize :rows="5"
+                    :placeholder="nodeObj.types == 'task' ? '请输入处理意见' : '请输入反馈意见'"></a-textarea>
                 <a-button type="link" class="save-preset" @click="savePresetOpinion">设为常用语</a-button>
             </a-form-item>
         </div>
@@ -48,8 +48,11 @@ const props = defineProps({
 
 const emit = defineEmits(['success'])
 
-const title = ref('审核')
-const tids = ref<string | Array<string>>()
+const nodeObj = ref<any>({
+    title: '审核',
+    types: 'task',
+    tids: ''
+})
 const flowInfo = ref({
     fsn: '',
     nsn: ''
@@ -59,7 +62,7 @@ const presetListOk = ref<Array<any>>([])
 const presetListReject = ref<Array<any>>([])
 
 const formRef = ref()
-const form = ref({
+const formObj = ref({
     data: {
         handelOpinion: ''
     },
@@ -71,17 +74,17 @@ const form = ref({
 })
 
 
-function init(tid: string | Array<string>, { fsn, nsn, ntitle }: any = {}) {
-    tids.value = tid
-    title.value = ntitle || '审核'
-    console.log('ntitle', ntitle)
+function init(tid: string | Array<string>, { fsn, nsn, types, ntitle }: any = {}) {
+    nodeObj.value.tids = tid
+    nodeObj.value.title = ntitle || '审核'
+    nodeObj.value.types = types || 'task'
     if (!tid) {
         dialog.error('任务id不能为空')
         return
     }
     flowInfo.value.fsn = fsn
     flowInfo.value.nsn = nsn
-    form.value.data.handelOpinion = ''
+    formObj.value.data.handelOpinion = ''
     loadPresetOpinionList()
 }
 
@@ -95,11 +98,11 @@ function loadPresetOpinionList() {
     })
 }
 function toUsePresetOpinion(op: any) {
-    form.value.data.handelOpinion = op.optxt
+    formObj.value.data.handelOpinion = op.optxt
 }
 
 function savePresetOpinion() {
-    if (!form.value.data.handelOpinion) {
+    if (!formObj.value.data.handelOpinion) {
         dialog.error('请输入处理意见')
         return
     }
@@ -107,8 +110,8 @@ function savePresetOpinion() {
         url: `/api/opinion/preset/save`,
         method: 'post',
         data: {
-            title: form.value.data.handelOpinion,
-            optxt: form.value.data.handelOpinion,
+            title: formObj.value.data.handelOpinion,
+            optxt: formObj.value.data.handelOpinion,
             types: 1
         }
     }).then((res: any) => {
@@ -132,21 +135,22 @@ function handleChange(type: String, e: any) {
     }
 }
 
-function commit(flag: boolean) {
-    const label = title.value
+function commit(flag: boolean, form?: any) {
+    const label = nodeObj.value.title
     formRef.value.validate().then(() => {
         dialog.confirm({
-            content: `确定提交${label}，并${flag ? '同意' : '拒绝'}该申请么？`,
+            content: nodeObj.value.types == 'task' ? `确定提交${label}，并${flag ? '同意' : '拒绝'}该申请么？` : `确定提交该申请么？`,
             onOk: () => {
                 const data: any = {
                     result: flag,
-                    opinion: form.value.data.handelOpinion,
-                    vars: props.vars
+                    opinion: formObj.value.data.handelOpinion,
+                    vars: props.vars,
+                    form
                 }
-                if (Array.isArray(tids.value)) {
-                    data.taskIds = tids.value
+                if (Array.isArray(nodeObj.value.tids)) {
+                    data.taskIds = nodeObj.value.tids
                 } else {
-                    data.taskId = tids.value
+                    data.taskId = nodeObj.value.tids
                 }
                 axios.flow({
                     url: `/api/engine/task/submit`,
@@ -157,7 +161,7 @@ function commit(flag: boolean) {
                         dialog.success({
                             content: `提交${label}成功`,
                             onOk: () => {
-                                emit('success', res.body)
+                                emit('success', { task: res.body, result: flag })
                             }
                         })
                     } else {

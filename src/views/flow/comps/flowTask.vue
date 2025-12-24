@@ -8,13 +8,19 @@
                 <div class="title">
                     <UserOutlined />{{ task.title }}
                 </div>
-                <span :class="['status']">{{ task.status == 1 ? '审核中' : '已完成' }}</span>
+                <span :class="['status']"><a-tag :color="task.handleResult == 1 ? 'success' : 'error'"
+                        v-if="task.status == 3">{{
+                            task.handleResult == 1 ? '同意' : '拒绝' }}</a-tag>
+                    <a-tag v-else>处理中</a-tag>
+                </span>
             </div>
             <div class="top" v-if="task.types == 'start'">
                 <div class="title">
                     <PlayCircleOutlined />{{ task.title }}
                 </div>
-                <span :class="['status']">{{ task.status != 3 ? '待提交' : '已提交' }}</span>
+                <span :class="['status']"><a-tag :color="task.status != 3 ? 'error' : 'success'">{{ task.status != 3 ?
+                    '已驳回' : '已提交'
+                        }}</a-tag></span>
             </div>
             <div class="top" v-if="task.types == 'end'">
                 <div class="title">
@@ -37,16 +43,39 @@
                 </div>
             </div>
 
-            <div class="footer" v-if="task.types == 'task'">
+            <div class="footer" v-if="task.types == 'task'" @click="approveModal.open">
                 <div class="approve-model">{{ approveModel }}</div>
                 <RightOutlined class="icon" />
             </div>
         </div>
+
+        <a-modal :title="task.title + '(' + approveModel + ')'" v-model:open="approveModal.visible"
+            @ok="approveModal.visible = false">
+            <a-list class="task-opinion-list" item-layout="horizontal" :data-source="approveModal.opinions">
+                <template #renderItem="{ item }">
+                    <a-list-item>
+                        <template #actions><a-tag :color="item.status == 1 ? 'success' : 'error'">{{ item.status == 1 ?
+                            '同意' : '拒绝' }}</a-tag></template>
+                        <a-list-item-meta :description="item.optxt">
+                            <template #title>
+                                <div>{{ item.userName }}</div>
+                                <div>{{ item.handleTime }}</div>
+                            </template>
+                            <template #avatar>
+                                <a-avatar :src="userAvatar(item)" />
+                            </template>
+                        </a-list-item-meta>
+                    </a-list-item>
+                </template>
+            </a-list>
+        </a-modal>
+
     </div>
 </template>
 <script setup lang="ts">
 import { useConfigStore } from '@/config';
-import { computed } from 'vue';
+import { axios } from 'unione-base-vue';
+import { computed, ref } from 'vue';
 
 
 const config = useConfigStore().config
@@ -65,11 +94,38 @@ const props = defineProps({
     }
 })
 
+
 const approveModel = computed(() => {
     const model = props.node?.data?.approve?.mode || 'or'
     const map: any = { or: '或签', con: '会签', queue: '依次审批' }
     return map[model] || '或签'
 })
+
+const approveModal = ref({
+    visible: false,
+    opinions: [],
+    open: () => {
+        approveModal.value.visible = true
+        if (!approveModal.value.opinions?.length) {
+            axios.flow({
+                url: '/api/engine/opinion/task/' + props.task.id + '/1',
+                method: 'POST',
+            }).then((res: any) => {
+                approveModal.value.opinions = res.body.opinions
+            })
+        }
+    }
+})
+
+
+function userAvatar(user: any) {
+    console.log('======', props.condidates)
+    const condidate = props.condidates.find((c: any) => c.userId == user.userId)
+    if (!condidate) {
+        return '/avatar.png'
+    }
+    return avatarUrl(condidate)
+}
 
 function avatarUrl(condidate: any) {
     return condidate.avatar && (config.axios.admin + '/api/common/store/preview/public/' + condidate.avatar) || '/avatar.png'
@@ -138,6 +194,18 @@ function avatarUrl(condidate: any) {
                 padding: 0px 5px;
             }
         }
+    }
+}
+
+.task-opinion-list {
+    :deep(.ant-list-item) {
+        align-items: start;
+    }
+
+    :deep(.ant-list-item-meta-description) {
+        background-color: #f5f5f5;
+        padding: 5px 10px;
+        border-radius: 2px;
     }
 }
 </style>
