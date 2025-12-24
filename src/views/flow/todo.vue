@@ -17,7 +17,7 @@
     <UnioneFlowOpinion ref="opinion"></UnioneFlowOpinion>
     <a-drawer :title="auditDrawer.title" v-model:visible="auditDrawer.visible" :width="600"
       rootClassName="flow-audit-drawer">
-      <UnioneFlowAudit ref="audit" @success="reload()"></UnioneFlowAudit>
+      <UnioneFlowAudit ref="audit" @success="handleAuditSuccess"></UnioneFlowAudit>
       <template #footer>
         <a-button type="primary" @click="auditDrawer.commit(true)">同意</a-button>
         <a-button type="primary" danger @click="auditDrawer.commit(false)">拒绝</a-button>
@@ -414,6 +414,11 @@ function toWaiveTask(tids: string | Array<string>) {
       })
     }
   })
+}
+
+function handleAuditSuccess() {
+  reload()
+  auditDrawer.value.visible = false
 }
 
 const pagesn = ref<any>('new_')

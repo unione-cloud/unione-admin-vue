@@ -54,7 +54,7 @@
             <a-list class="task-opinion-list" item-layout="horizontal" :data-source="approveModal.opinions">
                 <template #renderItem="{ item }">
                     <a-list-item>
-                        <template #actions><a-tag :color="item.status == 1 ? 'success' : 'error'">{{ item.status == 1 ?
+                        <template #actions><a-tag :color="item.types == 1 ? 'success' : 'error'">{{ item.types == 1 ?
                             '同意' : '拒绝' }}</a-tag></template>
                         <a-list-item-meta :description="item.optxt">
                             <template #title>

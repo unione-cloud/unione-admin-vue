@@ -26,14 +26,14 @@
         </div>
         <div class="footer">
             <div class="calls">
-                <a-tag class="call" v-for="c, i in commentValue.calls" :key="c.id" closable @close="delCall(i)">@{{
+                <a-tag class="call" v-for="(c, i) in commentValue.calls" :key="c.id" closable @close="delCall(i)">@{{
                     c.name
-                    }}</a-tag>
-            </div>
-            <a-textarea class="message" v-model:value="commentValue.message" :rows="4" :maxlength="500"
-                showCount></a-textarea>
-            <a-tag class="ref" v-if="commentValue.ref?.info" closable @close="delRef">{{ commentValue.ref.info
                 }}</a-tag>
+            </div>
+            <a-textarea class="message" v-model:value="commentValue.message" :rows="4" :maxlength="500" showCount
+                placeholder="请输入消息..." @keyup.enter="send"></a-textarea>
+            <a-tag class="ref" v-if="commentValue.ref?.info" closable @close="delRef">{{ commentValue.ref.info
+            }}</a-tag>
             <div class="btns">
                 <div class="left-btn">
                     <span class="icon">@</span>
@@ -41,12 +41,14 @@
                     <PictureOutlined class="icon" />
                     <PaperClipOutlined class="icon" />
                 </div>
-                <a-button class="btn-send">发送</a-button>
+                <a-button class="btn-send" @click="send" :loading="commentValue.loading">发送</a-button>
             </div>
         </div>
     </div>
 </template>
 <script setup lang="ts">
+import { message } from 'ant-design-vue'
+import { axios, useDialog } from 'unione-base-vue'
 import { ref } from 'vue'
 
 const props = defineProps({
@@ -54,14 +56,21 @@ const props = defineProps({
         type: String,
         required: true
     },
+    tid: {
+        type: String,
+    },
     status: {
         type: Number,
         default: 2
     }
 })
 
+const dialog = useDialog()
+
 const commentValue = ref<any>({
+    loading: false,
     message: '',
+    ref: {},
     calls: [],
     files: [],
     images: [],
@@ -119,9 +128,56 @@ function reply(item: any) {
 function delRef() {
     commentValue.value.ref = null;
 }
-function delCall(index: number) {
+function delCall(index: any) {
     commentValue.value.calls.splice(index, 1);
 }
+
+/**
+ * 发送
+ */
+function send() {
+    if (!commentValue.value.message) {
+        message.warning('请输入发送消息')
+        return
+    }
+    commentValue.value.loading = true
+
+    const data: any = {
+        content: commentValue.value.message,
+        calls: commentValue.value.calls,
+        files: commentValue.value.files,
+        images: commentValue.value.images,
+        links: commentValue.value.links,
+        ref: commentValue.value.ref,
+    }
+    axios.flow({
+        url: '/api/engine/opinion/comment/save',
+        method: 'post',
+        data: {
+            flowInsId: props.fid,
+            flowTaskId: props.tid,
+            title: '沟通消息',
+            types: 3,
+            optxt: JSON.stringify(data),
+        }
+    }).then((result: any) => {
+        if (result.success) {
+            message.success('发送成功')
+            commentValue.value.loading = false
+            commentValue.value.message = ''
+            commentValue.value.calls = []
+            commentValue.value.files = []
+            commentValue.value.images = []
+            commentValue.value.links = []
+            commentValue.value.ref = {}
+            result.body.optxt = JSON.parse(result.body.optxt)
+            commentList.value.push(result.body)
+        } else {
+            dialog.error(result.message || '发送失败')
+        }
+    })
+}
+
 
 </script>
 <style lang="less" scoped>
