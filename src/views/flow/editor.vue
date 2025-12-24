@@ -34,7 +34,7 @@
             <template #extra>
               <CloseOutlined @click="error.visible = false" />
             </template>
-            <div class="node-error" v-for="item, i in error.list" :key="i" @click="setActiveNode(item.node.sn)">
+            <div class="node-error" v-for="(item, i) in error.list" :key="i" @click="setActiveNode(item.node.sn)">
               <div class="title">{{ (i + 1) }}、{{ item.node.title }}节点</div>
               <div class="error-list" v-for="err in item.error" :key="err">
                 <div class="error-item">

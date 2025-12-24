@@ -44,18 +44,18 @@
                 </UFEditor>
             </div>
             <div class="flow-tools">
-                <a-button class="btn" danger>撤回</a-button>
-                <a-button class="btn">催办</a-button>
-                <a-button class="btn">加签</a-button>
-                <a-button class="btn" @click="save">暂存</a-button>
-                <a-button class="btn" type="primary" @click="submit">提交</a-button>
-                <a-button class="btn" type="primary" @click="handle">办理</a-button>
-                <a-button class="btn" danger>放弃</a-button>
-                <a-button class="btn">转审</a-button>
-                <a-button class="btn">协办</a-button>
-                <a-button class="btn" type="primary" @click="audit(true)">同意</a-button>
-                <a-button class="btn" danger @click="audit(false)">拒绝</a-button>
-                <a-button class="btn" danger type="primary" @click="stop">终止</a-button>
+                <a-button class="btn" danger v-if="flowBtns.revoke?.enable">撤回</a-button>
+                <a-button class="btn" v-if="flowBtns.press?.enable">催办</a-button>
+                <a-button class="btn" v-if="flowBtns.addSign?.enable">加签</a-button>
+                <a-button class="btn" @click="save" v-if="flowBtns.save?.enable">暂存</a-button>
+                <a-button class="btn" type="primary" @click="submit" v-if="flowBtns.submit?.enable">提交</a-button>
+                <a-button class="btn" type="primary" @click="handle" v-if="flowBtns.handel?.enable">办理</a-button>
+                <a-button class="btn" danger v-if="flowBtns.waive?.enable">放弃</a-button>
+                <a-button class="btn" v-if="flowBtns.transfer?.enable">转审</a-button>
+                <a-button class="btn" v-if="flowBtns.assist?.enable">协办</a-button>
+                <a-button class="btn" type="primary" @click="audit(true)" v-if="flowBtns.agree?.enable">同意</a-button>
+                <a-button class="btn" danger @click="audit(false)" v-if="flowBtns.reject?.enable">拒绝</a-button>
+                <a-button class="btn" danger type="primary" @click="stop" v-if="flowBtns.stop?.enable">终止</a-button>
             </div>
         </div>
         <div class="flow-right" v-if="rightPanel.open">
@@ -189,7 +189,7 @@ const busiId = computed(() => {
     return props.bid || route.query.bid || flowForm.value.bid;
 })
 // 流程模式
-const flowModel = computed(() => {
+const flowModel = computed<any>(() => {
     if (currTask.value) {
         if (currTask.value.status == 1 || currTask.value.status == 2 || currTask.value.status == 4) {
             return 'run'
@@ -201,6 +201,82 @@ const flowModel = computed(() => {
 const formModel = computed(() => {
     return (flowModel.value == 'run' || flowModel.value == 'start') ? 'run' : 'view'
 })
+/**
+ * 流程操作按钮
+ */
+const flowBtns = computed(() => {
+    const btns: any = {
+        agree: {
+            enable: false
+        },
+        reject: {
+            enable: false
+        },
+        back: {
+            enable: false
+        },
+        addSign: {
+            enable: false
+        },
+        transfer: {
+            enable: false
+        },
+        assist: {
+            enable: false
+        },
+        save: {
+            enable: false
+        },
+        handel: {
+            enable: false
+        },
+        submit: {
+            enable: false
+        },
+        press: {
+            enable: false
+        },
+        revoke: {
+            enable: false
+        },
+        waive: {
+            enable: false
+        },
+        stop: {
+            enable: false
+        }
+    }
+
+    const modelMap: any = {
+        start: ['submit', 'back'],
+        run: ['agree', 'reject', 'back', 'addSign', 'transfer', 'assist', 'save', 'handel', 'revoke', 'waive', 'stop'],
+        view: ['revoke', 'back', 'press'],
+        archive: ['back'],
+    }
+
+    // 过滤按钮
+    const modelBtns = modelMap[flowModel.value] || []
+    modelBtns.forEach((item: any) => {
+        btns[item].enable = true
+    })
+
+    if (currTask.value?.opts) {
+        const opts = JSON.parse(currTask.value.opts)
+        Object.keys(btns).forEach((name: any) => {
+            const btn: any = btns[name]
+            if (!opts.includes(name)) {
+                btn.enable = false
+            }
+        })
+    }
+
+    if (flowModel.value == 'view' && currTask.value?.status == 3) {
+        btns.press.enable = false
+    }
+
+    return btns;
+})
+
 // 流程审核
 const flowAuditRef = ref()
 const flowAuditObj = ref<any>({
