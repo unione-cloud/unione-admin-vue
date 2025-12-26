@@ -4,7 +4,7 @@
             <div class="flow-header">
                 <div class="flow-title">
                     <ArrowLeftOutlined class="btn-back" @click="goback" />
-                    <span class="label">{{ flowInfo?.title }}{{ flowModel == 'start' && ('v' + flowVers) }}</span>
+                    <span class="label">{{ flowInfo?.title }}{{ flowModel == 'start' ? ('v' + flowVers) : '' }}</span>
                     <span class="curr-task" v-if="currTask">/{{ currTask.title }}</span>
                     <a-dropdown>
                         <template #overlay v-if="flowModel == 'start'">
