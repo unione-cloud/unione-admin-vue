@@ -24,8 +24,8 @@
 
                 </div>
                 <div class="flow-info" v-if="flowInfo?.commitUserName">
-
-                    <div class="item flow-type" v-if="flowInfo.flowChart?.title">流程类型：{{ flowInfo.flowChart.title }}
+                    <div class="item flow-type" v-if="flowInfo.flowChart?.title">流程类型：{{ flowInfo.flowChart.title }}/v{{
+                        flowInfo.vers }}
                     </div>
                     <div class="item start-user">发起人：{{ flowInfo.commitUserName }}</div>
                     <div class="item start-time">发起时间：{{ flowInfo.commitTime }}</div>
@@ -60,18 +60,25 @@
                 </UFEditor>
             </div>
             <div class="flow-tools">
-                <a-button class="btn" danger v-if="flowBtns.revoke?.enable">撤回</a-button>
-                <a-button class="btn" v-if="flowBtns.press?.enable">催办</a-button>
-                <a-button class="btn" v-if="flowBtns.addSign?.enable">加签</a-button>
-                <a-button class="btn" @click="save" v-if="flowBtns.save?.enable">暂存</a-button>
-                <a-button class="btn" type="primary" @click="submit" v-if="flowBtns.submit?.enable">提交</a-button>
-                <a-button class="btn" type="primary" @click="handle" v-if="flowBtns.handel?.enable">办理</a-button>
-                <a-button class="btn" danger v-if="flowBtns.waive?.enable">放弃</a-button>
-                <a-button class="btn" v-if="flowBtns.transfer?.enable">转审</a-button>
-                <a-button class="btn" v-if="flowBtns.assist?.enable">协办</a-button>
-                <a-button class="btn" type="primary" @click="audit(true)" v-if="flowBtns.agree?.enable">同意</a-button>
-                <a-button class="btn" danger @click="audit(false)" v-if="flowBtns.reject?.enable">拒绝</a-button>
-                <a-button class="btn" danger type="primary" @click="stop" v-if="flowBtns.stop?.enable">终止</a-button>
+                <a-button class="btn" danger v-if="flowBtns.revoke?.enable && !flowAuditObj.visible">撤回</a-button>
+                <a-button class="btn" v-if="flowBtns.press?.enable && !flowAuditObj.visible">催办</a-button>
+                <a-button class="btn" v-if="flowBtns.addSign?.enable && !flowAuditObj.visible">加签</a-button>
+                <a-button class="btn" danger v-if="flowBtns.waive?.enable && !flowAuditObj.visible">放弃</a-button>
+                <a-button class="btn" v-if="flowBtns.transfer?.enable && !flowAuditObj.visible">转审</a-button>
+                <a-button class="btn" v-if="flowBtns.assist?.enable && !flowAuditObj.visible">协办</a-button>
+                <a-button class="btn" @click="save" v-if="flowBtns.save?.enable && !flowAuditObj.visible">暂存</a-button>
+                <a-button class="btn" type="primary" @click="submit"
+                    v-if="flowBtns.submit?.enable && !flowAuditObj.visible">提交</a-button>
+                <a-button class="btn" type="primary" @click="handle"
+                    v-if="flowBtns.handel?.enable && !flowAuditObj.visible">办理</a-button>
+                <a-button class="btn" type="primary" @click="audit(true)"
+                    v-if="flowBtns.agree?.enable && flowAuditObj.visible">同意</a-button>
+                <a-button class="btn" danger @click="audit(false)"
+                    v-if="flowBtns.reject?.enable && flowAuditObj.visible">拒绝</a-button>
+                <a-button class="btn" v-if="flowBtns.back?.enable && !flowAuditObj.visible"
+                    @click="goback">返回</a-button>
+                <a-button class="btn" danger type="primary" @click="stop"
+                    v-if="flowBtns.stop?.enable && !flowAuditObj.visible">终止</a-button>
             </div>
         </div>
         <div class="flow-right" v-if="rightPanel.open">
@@ -223,6 +230,12 @@ const flowPriority = ref<any>('1')
  */
 const flowBtns = computed(() => {
     const btns: any = {
+        handel: {
+            enable: false
+        },
+        save: {
+            enable: false
+        },
         agree: {
             enable: false
         },
@@ -239,12 +252,6 @@ const flowBtns = computed(() => {
             enable: false
         },
         assist: {
-            enable: false
-        },
-        save: {
-            enable: false
-        },
-        handel: {
             enable: false
         },
         submit: {
@@ -266,8 +273,8 @@ const flowBtns = computed(() => {
 
     const modelMap: any = {
         start: ['submit', 'back'],
-        run: ['agree', 'reject', 'back', 'addSign', 'transfer', 'assist', 'save', 'handel', 'revoke', 'waive', 'stop'],
-        view: ['revoke', 'back', 'press'],
+        run: ['agree', 'reject', 'back', 'save', 'handel', 'waive', 'stop'], //'addSign', 'transfer', 'assist', 'revoke'
+        view: ['back'], //  'revoke', 'press'
         archive: ['back'],
     }
 
@@ -361,8 +368,7 @@ function submit() {
                         console.log('submit res', res)
                         if (res.success && res.body) {
                             dialog.success('提交成功')
-                            flowInfo.value.tasks = [...(flowInfo.value.tasks || []), ...(res.body.tasks || [])]
-                            flowInfo.value.runs = [...(flowInfo.value.runs || []), ...(res.body.runs || [])]
+                            flowInfo.value = res.body
                             if (res.body.runs?.[0]) {
                                 currTask.value = res.body.runs[0]
                             } else {
