@@ -4,7 +4,7 @@
             <div class="flow-header">
                 <div class="flow-title">
                     <ArrowLeftOutlined class="btn-back" @click="goback" />
-                    <span class="label">{{ flowInfo?.title }}</span>
+                    <span class="label">{{ flowInfo?.title }}{{ flowModel == 'start' && ('v' + flowVers) }}</span>
                     <span class="curr-task" v-if="currTask">/{{ currTask.title }}</span>
                     <a-dropdown>
                         <template #overlay v-if="flowModel == 'start'">
@@ -120,6 +120,9 @@ const props = defineProps({
     fsn: {
         type: String,
     },
+    vers: {
+        type: String,
+    },
     // 流程实例id
     fid: {
         type: String,
@@ -204,6 +207,10 @@ const flowAreaRef = ref()
 // 流程编码
 const flowSn = computed(() => {
     return props.fsn || route.query.fsn;
+})
+// 流程版本
+const flowVers = computed(() => {
+    return flowInfo.value?.vers || props.vers || route.query.vers;
 })
 // 流程实例id
 const flowId = computed(() => {
@@ -359,6 +366,7 @@ function submit() {
                         url: '/api/engine/instance/run',
                         data: {
                             sn: flowSn.value,
+                            vers: flowVers.value,
                             form: data,
                             priority: flowPriority.value
                         }
@@ -547,6 +555,9 @@ function loadFlowInfo() {
     if (flowModel.value == 'start') {
         // 加载流程模版
         url = '/api/engine/profile/' + flowSn.value
+        if (flowVers.value) {
+            url += '/' + flowVers.value
+        }
     } else if (flowModel.value == 'archive' || flowModel.value == 'view') {
         // 加载流程历史信息
         url = '/api/engine/instance/detail/' + flowId.value

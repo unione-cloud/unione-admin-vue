@@ -3,14 +3,29 @@
   <div class="unione-page unione-page-list unione-flow-tmpl">
     <unione-page-list ref="page" v-bind="define" @btnClick="btnClick"></unione-page-list>
 
-    <a-drawer :title="drawer.title" :width="750" v-model:visible="drawer.visible" :placement="drawer.placement"
-      class="drawer-form" :mask-closable="false">
-      <unione-form :form="drawer.form" ref="form"></unione-form>
+    <a-drawer :title="drawer.title" :width="400" v-model:visible="drawer.visible" :placement="drawer.placement"
+      class="drawer-flow-history" :mask-closable="false">
+
+      <a-list :dataSource="drawer.list">
+        <template #renderItem="{ item, index }">
+          <a-list-item class="flow-ver">
+            <a-list-item-meta :description="item.descs">
+              <template #title>
+                {{ index + 1 }}. {{ item.lastUpdated }}<a-tag color="blue" size="small" style="margin-left: 5px;">v{{
+                  item.vers
+                }}</a-tag>
+              </template>
+            </a-list-item-meta>
+            <template #extra>
+              <a-button size="small" @click="drawer.toRun(item)">发起流程</a-button>
+            </template>
+          </a-list-item>
+        </template>
+      </a-list>
 
       <template #footer>
         <div class="btns">
-          <a-button type="primary" @click="drawer.tosave">保存</a-button>
-          <a-button @click="drawer.visible = false">取消</a-button>
+          <a-button @click="drawer.visible = false">关闭</a-button>
         </div>
       </template>
     </a-drawer>
@@ -20,7 +35,7 @@
 
 <script setup lang="ts">
 import { nextTick, ref } from 'vue'
-import { useDialog } from 'unione-base-vue'
+import { axios, useDialog } from 'unione-base-vue'
 import { Convertor } from 'unione-form-vue'
 import { useRouter, type Router } from 'vue-router'
 import Editor from './editor.vue'
@@ -150,7 +165,8 @@ async function btnClick({ btn, event, row, keys }: any) {
     editor.value.open(row)
   }
   if (btn.name == 'vers') {
-    //
+    drawer.value.visible = true
+    drawer.value.load(row)
   }
   if (btn.name == 'run') {
     router.push({
@@ -187,181 +203,36 @@ async function btnClick({ btn, event, row, keys }: any) {
   }
 }
 
-const form = ref() //form ref obj
 const drawer = ref({
   title: '流程版本',
   placement: 'right',
   visible: false,
-  row: {},
-  form: {
-    fields: [
-      {
-        title: '应用类别',
-        name: 'category',
-        control: 'unione-radio-box',
-        value: 'app',
-        convert: {
-          types: 'dict',
-          dictName: 'APPCATEGORY'
+  list: [],
+  load: (row: any) => {
+    drawer.value.list = []
+    axios.flow({
+      url: '/api/tmpl/vers',
+      method: 'post',
+      data: {
+        body: {
+          tmplId: row.id
         },
-      },
-      {
-        title: '应用名称',
-        name: 'name',
-        required: true
-      },
-      {
-        title: '应用编码',
-        name: 'sn',
-        required: true
-      },
-      {
-        title: '应用类型',
-        name: 'types',
-        control: 'unione-select-box',
-        convert: {
-          types: 'dict',
-          dictName: 'APPTYPES'
-        },
-        event: {
-          visible: (value: any, ctx: any) => {
-            return ctx.category == 'app'
-          }
-        }
-      },
-      {
-        title: '微应用',
-        name: 'isMp',
-        control: 'unione-select-box',
-        value: '0',
-        convert: {
-          types: 'dict',
-          dictName: 'TUREORFALSE'
-        },
-        event: {
-          visible: (value: any, ctx: any) => {
-            return ctx.category == 'app'
-          }
-        }
-      },
-      {
-        title: '应用URL',
-        name: 'url',
-        event: {
-          visible: (value: any, ctx: any) => {
-            return ctx.category == 'app'
-          }
-        }
-      },
-      {
-        title: '首页URL',
-        name: 'welcome',
-        event: {
-          visible: (value: any, ctx: any) => {
-            return ctx.category == 'app'
-          }
-        }
-      },
-      {
-        title: '显示顺序',
-        name: 'ordered',
-        value: 0,
-        control: 'a-input-number',
-        required: true
-      },
-      {
-        title: '版本号',
-        name: 'versNo',
-        value: '0.0.1',
-        required: true
-      },
-      {
-        title: '版本说明',
-        name: 'versDesc',
-        control: 'unione-rich-text',
-        value: '{}'
-      },
-      {
-        title: '字体图标',
-        name: 'icon',
-        control: 'unione-icon-select'
-      },
-      {
-        title: '图片图标(小)',
-        name: 'picMix'
-      },
-      {
-        title: '图片图标(中)',
-        name: 'picMid'
-      },
-      {
-        title: '图片图标(大)',
-        name: 'picMax'
-      },
-      {
-        title: '模版应用',
-        name: 'isTmpl',
-        control: 'unione-switch-box',
-        value: 0,
-        convert: {
-          types: 'dict',
-          dictName: 'TUREORFALSE'
-        },
-        event: {
-          visible: (value: any, ctx: any) => {
-            return ctx.category == 'app'
-          }
-        }
-      },
-      {
-        title: '平台应用',
-        name: 'isPlatform',
-        control: 'unione-switch-box',
-        value: 0,
-        convert: {
-          types: 'dict',
-          dictName: 'TUREORFALSE'
-        },
-        event: {
-          visible: (value: any, ctx: any) => {
-            return ctx.category == 'app'
-          }
-        }
-      },
-      {
-        title: '应用状态',
-        name: 'status',
-        control: 'unione-select-box',
-        value: 1,
-        convert: {
-          types: 'dict',
-          dictName: 'APPSTATUS'
-        }
-      },
-      {
-        title: '备注',
-        control: 'a-textarea',
-        name: 'descs'
+        page: 1,
+        pageSize: 1000,
+        sorts: [{ name: 'lastUpdated', asc: false }]
       }
-    ],
-    setting: {
-      showColumn: 1,
-      labelWidth: 5
-    }
+    }).then((res: any) => {
+      drawer.value.list = res.body
+    })
   },
-  tosave: () => {
-    form.value.validate().then((data: any) => {
-      data = {
-        ...drawer.value.row,
-        ...data
+  toRun: (item: any) => {
+    router.push({
+      path: '/dev/flow/run',
+      query: {
+        fsn: item.sn,
+        fmd: 'start',
+        vers: item.vers
       }
-      page.value
-        .storage()
-        .save({ data })
-        .then(() => {
-          drawer.value.visible = false
-          page.value.reload()
-        })
     })
   }
 })
@@ -372,10 +243,14 @@ function refresh() {
 
 </script>
 
-<style scoped lang="less">
-.drawer-form {
+<style lang="less">
+.drawer-flow-history {
+  .flow-ver {
+    align-items: start !important;
+  }
+
   .btns {
-    text-align: center;
+    text-align: right;
 
     :deep(.ant-btn) {
       margin: 5px 10px;
