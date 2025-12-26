@@ -222,13 +222,14 @@ const busiId = computed(() => {
 })
 // 流程模式
 const flowModel = computed<any>(() => {
-    if (currTask.value) {
+    const model: any = props.fmd || route.query.fmd
+    if (currTask.value && ['start', 'run'].includes(model)) {
         if (currTask.value.status == 1 || currTask.value.status == 2 || currTask.value.status == 4) {
             return 'run'
         }
         return 'view'
     }
-    return props.fmd || route.query.fmd;
+    return model;
 })
 const formModel = computed(() => {
     return (flowModel.value == 'run' || flowModel.value == 'start') ? 'run' : 'view'
