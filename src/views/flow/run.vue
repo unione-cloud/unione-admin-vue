@@ -68,13 +68,15 @@
                 <a-button class="btn" v-if="flowBtns.assist?.enable && !flowAuditObj.visible">协办</a-button>
                 <a-button class="btn" @click="save" v-if="flowBtns.save?.enable && !flowAuditObj.visible">暂存</a-button>
                 <a-button class="btn" type="primary" @click="submit"
-                    v-if="flowBtns.submit?.enable && !flowAuditObj.visible">提交</a-button>
+                    v-if="flowBtns.submit?.enable && !flowAuditObj.visible && flowModel == 'start'">提交</a-button>
                 <a-button class="btn" type="primary" @click="handle"
                     v-if="flowBtns.handel?.enable && !flowAuditObj.visible">办理</a-button>
-                <a-button class="btn" type="primary" @click="audit(true)"
-                    v-if="flowBtns.agree?.enable && flowAuditObj.visible">同意</a-button>
-                <a-button class="btn" danger @click="audit(false)"
-                    v-if="flowBtns.reject?.enable && flowAuditObj.visible">拒绝</a-button>
+                <a-button class="btn" type="primary" @click="audit('submit', true)"
+                    v-if="flowBtns.submit?.enable && flowAuditObj.visible">同意</a-button>
+                <a-button class="btn" @click="audit('submit', false)" dangger
+                    v-if="flowBtns.submit?.enable && flowAuditObj.visible">拒绝</a-button>
+                <a-button class="btn" type="primary" danger @click="audit('reject', false)"
+                    v-if="flowBtns.reject?.enable && flowAuditObj.visible">驳回</a-button>
                 <a-button class="btn" v-if="flowBtns.back?.enable && !flowAuditObj.visible"
                     @click="goback">返回</a-button>
                 <a-button class="btn" danger type="primary" @click="stop"
@@ -236,7 +238,7 @@ const flowBtns = computed(() => {
         save: {
             enable: false
         },
-        agree: {
+        submit: {
             enable: false
         },
         reject: {
@@ -252,9 +254,6 @@ const flowBtns = computed(() => {
             enable: false
         },
         assist: {
-            enable: false
-        },
-        submit: {
             enable: false
         },
         press: {
@@ -273,7 +272,7 @@ const flowBtns = computed(() => {
 
     const modelMap: any = {
         start: ['submit', 'back'],
-        run: ['agree', 'reject', 'back', 'save', 'handel', 'waive', 'stop'], //'addSign', 'transfer', 'assist', 'revoke'
+        run: ['submit', 'reject', 'back', 'save', 'handel', 'waive', 'stop'], //'addSign', 'transfer', 'assist', 'revoke'
         view: ['back'], //  'revoke', 'press'
         archive: ['back'],
     }
@@ -465,7 +464,7 @@ function handle() {
     }
 }
 
-function audit(result: boolean) {
+function audit(action: string, result: boolean) {
     if (!currTask.value) {
         return
     }
@@ -473,10 +472,13 @@ function audit(result: boolean) {
         return;
     }
     // 提交流程
-    flowAuditRef.value.commit(result)
+    flowAuditRef.value.commit(action, result)
 }
-function handleAuditSuccess({ task, result }: any) {
+function handleAuditSuccess({ task, result, action }: any) {
     currTask.value.status = result ? 3 : 4
+    if (action == 'reject') {
+        currTask.value.status = 3
+    }
     currTask.value.handleResult = result ? 1 : 2
     flowInfo.value.tasks = [...(flowInfo.value.tasks || []), { ...currTask.value }]
     if (task) {
@@ -484,6 +486,7 @@ function handleAuditSuccess({ task, result }: any) {
         currTask.value = task
     }
     flowAuditObj.value.visible = false
+    flowInfo.value = { ...flowInfo.value }
 }
 
 /**

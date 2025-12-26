@@ -135,14 +135,15 @@ function handleChange(type: String, e: any) {
     }
 }
 
-function commit(flag: boolean, form?: any) {
+function commit(action: string, result: boolean, form?: any) {
     const label = nodeObj.value.title
     formRef.value.validate().then(() => {
         dialog.confirm({
-            content: nodeObj.value.types == 'task' ? `确定提交${label}，并${flag ? '同意' : '拒绝'}该申请么？` : `确定提交该申请么？`,
+            content: action == 'submit' ? `确定提交当前流程么？` : `确定驳回当前流程么？`,
             onOk: () => {
                 const data: any = {
-                    result: flag,
+                    action,
+                    result,
                     opinion: formObj.value.data.handelOpinion,
                     vars: props.vars,
                     form
@@ -159,9 +160,9 @@ function commit(flag: boolean, form?: any) {
                 }).then((res: any) => {
                     if (res.success) {
                         dialog.success({
-                            content: `提交${label}成功`,
+                            content: action == 'submit' ? `提交${label}成功` : `驳回${label}成功`,
                             onOk: () => {
-                                emit('success', { task: res.body, result: flag })
+                                emit('success', { task: res.body, result, action })
                             }
                         })
                     } else {
