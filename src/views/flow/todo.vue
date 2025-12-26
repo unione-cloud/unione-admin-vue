@@ -19,8 +19,9 @@
       rootClassName="flow-audit-drawer">
       <UnioneFlowAudit ref="audit" @success="handleAuditSuccess"></UnioneFlowAudit>
       <template #footer>
-        <a-button type="primary" @click="auditDrawer.commit(true)">同意</a-button>
-        <a-button type="primary" danger @click="auditDrawer.commit(false)">拒绝</a-button>
+        <a-button type="primary" @click="auditDrawer.commit('submit', true)">同意</a-button>
+        <a-button danger @click="auditDrawer.commit('submit', false)">拒绝</a-button>
+        <a-button type="primary" danger @click="auditDrawer.commit('reject', false)">驳回</a-button>
       </template>
     </a-drawer>
 
@@ -94,8 +95,8 @@ const opinion = ref<any>(null)
 const auditDrawer = ref<any>({
   visible: false,
   title: '',
-  commit: (flag: boolean) => {
-    audit.value.commit(flag)
+  commit: (action: string, flag: boolean) => {
+    audit.value.commit(action, flag)
   }
 })
 
