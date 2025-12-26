@@ -35,7 +35,7 @@
               <CloseOutlined @click="error.visible = false" />
             </template>
             <div class="node-error" v-for="(item, i) in error.list" :key="i" @click="setActiveNode(item.node.sn)">
-              <div class="title">{{ (i + 1) }}、{{ item.node.title }}节点</div>
+              <div class="title">{{ (parseInt(i.toString()) + 1) }}、{{ item.node.title }}节点</div>
               <div class="error-list" v-for="err in item.error" :key="err">
                 <div class="error-item">
                   <div class="prop-title">{{ err.title }}</div>
@@ -61,7 +61,8 @@
 
     <template v-if="flowObj.id">
       <UFEditor ref="ufEditor" :toolbar="toolbar" v-show="stepCurrentItem.name == 'flowEditor'"
-        :model="flowObj?.status == 2 ? 'readonly' : 'edit'" :value="ufmValue"></UFEditor>
+        :model="flowObj?.status == 2 ? 'readonly' : 'edit'" :value="ufmValue" @active:change="handelActiveChange">
+      </UFEditor>
     </template>
 
   </a-modal>
@@ -74,14 +75,18 @@ import type { UFDefine } from 'unione-flow-vue/dist/typing'
 import { utils } from 'unione-form-vue'
 import { computed, nextTick, provide, ref } from 'vue'
 import DraggableResizableVue from 'draggable-resizable-vue3'
-import { loadPreForm, loadPreFormSync } from './lib/flowUtil'
-import { Axis } from 'echarts'
+import { loadPreFormSync } from './lib/flowUtil'
 
 defineOptions({
   name: 'FlowEditor',
 })
 
 const emit = defineEmits(['refresh'])
+const activeObj = ref<any>()
+function handelActiveChange(obj: any) {
+  activeObj.value = obj
+}
+
 registerNode([{
   shape: 'sql',
   props: {
@@ -416,6 +421,16 @@ setNodeProps({
           }
         }
         return { error: '转审对象不能为空' }
+      }
+    }
+  },
+  'advanced.opts': {
+    props: {
+      filter: (b: any) => {
+        if (activeObj.value?.node?.shape == 'task') {
+          return !['submit'].includes(b.name)
+        }
+        return false
       }
     }
   }
