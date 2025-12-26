@@ -4,15 +4,16 @@
             <div class="flow-header">
                 <div class="flow-title">
                     <ArrowLeftOutlined class="btn-back" @click="goback" />
-                    <span class="label">请假申请流程</span>
+                    <span class="label">{{ flowInfo.title }}</span>
                     <span class="curr-task" v-if="currTask">/{{ currTask.title }}</span>
                     <span class="priority">•（普通）</span>
                 </div>
-                <div class="flow-info">
+                <div class="flow-info" v-if="flowInfo?.commitUserName">
 
-                    <div class="item flow-type">流程类型：请假申请</div>
-                    <div class="item start-user">发起人：张三</div>
-                    <div class="item start-time">发起时间：2025-12-20 20:15:21</div>
+                    <div class="item flow-type" v-if="flowInfo.flowChart?.title">流程类型：{{ flowInfo.flowChart.title }}
+                    </div>
+                    <div class="item start-user">发起人：{{ flowInfo.commitUserName }}</div>
+                    <div class="item start-time">发起时间：{{ flowInfo.commitTime }}</div>
 
                     <div class="opts">
                         <FullscreenOutlined title="全屏" class="opt" />
