@@ -4,9 +4,24 @@
             <div class="flow-header">
                 <div class="flow-title">
                     <ArrowLeftOutlined class="btn-back" @click="goback" />
-                    <span class="label">{{ flowInfo.title }}</span>
+                    <span class="label">{{ flowInfo?.title }}</span>
                     <span class="curr-task" v-if="currTask">/{{ currTask.title }}</span>
-                    <span class="priority">•（普通）</span>
+                    <a-dropdown>
+                        <template #overlay v-if="flowModel == 'start'">
+                            <a-menu>
+                                <a-menu-item key="1" @click="flowPriority = '1'">普通</a-menu-item>
+                                <a-menu-item key="2" @click="flowPriority = '2'">加急</a-menu-item>
+                                <a-menu-item key="3" @click="flowPriority = '3'">特急</a-menu-item>
+                            </a-menu>
+                        </template>
+                        <span :class="['priority', flowPriority == '1' ? 'normal' : '']"
+                            v-if="flowPriority == '1'">•（普通）</span>
+                        <span :class="['priority', flowPriority == '2' ? 'urgent' : '']"
+                            v-else-if="flowPriority == '2'">•（加急）</span>
+                        <span :class="['priority', flowPriority == '3' ? 'emergency' : '']"
+                            v-else-if="flowPriority == '3'">•（特急）</span>
+                    </a-dropdown>
+
                 </div>
                 <div class="flow-info" v-if="flowInfo?.commitUserName">
 
@@ -202,6 +217,7 @@ const flowModel = computed<any>(() => {
 const formModel = computed(() => {
     return (flowModel.value == 'run' || flowModel.value == 'start') ? 'run' : 'view'
 })
+const flowPriority = ref<any>('1')
 /**
  * 流程操作按钮
  */
@@ -337,7 +353,8 @@ function submit() {
                         url: '/api/engine/instance/run',
                         data: {
                             sn: flowSn.value,
-                            form: data
+                            form: data,
+                            priority: flowPriority.value
                         }
                     }).then((res: any) => {
                         flowLoading.value = false
@@ -534,6 +551,7 @@ function loadFlowInfo() {
         if (res.success && res.body) {
             flowInfo.value = res.body
             flowForm.value.bid = res.body.busiKey || busiId.value
+            flowPriority.value = res.body.priority || '1'
             if (flowInfo.value?.runs?.[0]) {
                 currTask.value = flowInfo.value.runs[0]
                 console.log('currTask.value1', currTask.value)
@@ -602,6 +620,18 @@ onMounted(() => {
                     color: #1677ff;
                     margin-left: 5px;
                     font-size: 14px;
+
+                    &.normal {
+                        color: #1677ff;
+                    }
+
+                    &.urgent {
+                        color: #ff9900;
+                    }
+
+                    &.emergency {
+                        color: #ff3300;
+                    }
                 }
             }
 
