@@ -131,6 +131,15 @@ const define = ref({
         }
       },
       {
+        name: 'mine',
+        title: '我的流程',
+        event: {
+          disable: ({ row }: any) => {
+            return row.status != 2
+          }
+        }
+      },
+      {
         name: 'todo',
         title: '待办列表',
         event: {
@@ -167,6 +176,14 @@ async function btnClick({ btn, event, row, keys }: any) {
   if (btn.name == 'vers') {
     drawer.value.visible = true
     drawer.value.load(row)
+  }
+  if (btn.name == 'mine') {
+    router.push({
+      path: '/dev/flow/mine',
+      query: {
+        fsn: row.sn,
+      }
+    })
   }
   if (btn.name == 'run') {
     router.push({
