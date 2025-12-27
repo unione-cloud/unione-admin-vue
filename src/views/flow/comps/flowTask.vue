@@ -62,7 +62,7 @@
                                 <div>{{ item.handleTime }}</div>
                             </template>
                             <template #avatar>
-                                <a-avatar :src="userAvatar(item)" />
+                                <a-avatar :src="avatarUrl(item)" />
                             </template>
                         </a-list-item-meta>
                     </a-list-item>
@@ -118,17 +118,9 @@ const approveModal = ref({
 })
 
 
-function userAvatar(user: any) {
-    console.log('======', props.condidates)
-    const condidate = props.condidates.find((c: any) => c.userId == user.userId)
-    if (!condidate) {
-        return '/avatar.png'
-    }
-    return avatarUrl(condidate)
-}
-
 function avatarUrl(condidate: any) {
-    return condidate.avatar && (config.axios.admin + '/api/common/store/preview/public/' + condidate.avatar) || '/avatar.png'
+    const avatar = condidate.userAvatar || condidate.avatar
+    return avatar && (config.axios.admin + '/api/common/store/preview/public/' + avatar) || '/avatar.png'
 }
 
 </script>
