@@ -15,15 +15,6 @@
 
 
     <UnioneFlowOpinion ref="opinion"></UnioneFlowOpinion>
-    <a-drawer :title="auditDrawer.title" v-model:visible="auditDrawer.visible" :width="600"
-      rootClassName="flow-audit-drawer">
-      <UnioneFlowAudit ref="audit" @success="handleAuditSuccess"></UnioneFlowAudit>
-      <template #footer>
-        <a-button type="primary" @click="auditDrawer.commit('submit', true)">同意</a-button>
-        <a-button danger @click="auditDrawer.commit('submit', false)">拒绝</a-button>
-        <a-button type="primary" danger @click="auditDrawer.commit('reject', false)">驳回</a-button>
-      </template>
-    </a-drawer>
 
   </UnionePage>
 </template>
@@ -90,15 +81,7 @@ const props = defineProps({
 
 // 列表组件对象
 const table = ref<any>(null)
-const audit = ref<any>(null)
 const opinion = ref<any>(null)
-const auditDrawer = ref<any>({
-  visible: false,
-  title: '',
-  commit: (action: string, flag: boolean) => {
-    audit.value.commit(action, flag)
-  }
-})
 
 const flowSn = computed(() => {
   return props.fsn || route.query.fsn || ''
@@ -110,7 +93,7 @@ const flowVers = computed(() => {
 // 页面定义对象
 const define: PageDefine = {
   sn: 'new_',
-  title: '我的待办',
+  title: '我的已办',
   types: 'code',
   vers: 1,
   configs: {
@@ -179,7 +162,7 @@ const define: PageDefine = {
             })
           }
         }],
-        leftBtns: ['delBatch', 'add'],
+        leftBtns: false,
         rightBtns: ['impData', 'downTmpl'],
         operation: {
           title: '操作',
@@ -240,50 +223,6 @@ const widgets = computed(() => {
 const emit = defineEmits(['btnClick'])
 function btnClick(e: any) {
   const { btn, row, keys } = e;
-  if (btn.name == 'add' && flowSn.value) {
-    router.push({
-      path: '/dev/flow/run',
-      query: {
-        fsn: flowSn.value,
-        fmd: 'start',
-      }
-    })
-    return
-  }
-  if (btn.name == 'audit') {
-    auditDrawer.value.visible = true
-    auditDrawer.value.title = row?.title || '审核'
-    nextTick(() => {
-      audit.value.init(row ? row.id : keys, { fsn: row?.instance?.sn, nsn: row?.sn, ntitle: row?.title })
-    })
-  }
-  if (btn.name == 'auditBatch') {
-    auditDrawer.value.visible = true
-    auditDrawer.value.title = '批量审核'
-    nextTick(() => {
-      audit.value.init(keys, { ntitle: '批量审核' })
-    })
-  }
-  if (btn.name == 'sign') {
-    toSignTask(row.id)
-  }
-  if (btn.name == 'signBatch') {
-    if (keys.length == 0) {
-      dialog.warning('请选择要签收的任务')
-      return
-    }
-    toSignTask(keys)
-  }
-  if (btn.name == 'waive') {
-    toWaiveTask(row.id)
-  }
-  if (btn.name == 'waiveBatch') {
-    if (keys.length == 0) {
-      dialog.warning('请选择要放弃的任务')
-      return
-    }
-    toWaiveTask(keys)
-  }
   if (btn.name == 'opinion') {
     // opinion.value.open({flowId:row.instance.id})
     // opinion.value.open({taskId:row.id})
@@ -299,75 +238,8 @@ function btnClick(e: any) {
       }
     })
   }
-  if (btn.name == 'handle') {
-    router.push({
-      path: '/dev/flow/run',
-      query: {
-        fsn: row.instance.fsn,
-        fmd: 'run',
-        fid: row.instance.id,
-      }
-    })
-  }
 
   emit('btnClick', e)
-}
-
-function toSignTask(tids: string | Array<string>) {
-  const data: any = {}
-  if (Array.isArray(tids)) {
-    data.taskIds = tids
-  } else {
-    data.taskId = tids
-  }
-  dialog.confirm({
-    content: '确定签收吗？',
-    onOk: () => {
-      axios.flow({
-        url: `/api/engine/task/sign`,
-        method: 'post',
-        data
-      }).then((res: any) => {
-        if (res.success) {
-          dialog.success('签收成功')
-          reload()
-        } else {
-          dialog.error(res.msg)
-        }
-      })
-    }
-  })
-}
-
-function toWaiveTask(tids: string | Array<string>) {
-  const data: any = {}
-  if (Array.isArray(tids)) {
-    data.taskIds = tids
-  } else {
-    data.taskId = tids
-  }
-  dialog.confirm({
-    content: '确定签收吗？',
-    onOk: () => {
-      axios.flow({
-        url: `/api/engine/task/waive`,
-        method: 'post',
-        data
-      }).then((res: any) => {
-        if (res.success) {
-          dialog.success('操作成功')
-          reload()
-        } else {
-          dialog.error(res.msg)
-        }
-      })
-    }
-  })
-}
-
-function handleAuditSuccess() {
-  reload()
-  auditDrawer.value.visible = false
 }
 
 const pagesn = ref<any>('new_')
