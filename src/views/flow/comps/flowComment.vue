@@ -2,38 +2,41 @@
     <div class="flow-comment">
         <a-empty v-if="commentList.length === 0"></a-empty>
         <div class="content">
-            <div :class="['content-item', item.user.isMe && 'isme']" v-for="item in commentList" :key="item.id">
+            <div :class="['content-item', item.userId == principal.id && 'isme']" v-for="(item, i) in commentList"
+                :key="item.id">
                 <div class="item-body">
                     <div class="user">
-                        <a-avatar :src="item.user.avatar" class="avatar" shape="square">{{ !item.user.avatar ||
-                            item.user.name?.charAt(0) }}</a-avatar>
-                        <span class="name" v-if="!item.user.isMe">{{ item.user.name }}</span>
+                        <a-avatar :src="avatarUrl(item)" class="avatar" shape="square">{{ !item.userAvatar ||
+                            item.userName?.charAt(0) }}</a-avatar>
+                        <span class="name" v-if="item.userId != principal.id">{{ item.userName }}</span>
                     </div>
                     <div class="message">
-                        <div class="text">{{ item.content }}</div>
-                        <div class="ref" :title="item.ref.info" v-if="item.ref?.info">{{ item.ref.info }}</div>
+                        <div class="text">{{ item.optxt.content }}</div>
+                        <div class="ref" :title="item.optxt.ref.info" v-if="item.optxt.ref?.info">{{ item.optxt.ref.info
+                        }}</div>
                     </div>
                 </div>
                 <div class="item-info">
                     <div class="time">{{ item.handleTime }}</div>
                     <div class="opts">
-                        <a-button class="btn-delete" type="link" danger size="small" v-if="item.user.isMe">删除</a-button>
-                        <a-button class="btn-reply" type="link" size="small" v-if="!item.user.isMe"
+                        <a-button class="btn-delete" type="link" danger size="small" v-if="item.userId == principal.id"
+                            @click="del(item, i)">删除</a-button>
+                        <a-button class="btn-reply" type="link" size="small" v-if="item.userId != principal.id"
                             @click="reply(item)">回复</a-button>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="footer">
+        <div class="footer" v-if="![5, 6].includes(props.status) && props.tid">
             <div class="calls">
                 <a-tag class="call" v-for="(c, i) in commentValue.calls" :key="c.id" closable @close="delCall(i)">@{{
                     c.name
-                }}</a-tag>
+                    }}</a-tag>
             </div>
             <a-textarea class="message" v-model:value="commentValue.message" :rows="4" :maxlength="500" showCount
                 placeholder="请输入消息..." @keyup.enter="send"></a-textarea>
             <a-tag class="ref" v-if="commentValue.ref?.info" closable @close="delRef">{{ commentValue.ref.info
-            }}</a-tag>
+                }}</a-tag>
             <div class="btns">
                 <div class="left-btn">
                     <span class="icon">@</span>
@@ -47,9 +50,10 @@
     </div>
 </template>
 <script setup lang="ts">
+import { useConfigStore } from '@/config'
 import { message } from 'ant-design-vue'
-import { axios, useDialog } from 'unione-base-vue'
-import { ref } from 'vue'
+import { axios, useDialog, useSession } from 'unione-base-vue'
+import { computed, onMounted, ref } from 'vue'
 
 const props = defineProps({
     fid: {
@@ -65,7 +69,10 @@ const props = defineProps({
     }
 })
 
+const config = useConfigStore().config
 const dialog = useDialog()
+const session = useSession()
+const principal = computed(() => session.getPrincipal())
 
 const commentValue = ref<any>({
     loading: false,
@@ -76,52 +83,81 @@ const commentValue = ref<any>({
     images: [],
     links: [],
 })
-const commentList = ref<any>([{
-    id: '1',
-    user: {
-        id: '123',
-        name: '张三',
-        avatar: '/avatar.png',
-        isMe: false
-    },
-    content: '这是一条评论',
-    handleTime: '2025-08-15 10:00:00',
-    files: [],
-    images: [],
-    links: [],
-}, {
-    id: '2',
-    user: {
-        id: '123',
-        name: '李四',
-        avatar: 'https://unione.oss-cn-beijing.aliyuncs.com/avatar/20230815/1692083329000.png',
-        isMe: true
-    },
-    content: '这是一条回复',
-    handleTime: '2025-08-15 10:05:00',
-    calls: [],
-    files: [],
-    images: [],
-    links: [],
-    ref: {
-        id: '1',
-        info: '张三：引用内容'
-    },
-}])
+const commentRequest = ref<any>({
+    page: 1,
+    pageSize: 1000,
+})
+const commentList = ref<any>([])
+function loadComments() {
+    axios.flow({
+        url: '/api/engine/comment/load',
+        method: 'post',
+        data: {
+            page: commentRequest.value.page,
+            pageSize: commentRequest.value.pageSize,
+            body: {
+                flowInsId: props.fid,
+                flowTaskId: props.tid,
+            }
+        }
+    }).then((res: any) => {
+        if (res.success) {
+            commentList.value = res.body
+            res.body.forEach((item: any) => {
+                if (item.optxt) {
+                    item.optxt = JSON.parse(item.optxt)
+                }
+            })
+        }
+    })
+}
+
+function avatarUrl(opinion: any) {
+    const avatar = opinion.userAvatar
+    return avatar && (config.axios.admin + '/api/common/store/preview/public/' + avatar) || '/avatar.png'
+}
+
+/**
+ * 删除评论
+ * @param item 评论项
+ * @param index 评论项索引
+ */
+function del(item: any, index: any) {
+    dialog.confirm({
+        content: '确认删除吗？',
+        onOk: () => {
+            axios.flow({
+                url: '/api/engine/comment/del',
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                data: item.id
+            }).then((res: any) => {
+                if (res.success) {
+                    message.success('删除成功')
+                    commentList.value.splice(index, 1)
+                } else {
+                    dialog.error(res.message || '删除失败')
+                }
+            })
+        }
+    })
+}
 
 function reply(item: any) {
     commentValue.value.ref = {
         id: item.id,
-        info: item.user.name + '：' + item.content
+        info: item.userName + '：' + item.optxt.content
     }
     if (!commentValue.value.calls) {
         commentValue.value.calls = [];
     }
-    const flag = commentValue.value.calls.find((call: any) => call.id === item.user.id);
+    const flag = commentValue.value.calls.find((call: any) => call.id === item.userId);
     if (!flag) {
         commentValue.value.calls.push({
-            id: item.user.id,
-            name: item.user.name
+            id: item.userId,
+            name: item.userName
         })
     }
 }
@@ -151,7 +187,7 @@ function send() {
         ref: commentValue.value.ref,
     }
     axios.flow({
-        url: '/api/engine/opinion/comment/save',
+        url: '/api/engine/comment/send',
         method: 'post',
         data: {
             flowInsId: props.fid,
@@ -170,14 +206,21 @@ function send() {
             commentValue.value.images = []
             commentValue.value.links = []
             commentValue.value.ref = {}
+            commentValue.value = { ...commentValue.value }
             result.body.optxt = JSON.parse(result.body.optxt)
             commentList.value.push(result.body)
         } else {
             dialog.error(result.message || '发送失败')
         }
+    }).finally(() => {
+        commentValue.value.loading = false
     })
 }
 
+
+onMounted(() => {
+    loadComments()
+})
 
 </script>
 <style lang="less" scoped>
@@ -208,6 +251,11 @@ function send() {
                             background-color: #95EC69;
                         }
                     }
+
+                }
+
+                .item-info {
+                    justify-content: end;
                 }
 
             }
