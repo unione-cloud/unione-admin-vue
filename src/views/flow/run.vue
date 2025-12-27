@@ -5,6 +5,8 @@
                 <div class="flow-title">
                     <ArrowLeftOutlined class="btn-back" @click="goback" />
                     <span class="label">{{ flowInfo?.title }}{{ flowModel == 'start' ? ('v' + flowVers) : '' }}</span>
+                    <span class="flow-end" v-if="flowInfo?.status == 5">[已完成]</span>
+                    <span class="flow-end" v-else-if="flowInfo?.status == 6">[已停止]</span>
                     <span class="curr-task" v-if="currTask">/{{ currTask.title }}</span>
                     <a-dropdown>
                         <template #overlay v-if="flowModel == 'start'">
@@ -97,7 +99,7 @@
                     <div v-if="flowTasks?.length" style="height: 50px;"></div>
                 </a-tab-pane>
                 <a-tab-pane tab="沟通" key="comment" class="flow-comment-tab">
-                    <flow-comment :fid="1"></flow-comment>
+                    <flow-comment :fid="flowInfo?.id" :tid="currTask?.id" :status="flowInfo?.status"></flow-comment>
                 </a-tab-pane>
             </a-tabs>
         </div>

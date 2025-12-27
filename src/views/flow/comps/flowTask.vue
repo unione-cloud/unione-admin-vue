@@ -108,10 +108,19 @@ const approveModal = ref({
         approveModal.value.visible = true
         if (!approveModal.value.opinions?.length) {
             axios.flow({
-                url: '/api/engine/opinion/task/' + props.task.id + '/1',
+                url: '/api/engine/opinion/list',
                 method: 'POST',
+                data: {
+                    page: 1,
+                    pageSize: 100,
+                    body: {
+                        flowTaskId: props.task.id
+                    }
+                }
             }).then((res: any) => {
-                approveModal.value.opinions = res.body.opinions
+                if (res.body[0]) {
+                    approveModal.value.opinions = res.body[0].opinions
+                }
             })
         }
     }

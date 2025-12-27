@@ -1,7 +1,7 @@
 <template>
     <a-drawer title="处理意见" v-model:visible="visible" :width="600" rootClassName="flow-opinion-drawer">
 
-        <!-- flow意见 -->
+        <!-- 流程意见 -->
         <template v-if="flowOpinions?.length">
             <div class="flow-options">
                 <div class="flow-task">
@@ -19,26 +19,11 @@
             </div>
         </template>
 
-        <!-- task意见 -->
-        <template v-if="taskOpinions?.id">
-            <div class="flow-options">
-                <div class="flow-task">
-                    <a-timeline>
-                        <a-timeline-item v-for="opinion in taskOpinions.opinions" :key="opinion.id">
-                            <div class="user">处理人：{{ opinion.userName }}</div>
-                            <div class="time">处理时间：{{ opinion.handleTime }}</div>
-                            <div class="content">处理意见：{{ opinion.optxt }}</div>
-                        </a-timeline-item>
-                    </a-timeline>
-                </div>
-            </div>
-        </template>
-
         <!-- busiKey意见 -->
         <template v-if="busiKeyOpinions?.length">
             <div class="flow-options" v-for="ins in busiKeyOpinions" :key="ins.id">
                 <div class="flow-title" v-if="busiKeyOpinions.length > 1">{{ ins.title }},提交时间:{{ ins.commitTime }}{{
-                    ins.completeTime ? ('，完成时间:' + ins.completeTime):'' }}</div>
+                    ins.completeTime ? ('，完成时间:' + ins.completeTime) : '' }}</div>
                 <div class="flow-task">
                     <a-timeline>
                         <template v-for="task in ins.tasks" :key="task.id">
@@ -62,7 +47,7 @@
     </a-drawer>
 </template>
 <script setup lang="ts">
-import { axios, useDialog } from 'unione-base-vue';
+import { axios } from 'unione-base-vue';
 import { computed, onMounted, ref, watch } from 'vue';
 defineOptions({ name: 'FlowOpinion' })
 
@@ -122,26 +107,13 @@ function loadOpinion() {
     if (!params.value.busiKey && !params.value.flowId && !params.value.taskId) {
         return
     }
-    let url = ''
-    let optype = ''
     if (params.value.busiKey) {
-        url = '/api/engine/opinion/busiKey/' + params.value.busiKey + '/1'
-        optype = 'busiKey'
-    } else if (params.value.flowId) {
-        url = '/api/engine/opinion/flow/' + params.value.flowId + '/1'
-        optype = 'flow'
-    } else if (params.value.taskId) {
-        url = '/api/engine/opinion/task/' + params.value.taskId + '/1'
-        optype = 'task'
-    }
-    axios.flow({
-        url,
-        method: 'post'
-    }).then((res: any) => {
-        if (res.success) {
-            if (optype == 'busiKey') {
+        axios.flow({
+            url: '/api/engine/opinion/busiKey/' + params.value.busiKey,
+            method: 'post'
+        }).then((res: any) => {
+            if (res.success) {
                 busiKeyOpinions.value = res.body
-
                 for (let i = 0; i < busiKeyOpinions.value.length && isempty.value; i++) {
                     if (busiKeyOpinions.value[i].tasks?.length) {
                         for (let j = 0; j < busiKeyOpinions.value[i].tasks.length; j++) {
@@ -152,7 +124,14 @@ function loadOpinion() {
                         }
                     }
                 }
-            } else if (optype == 'flow') {
+            }
+        })
+    } else {
+        axios.flow({
+            url: '/api/engine/opinion/list',
+            method: 'post'
+        }).then((res: any) => {
+            if (res.success) {
                 flowOpinions.value = res.body
                 if (flowOpinions.value?.length) {
                     for (let i = 0; i < flowOpinions.value.length; i++) {
@@ -162,14 +141,9 @@ function loadOpinion() {
                         }
                     }
                 }
-            } else if (optype == 'task') {
-                taskOpinions.value = res.body
-                if (taskOpinions.value.opinions?.length) {
-                    isempty.value = false
-                }
             }
-        }
-    })
+        })
+    }
 }
 
 watch(props, () => {
