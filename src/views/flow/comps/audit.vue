@@ -1,9 +1,18 @@
 <template>
     <a-form :layout="props.show == 'drawer' ? 'vertical' : 'horizontal'" :model="formObj.data" :rules="formObj.rules"
         :labelCol="{ span: props.show == 'drawer' ? 6 : 3 }" ref="formRef" class="flow-audit-form">
+
         <a-form-item :label="item.title" :name="item.name" v-for="item in extFields" :key="item.name">
             <component :is="item.widgetName" v-bind="item.widgetProps" v-model:value="formObj.data[item.name]">
             </component>
+        </a-form-item>
+
+        <a-form-item label="附件" name="files" v-if="enableAttach">
+            <a-upload class="icon" name="file"
+                :action="config.axios.admin + '/api/common/store/upload/flow-audit/' + nodeObj.tids"
+                @change="handleUpload">
+                <a-button>上传附件</a-button>
+            </a-upload>
         </a-form-item>
         <div class="handel-opinion">
             <a-form-item :label="nodeObj.types == 'task' ? '处理意见：' : '反馈意见：'" name="handelOpinion">
@@ -37,12 +46,14 @@
     </a-form>
 </template>
 <script setup lang="ts">
+import { useConfigStore } from '@/config';
 import { message } from 'ant-design-vue';
 import { axios, useDialog } from 'unione-base-vue';
 import { computed, nextTick, ref } from 'vue';
 import draggable from 'vuedraggable'
 defineOptions({ name: 'FlowAudit' })
 
+const config = useConfigStore().config
 const dialog = useDialog()
 const props = defineProps({
     vars: {
@@ -74,10 +85,12 @@ const formObj = ref<any>({
     rules: {
         handelOpinion: [
             { required: true, message: '请输入处理意见' }
-        ]
+        ],
+        files: [{ required: true, message: '请上传附件' }]
     }
 })
 
+// 扩展字段列表
 const extFields = computed(() => {
     if (nodeObj.value.data?.opinion?.enableExtField) {
         return nodeObj.value.data.opinion.extFields || []
@@ -85,9 +98,16 @@ const extFields = computed(() => {
     return []
 })
 
+//启用附件开关
+const enableAttach = computed(() => {
+    return nodeObj.value?.data?.opinion?.enableAttach
+})
+
 function init(tid: string | Array<string>, { fsn, nsn, node }: any = {}) {
-    nodeObj.value = { ...node }
+    nodeObj.value = node ? { ...node } : {}
     nodeObj.value.tids = tid
+    formObj.value.data.files = []
+
     if (!tid) {
         dialog.error('任务id不能为空')
         return
@@ -102,7 +122,8 @@ function init(tid: string | Array<string>, { fsn, nsn, node }: any = {}) {
         formObj.value.rules = {
             handelOpinion: [
                 { required: true, message: '请输入处理意见' }
-            ]
+            ],
+            files: [{ required: true, message: '请上传附件' }]
         }
         if (extFields.value.length) {
             extFields.value.forEach((item: any) => {
@@ -153,13 +174,22 @@ function savePresetOpinion() {
 }
 
 function handleChange(type: String, e: any) {
-    console.log('event', e)
     if (e.added?.element) {
         axios.flow({
             url: '/api/opinion/preset/setType',
             method: 'POST',
             data: { id: e.added.element.id, types: type == 'ok' ? 1 : 2 }
         })
+    }
+}
+
+function handleUpload(e: any) {
+    if (!formObj.value.data.files) {
+        formObj.value.data.files = []
+    }
+    if (e.file?.response?.body) {
+        const attach = e.file.response.body
+        formObj.value.data.files.push(attach.id)
     }
 }
 
@@ -176,6 +206,11 @@ function commit(action: string, result: boolean, form?: any) {
                     vars: props.vars,
                     form
                 }
+                if (formObj.value.data.files?.length) {
+                    data.files = formObj.value.data.files
+                    delete formObj.value.data.files
+                }
+
                 const exdta = { ...formObj.value.data }
                 delete exdta.handelOpinion
                 if (Object.keys(exdta).length) {
