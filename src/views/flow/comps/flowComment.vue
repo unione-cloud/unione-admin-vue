@@ -11,14 +11,14 @@
                         <span class="name" v-if="item.userId != principal.id">{{ item.userName }}</span>
                     </div>
                     <div class="message">
-                        <a-upload class="images" name="file" v-if="item.optxt.images?.length" disabled
-                            :fileList="item.optxt.images" listType="picture-card">
+                        <a-upload class="images" name="file" v-if="item.exdta.images?.length" disabled
+                            :fileList="item.exdta.images" listType="picture-card">
                         </a-upload>
-                        <a-upload class="files" name="file" v-if="item.optxt.files?.length" disabled
-                            :fileList="item.optxt.files" listType="text">
+                        <a-upload class="files" name="file" v-if="item.exdta.files?.length" disabled
+                            :fileList="item.exdta.files" listType="text">
                         </a-upload>
-                        <div class="text">{{ item.optxt.content }}</div>
-                        <div class="ref" :title="item.optxt.ref.info" v-if="item.optxt.ref?.info">{{ item.optxt.ref.info
+                        <div class="text">{{ item.optxt }}</div>
+                        <div class="ref" :title="item.exdta.ref.info" v-if="item.exdta.ref?.info">{{ item.exdta.ref.info
                         }}</div>
                     </div>
                 </div>
@@ -36,24 +36,26 @@
         </div>
         <div class="footer" v-if="![5, 6].includes(props.status) && props.tid">
             <div class="calls">
-                <a-tag class="call" v-for="(c, i) in commentValue.calls" :key="c.id" closable @close="delCall(i)">@{{
-                    c.name
+                <a-tag class="call" v-for="(c, i) in commentValue.exdta.calls" :key="c.id" closable
+                    @close="delCall(i)">@{{
+                        c.name
                     }}</a-tag>
             </div>
             <a-textarea class="message" v-model:value="commentValue.message" :rows="4" :maxlength="500" showCount
                 placeholder="请输入消息..." @keyup.enter="send"></a-textarea>
 
             <div class="extends">
-                <a-tag class="ref" v-if="commentValue.ref?.info" closable @close="delRef">{{ commentValue.ref.info
-                    }}</a-tag>
+                <a-tag class="ref" v-if="commentValue.exdta.ref?.info" closable @close="delRef">{{
+                    commentValue.exdta.ref.info
+                }}</a-tag>
                 <div class="images">
-                    <div class="img" v-for="(img, i) in commentValue.images" :key="img.id">
+                    <div class="img" v-for="(img, i) in commentValue.exdta.images" :key="img.id">
                         <a-image :width="35" :height="35" :preview="false" :src="imageUrl(img)" />
                         <DeleteOutlined class="del" @click="delAttarch('img', i)" />
                     </div>
                 </div>
                 <div class="files">
-                    <div class="item" v-for="(item, i) in commentValue.files" :key="item.id">
+                    <div class="item" v-for="(item, i) in commentValue.exdta.files" :key="item.id">
                         {{ parseInt(i.toString()) + 1 }}、{{ item.title }}
                         <DeleteOutlined class="del" @click="delAttarch('file', i)" />
                     </div>
@@ -109,11 +111,13 @@ const contentRef = ref<any>(null)
 const commentValue = ref<any>({
     loading: false,
     message: '',
-    ref: {},
-    calls: [],
-    files: [],
-    images: [],
-    links: [],
+    exdta: {
+        ref: {},
+        calls: [],
+        files: [],
+        images: [],
+        links: [],
+    }
 })
 const commentRequest = ref<any>({
     page: 0,
@@ -143,22 +147,7 @@ function loadComments() {
         if (res.success) {
             commentList.value = [...commentList.value, ...res.body]
             res.body.forEach((item: any) => {
-                if (item.optxt) {
-                    item.optxt = JSON.parse(item.optxt)
-                    if (item.optxt.images?.length) {
-                        item.optxt.images.forEach((img: any) => {
-                            img.url = config.axios.admin + '/api/common/store/preview/' + img.id
-                            img.uid = img.id
-                        })
-                    }
-                    if (item.optxt.files?.length) {
-                        item.optxt.files.forEach((f: any) => {
-                            f.url = config.axios.admin + '/api/common/store/download/' + f.id
-                            f.uid = f.id
-                            f.name = f.title
-                        })
-                    }
-                }
+                processExdta(item)
             })
             // 检查是否还有更多数据
             commentRequest.value.hadMore = res.body.length >= commentRequest.value.pageSize
@@ -176,6 +165,25 @@ function loadComments() {
             }
         }
     })
+}
+
+function processExdta(item: any) {
+    if (item.exdta) {
+        item.exdta = JSON.parse(item.exdta)
+        if (item.exdta.images?.length) {
+            item.exdta.images.forEach((img: any) => {
+                img.url = config.axios.admin + '/api/common/store/preview/' + img.id
+                img.uid = img.id
+            })
+        }
+        if (item.exdta.files?.length) {
+            item.exdta.files.forEach((f: any) => {
+                f.url = config.axios.admin + '/api/common/store/download/' + f.id
+                f.uid = f.id
+                f.name = f.title
+            })
+        }
+    }
 }
 
 function avatarUrl(opinion: any) {
@@ -212,26 +220,26 @@ function del(item: any, index: any) {
 }
 
 function reply(item: any) {
-    commentValue.value.ref = {
+    commentValue.value.exdta.ref = {
         id: item.id,
         info: item.userName + '：' + item.optxt.content
     }
-    if (!commentValue.value.calls) {
-        commentValue.value.calls = [];
+    if (!commentValue.value.exdta.calls) {
+        commentValue.value.exdta.calls = [];
     }
-    const flag = commentValue.value.calls.find((call: any) => call.id === item.userId);
+    const flag = commentValue.value.exdta.calls.find((call: any) => call.id === item.userId);
     if (!flag) {
-        commentValue.value.calls.push({
+        commentValue.value.exdta.calls.push({
             id: item.userId,
             name: item.userName
         })
     }
 }
 function delRef() {
-    commentValue.value.ref = null;
+    commentValue.value.exdta.ref = null;
 }
 function delCall(index: any) {
-    commentValue.value.calls.splice(index, 1);
+    commentValue.value.exdta.calls.splice(index, 1);
 }
 
 /**
@@ -244,14 +252,6 @@ function send() {
     }
     commentValue.value.loading = true
 
-    const data: any = {
-        content: commentValue.value.message,
-        calls: commentValue.value.calls,
-        files: commentValue.value.files,
-        images: commentValue.value.images,
-        links: commentValue.value.links,
-        ref: commentValue.value.ref,
-    }
     axios.flow({
         url: '/api/engine/comment/send',
         method: 'post',
@@ -260,7 +260,8 @@ function send() {
             flowTaskId: props.tid,
             title: '沟通消息',
             types: 3,
-            optxt: JSON.stringify(data),
+            optxt: commentValue.value.message,
+            exdta: JSON.stringify(commentValue.value.exdta)
         }
     }).then((result: any) => {
         if (result.success) {
@@ -273,12 +274,14 @@ function send() {
             message.success('发送成功')
             commentValue.value.loading = false
             commentValue.value.message = ''
-            commentValue.value.calls = []
-            commentValue.value.files = []
-            commentValue.value.images = []
-            commentValue.value.links = []
-            commentValue.value.ref = {}
-            result.body.optxt = JSON.parse(result.body.optxt)
+
+            commentValue.value.exdta.calls = []
+            commentValue.value.exdta.files = []
+            commentValue.value.exdta.images = []
+            commentValue.value.exdta.links = []
+            commentValue.value.exdta.ref = {}
+
+            processExdta(result.body)
             commentList.value.splice(0, 0, result.body)
         } else {
             dialog.error(result.message || '发送失败')
@@ -298,17 +301,17 @@ function handleUpload(type: string, e: any) {
             title: attach.title,
         }
         if (type === 'pic') {
-            commentValue.value.images.push(file)
+            commentValue.value.exdta.images.push(file)
         } else if (type === 'file') {
-            commentValue.value.files.push(file)
+            commentValue.value.exdta.files.push(file)
         }
     }
 }
 
 function delAttarch(type: string, index: any) {
     if (type === 'img') {
-        const item: any = commentValue.value.images[index]
-        commentValue.value.images.splice(index, 1)
+        const item: any = commentValue.value.exdta.images[index]
+        commentValue.value.exdta.images.splice(index, 1)
         if (item.id) {
             axios.admin({
                 url: '/api/common/store/delete/' + item.id,
@@ -316,8 +319,8 @@ function delAttarch(type: string, index: any) {
             })
         }
     } else if (type === 'file') {
-        const item: any = commentValue.value.files[index]
-        commentValue.value.files.splice(index, 1)
+        const item: any = commentValue.value.exdta.files[index]
+        commentValue.value.exdta.files.splice(index, 1)
         if (item.id) {
             axios.admin({
                 url: '/api/common/store/delete/' + item.id,
@@ -357,6 +360,7 @@ onMounted(() => {
         overflow-y: auto;
         display: flex;
         flex-direction: column-reverse;
+        justify-content: start;
 
 
         .no-more {
