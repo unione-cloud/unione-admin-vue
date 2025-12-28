@@ -1,7 +1,7 @@
 <template>
     <div class="flow-comment">
         <a-empty v-if="commentList.length === 0"></a-empty>
-        <div class="content">
+        <div class="content" ref="contentRef">
             <div :class="['content-item', item.userId == principal.id && 'isme']" v-for="(item, i) in commentList"
                 :key="item.id">
                 <div class="item-body">
@@ -13,7 +13,7 @@
                     <div class="message">
                         <div class="text">{{ item.optxt.content }}</div>
                         <div class="ref" :title="item.optxt.ref.info" v-if="item.optxt.ref?.info">{{ item.optxt.ref.info
-                        }}</div>
+                            }}</div>
                     </div>
                 </div>
                 <div class="item-info">
@@ -31,12 +31,12 @@
             <div class="calls">
                 <a-tag class="call" v-for="(c, i) in commentValue.calls" :key="c.id" closable @close="delCall(i)">@{{
                     c.name
-                    }}</a-tag>
+                }}</a-tag>
             </div>
             <a-textarea class="message" v-model:value="commentValue.message" :rows="4" :maxlength="500" showCount
                 placeholder="请输入消息..." @keyup.enter="send"></a-textarea>
             <a-tag class="ref" v-if="commentValue.ref?.info" closable @close="delRef">{{ commentValue.ref.info
-                }}</a-tag>
+            }}</a-tag>
             <div class="btns">
                 <div class="left-btn">
                     <span class="icon">@</span>
@@ -53,7 +53,7 @@
 import { useConfigStore } from '@/config'
 import { message } from 'ant-design-vue'
 import { axios, useDialog, useSession } from 'unione-base-vue'
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 
 const props = defineProps({
     fid: {
@@ -74,6 +74,8 @@ const dialog = useDialog()
 const session = useSession()
 const principal = computed(() => session.getPrincipal())
 
+const contentRef = ref<any>(null)
+
 const commentValue = ref<any>({
     loading: false,
     message: '',
@@ -85,7 +87,7 @@ const commentValue = ref<any>({
 })
 const commentRequest = ref<any>({
     page: 1,
-    pageSize: 1000,
+    pageSize: 10,
 })
 const commentList = ref<any>([])
 function loadComments() {
@@ -108,6 +110,12 @@ function loadComments() {
                     item.optxt = JSON.parse(item.optxt)
                 }
             })
+            // 滚动到最底部
+            if (contentRef.value) {
+                nextTick(() => {
+                    contentRef.value.scrollTop = contentRef.value.scrollHeight
+                })
+            }
         }
     })
 }
@@ -198,6 +206,12 @@ function send() {
         }
     }).then((result: any) => {
         if (result.success) {
+            // 滚动到最底部
+            if (contentRef.value) {
+                nextTick(() => {
+                    contentRef.value.scrollTop = contentRef.value.scrollHeight
+                })
+            }
             message.success('发送成功')
             commentValue.value.loading = false
             commentValue.value.message = ''
