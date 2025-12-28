@@ -56,7 +56,8 @@
                         <template #extra>
                             <DownOutlined @click="flowAuditObj.visible = false" />
                         </template>
-                        <UnioneFlowAudit ref="flowAuditRef" @success="handleAuditSuccess"></UnioneFlowAudit>
+                        <UnioneFlowAudit ref="flowAuditRef" @success="handleAuditSuccess" show="flow">
+                        </UnioneFlowAudit>
                     </a-card>
                 </div>
                 <UFEditor v-if="flowChartVisible && flowInfo?.flowChart" model="run" :value="processFlowChart()">
@@ -438,11 +439,11 @@ function handle() {
         flowAuditObj.value.visible = true
         flowAuditObj.value.style.width = flowAreaRef.value.clientWidth + 'px'
         nextTick(() => {
+            const node = flowInfo.value.flowChart.nodes.find((item: any) => item.sn == currTask.value.sn)
             flowAuditRef.value.init(currTask.value.id, {
                 fsn: flowSn.value,
                 nsn: currTask.value.sn,
-                types: currTask.value.types,
-                ntitle: currTask.value.title
+                node: node
             })
         })
     }

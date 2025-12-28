@@ -1,5 +1,10 @@
 <template>
-    <a-form layout="vertical" :model="formObj.data" :rules="formObj.rules" ref="formRef">
+    <a-form :layout="props.show == 'drawer' ? 'vertical' : 'horizontal'" :model="formObj.data" :rules="formObj.rules"
+        :labelCol="{ span: props.show == 'drawer' ? 6 : 3 }" ref="formRef" class="flow-audit-form">
+        <a-form-item :label="item.title" :name="item.name" v-for="item in extFields" :key="item.name">
+            <component :is="item.widgetName" v-bind="item.widgetProps" v-model:value="formObj.data[item.name]">
+            </component>
+        </a-form-item>
         <div class="handel-opinion">
             <a-form-item :label="nodeObj.types == 'task' ? '处理意见：' : '反馈意见：'" name="handelOpinion">
                 <a-textarea v-model:value="formObj.data.handelOpinion" autoSize :rows="5"
@@ -34,7 +39,7 @@
 <script setup lang="ts">
 import { message } from 'ant-design-vue';
 import { axios, useDialog } from 'unione-base-vue';
-import { ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 import draggable from 'vuedraggable'
 defineOptions({ name: 'FlowAudit' })
 
@@ -43,16 +48,16 @@ const props = defineProps({
     vars: {
         type: Object,
         required: false
+    },
+    show: {
+        type: String,
+        default: 'drawer'
     }
 })
 
 const emit = defineEmits(['success'])
 
-const nodeObj = ref<any>({
-    title: '审核',
-    types: 'task',
-    tids: ''
-})
+const nodeObj = ref<any>({})
 const flowInfo = ref({
     fsn: '',
     nsn: ''
@@ -62,7 +67,7 @@ const presetListOk = ref<Array<any>>([])
 const presetListReject = ref<Array<any>>([])
 
 const formRef = ref()
-const formObj = ref({
+const formObj = ref<any>({
     data: {
         handelOpinion: ''
     },
@@ -73,11 +78,16 @@ const formObj = ref({
     }
 })
 
+const extFields = computed(() => {
+    if (nodeObj.value.data?.opinion?.enableExtField) {
+        return nodeObj.value.data.opinion.extFields || []
+    }
+    return []
+})
 
-function init(tid: string | Array<string>, { fsn, nsn, types, ntitle }: any = {}) {
+function init(tid: string | Array<string>, { fsn, nsn, node }: any = {}) {
+    nodeObj.value = { ...node }
     nodeObj.value.tids = tid
-    nodeObj.value.title = ntitle || '审核'
-    nodeObj.value.types = types || 'task'
     if (!tid) {
         dialog.error('任务id不能为空')
         return
@@ -86,6 +96,24 @@ function init(tid: string | Array<string>, { fsn, nsn, types, ntitle }: any = {}
     flowInfo.value.nsn = nsn
     formObj.value.data.handelOpinion = ''
     loadPresetOpinionList()
+
+    // 处理扩展字段
+    nextTick(() => {
+        formObj.value.rules = {
+            handelOpinion: [
+                { required: true, message: '请输入处理意见' }
+            ]
+        }
+        if (extFields.value.length) {
+            extFields.value.forEach((item: any) => {
+                if (item.required) {
+                    formObj.value.rules[item.name] = [
+                        { required: true, message: `请输入${item.title}` }
+                    ]
+                }
+            })
+        }
+    })
 }
 
 function loadPresetOpinionList() {
@@ -148,6 +176,12 @@ function commit(action: string, result: boolean, form?: any) {
                     vars: props.vars,
                     form
                 }
+                const exdta = { ...formObj.value.data }
+                delete exdta.handelOpinion
+                if (Object.keys(exdta).length) {
+                    data.exdta = exdta
+                }
+
                 if (Array.isArray(nodeObj.value.tids)) {
                     data.taskIds = nodeObj.value.tids
                 } else {
@@ -178,45 +212,56 @@ defineExpose({ init, commit })
 </script>
 
 <style lang="less" scoped>
-.handel-opinion {
-    .line {
-        font-size: 16px;
-        margin-bottom: 10px;
+.flow-audit-form {
+
+    :deep(.ant-form-item) {
+        margin-bottom: 6px;
+
+        .ant-form-item-explain-error {
+            position: absolute;
+            margin-top: -25px;
+            width: 100%;
+            text-align: right;
+            padding-right: 10px;
+        }
     }
 
-    .ant-input {
-        min-height: 140px;
+    .handel-opinion {
+        .line {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .ant-input {
+            min-height: 140px;
+        }
+
+        .save-preset {
+            float: right;
+            margin-top: -35px;
+        }
+
+        :deep(.ant-form-item-explain-error) {
+            margin-top: -55px;
+        }
     }
 
-    .save-preset {
-        float: right;
-        margin-top: -35px;
+    .preset-opinions {
+        .line {
+            font-size: 16px;
+            margin: 20px 0 10px 0;
+        }
+
+        .ok,
+        .reject {
+            margin-bottom: 10px;
+        }
+
+        .ant-tag {
+            cursor: pointer;
+            margin: 5px 15px 0 15px;
+        }
     }
-}
 
-.preset-opinions {
-    .line {
-        font-size: 16px;
-        margin: 20px 0 10px 0;
-    }
-
-    .ok,
-    .reject {
-        margin-bottom: 10px;
-    }
-
-    .ant-tag {
-        cursor: pointer;
-        margin: 5px 15px 0 15px;
-    }
-}
-
-
-.ant-drawer-footer {
-    text-align: right;
-
-    .ant-btn {
-        margin: auto 10px;
-    }
 }
 </style>

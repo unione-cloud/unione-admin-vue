@@ -17,7 +17,7 @@
     <UnioneFlowOpinion ref="opinion"></UnioneFlowOpinion>
     <a-drawer :title="auditDrawer.title" v-model:visible="auditDrawer.visible" :width="600"
       rootClassName="flow-audit-drawer">
-      <UnioneFlowAudit ref="audit" @success="handleAuditSuccess"></UnioneFlowAudit>
+      <UnioneFlowAudit ref="audit" @success="handleAuditSuccess" show="drawer"></UnioneFlowAudit>
       <template #footer>
         <a-button type="primary" @click="auditDrawer.commit('submit', true)">同意</a-button>
         <a-button danger @click="auditDrawer.commit('submit', false)">拒绝</a-button>
