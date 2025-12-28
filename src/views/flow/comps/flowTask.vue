@@ -56,13 +56,17 @@
                     <a-list-item>
                         <template #actions><a-tag :color="item.types == 1 ? 'success' : 'error'">{{ item.types == 1 ?
                             '同意' : '拒绝' }}</a-tag></template>
-                        <a-list-item-meta :description="item.optxt">
+                        <a-list-item-meta>
                             <template #title>
                                 <div>{{ item.userName }}</div>
                                 <div>{{ item.handleTime }}</div>
                             </template>
                             <template #avatar>
                                 <a-avatar :src="avatarUrl(item)" />
+                            </template>
+                            <template #description>
+                                <div class="optxt">{{ item.optxt }}</div>
+                                <flow-attach :owner-id="item.id" disabled></flow-attach>
                             </template>
                         </a-list-item-meta>
                     </a-list-item>
@@ -76,7 +80,7 @@
 import { useConfigStore } from '@/config';
 import { axios } from 'unione-base-vue';
 import { computed, ref } from 'vue';
-
+import flowAttach from './flowAttach.vue';
 
 const config = useConfigStore().config
 const props = defineProps({

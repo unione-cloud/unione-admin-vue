@@ -5,7 +5,7 @@
                 <div class="flow-title">
                     <ArrowLeftOutlined class="btn-back" @click="goback" />
                     <span class="label">{{ flowInfo?.title || '--' }}{{ flowModel == 'start' ? ('v' + flowVers) : ''
-                        }}</span>
+                    }}</span>
                     <span class="flow-end" v-if="flowInfo?.status == 5">[已完成]</span>
                     <span class="flow-end" v-else-if="flowInfo?.status == 6">[已停止]</span>
                     <span class="curr-task" v-if="currTask">/{{ currTask.title }}</span>
@@ -113,6 +113,8 @@ import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { loadPreFormSync, processTaskStatus } from './lib/flowUtil';
 import UnioneFlowAudit from './comps/audit.vue'
+import flowTask from './comps/flowTask.vue';
+import flowComment from './comps/flowComment.vue';
 import dayjs from 'dayjs';
 
 defineOptions({

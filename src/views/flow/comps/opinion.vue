@@ -12,6 +12,7 @@
                                 <div class="user">处理人：{{ opinion.userName }}</div>
                                 <div class="time">处理时间：{{ opinion.handleTime }}</div>
                                 <div class="content">处理意见：{{ opinion.optxt }}</div>
+                                <flow-attach :owner-id="opinion.id" disabled></flow-attach>
                             </a-timeline-item>
                         </template>
                     </a-timeline>
@@ -32,6 +33,7 @@
                                 <div class="user">处理人：{{ opinion.userName }}</div>
                                 <div class="time">处理时间：{{ opinion.handleTime }}</div>
                                 <div class="content">处理意见：{{ opinion.optxt }}</div>
+                                <flow-attach :owner-id="opinion.id" disabled></flow-attach>
                             </a-timeline-item>
                         </template>
                     </a-timeline>
@@ -49,6 +51,7 @@
 <script setup lang="ts">
 import { axios } from 'unione-base-vue';
 import { computed, onMounted, ref, watch } from 'vue';
+import flowAttach from './flowAttach.vue';
 defineOptions({ name: 'FlowOpinion' })
 
 const props = defineProps({
