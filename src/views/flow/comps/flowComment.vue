@@ -97,7 +97,7 @@ function loadComments() {
             pageSize: commentRequest.value.pageSize,
             body: {
                 flowInsId: props.fid,
-                flowTaskId: props.tid,
+                //flowTaskId: props.tid,
             }
         }
     }).then((res: any) => {
@@ -232,6 +232,8 @@ onMounted(() => {
 
     .content {
         padding: 10px;
+        height: calc(100% - 210px);
+        overflow-y: auto;
 
         .content-item {
             margin-bottom: 20px;
