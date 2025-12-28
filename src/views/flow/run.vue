@@ -5,7 +5,7 @@
                 <div class="flow-title">
                     <ArrowLeftOutlined class="btn-back" @click="goback" />
                     <span class="label">{{ flowInfo?.title || '--' }}{{ flowModel == 'start' ? ('v' + flowVers) : ''
-                    }}</span>
+                        }}</span>
                     <span class="flow-end" v-if="flowInfo?.status == 5">[已完成]</span>
                     <span class="flow-end" v-else-if="flowInfo?.status == 6">[已停止]</span>
                     <span class="curr-task" v-if="currTask">/{{ currTask.title }}</span>
@@ -705,14 +705,19 @@ onMounted(() => {
 
             .audit-card {
                 position: absolute;
-                bottom: 0;
+                bottom: 70px;
                 width: 100%;
-                height: 500px;
+                min-height: 500px;
                 margin-left: -20px;
 
                 :deep(.ant-card-head) {
                     background-color: #f5f5f5;
                     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+                }
+
+                :deep(.ant-card-body) {
+                    max-height: 600px;
+                    overflow-y: auto;
                 }
 
             }
@@ -723,6 +728,7 @@ onMounted(() => {
             height: 70px;
             padding-top: 5px;
             border-top: 1px solid rgba(5, 5, 5, 0.06);
+            background-color: #FFFFFF;
 
             .btn {
                 margin-right: 10px;
