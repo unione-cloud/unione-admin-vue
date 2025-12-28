@@ -4,7 +4,8 @@
             <div class="flow-header">
                 <div class="flow-title">
                     <ArrowLeftOutlined class="btn-back" @click="goback" />
-                    <span class="label">{{ flowInfo?.title }}{{ flowModel == 'start' ? ('v' + flowVers) : '' }}</span>
+                    <span class="label">{{ flowInfo?.title || '--' }}{{ flowModel == 'start' ? ('v' + flowVers) : ''
+                    }}</span>
                     <span class="flow-end" v-if="flowInfo?.status == 5">[已完成]</span>
                     <span class="flow-end" v-else-if="flowInfo?.status == 6">[已停止]</span>
                     <span class="curr-task" v-if="currTask">/{{ currTask.title }}</span>
