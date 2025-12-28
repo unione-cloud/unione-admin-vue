@@ -13,7 +13,7 @@
                     <div class="message">
                         <div class="text">{{ item.optxt.content }}</div>
                         <div class="ref" :title="item.optxt.ref.info" v-if="item.optxt.ref?.info">{{ item.optxt.ref.info
-                            }}</div>
+                        }}</div>
                     </div>
                 </div>
                 <div class="item-info">
@@ -26,17 +26,18 @@
                     </div>
                 </div>
             </div>
+            <div class="no-more" v-if="!commentRequest.hadMore">没有更多了</div>
         </div>
         <div class="footer" v-if="![5, 6].includes(props.status) && props.tid">
             <div class="calls">
                 <a-tag class="call" v-for="(c, i) in commentValue.calls" :key="c.id" closable @close="delCall(i)">@{{
                     c.name
-                }}</a-tag>
+                    }}</a-tag>
             </div>
             <a-textarea class="message" v-model:value="commentValue.message" :rows="4" :maxlength="500" showCount
                 placeholder="请输入消息..." @keyup.enter="send"></a-textarea>
             <a-tag class="ref" v-if="commentValue.ref?.info" closable @close="delRef">{{ commentValue.ref.info
-            }}</a-tag>
+                }}</a-tag>
             <div class="btns">
                 <div class="left-btn">
                     <span class="icon">@</span>
@@ -86,11 +87,17 @@ const commentValue = ref<any>({
     links: [],
 })
 const commentRequest = ref<any>({
-    page: 1,
+    page: 0,
     pageSize: 10,
+    hadMore: true
 })
 const commentList = ref<any>([])
 function loadComments() {
+    if (!commentRequest.value.hadMore) {
+        return
+    }
+    commentRequest.value.page++
+    const toBottom = commentRequest.value.page === 1
     axios.flow({
         url: '/api/engine/comment/load',
         method: 'post',
@@ -100,20 +107,29 @@ function loadComments() {
             body: {
                 flowInsId: props.fid,
                 //flowTaskId: props.tid,
-            }
+            },
+            sorts: [{ name: 'handleTime', order: 'desc' }]
         }
     }).then((res: any) => {
         if (res.success) {
-            commentList.value = res.body
+            commentList.value = [...commentList.value, ...res.body]
             res.body.forEach((item: any) => {
                 if (item.optxt) {
                     item.optxt = JSON.parse(item.optxt)
                 }
             })
+            // 检查是否还有更多数据
+            commentRequest.value.hadMore = res.body.length >= commentRequest.value.pageSize
             // 滚动到最底部
             if (contentRef.value) {
                 nextTick(() => {
-                    contentRef.value.scrollTop = contentRef.value.scrollHeight
+                    if (toBottom) {
+                        //滚动到底部
+                        contentRef.value.scrollTop = contentRef.value.scrollHeight
+                    } else {
+                        //滚动到顶部
+                        contentRef.value.scrollTop = 0
+                    }
                 })
             }
         }
@@ -220,9 +236,8 @@ function send() {
             commentValue.value.images = []
             commentValue.value.links = []
             commentValue.value.ref = {}
-            commentValue.value = { ...commentValue.value }
             result.body.optxt = JSON.parse(result.body.optxt)
-            commentList.value.push(result.body)
+            commentList.value.splice(0, 0, result.body)
         } else {
             dialog.error(result.message || '发送失败')
         }
@@ -234,6 +249,14 @@ function send() {
 
 onMounted(() => {
     loadComments()
+
+    // 监听滚动事件
+    contentRef.value.addEventListener('scroll', () => {
+        // 检查滚动条距离顶部是否小于等于10px
+        if (contentRef.value.scrollTop <= 10) {
+            loadComments()
+        }
+    })
 })
 
 </script>
@@ -248,6 +271,15 @@ onMounted(() => {
         padding: 10px;
         height: calc(100% - 210px);
         overflow-y: auto;
+        display: flex;
+        flex-direction: column-reverse;
+
+
+        .no-more {
+            text-align: center;
+            padding-bottom: 10px;
+            color: #999;
+        }
 
         .content-item {
             margin-bottom: 20px;
