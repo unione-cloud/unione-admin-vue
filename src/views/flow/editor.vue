@@ -875,6 +875,7 @@ function toPublish() {
     if (res.success) {
       flowObj.value.status = 2
       message.success('发布成功')
+      emit('refresh')
     } else {
       message.error(res.message || '发布失败')
     }
