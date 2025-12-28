@@ -11,6 +11,12 @@
                         <span class="name" v-if="item.userId != principal.id">{{ item.userName }}</span>
                     </div>
                     <div class="message">
+                        <a-upload class="images" name="file" v-if="item.optxt.images?.length" disabled
+                            :fileList="item.optxt.images" listType="picture-card">
+                        </a-upload>
+                        <a-upload class="files" name="file" v-if="item.optxt.files?.length" disabled
+                            :fileList="item.optxt.files" listType="text">
+                        </a-upload>
                         <div class="text">{{ item.optxt.content }}</div>
                         <div class="ref" :title="item.optxt.ref.info" v-if="item.optxt.ref?.info">{{ item.optxt.ref.info
                         }}</div>
@@ -36,14 +42,37 @@
             </div>
             <a-textarea class="message" v-model:value="commentValue.message" :rows="4" :maxlength="500" showCount
                 placeholder="请输入消息..." @keyup.enter="send"></a-textarea>
-            <a-tag class="ref" v-if="commentValue.ref?.info" closable @close="delRef">{{ commentValue.ref.info
-                }}</a-tag>
+
+            <div class="extends">
+                <a-tag class="ref" v-if="commentValue.ref?.info" closable @close="delRef">{{ commentValue.ref.info
+                    }}</a-tag>
+                <div class="images">
+                    <div class="img" v-for="(img, i) in commentValue.images" :key="img.id">
+                        <a-image :width="35" :height="35" :preview="false" :src="imageUrl(img)" />
+                        <DeleteOutlined class="del" @click="delAttarch('img', i)" />
+                    </div>
+                </div>
+                <div class="files">
+                    <div class="item" v-for="(item, i) in commentValue.files" :key="item.id">
+                        {{ parseInt(i.toString()) + 1 }}、{{ item.title }}
+                        <DeleteOutlined class="del" @click="delAttarch('file', i)" />
+                    </div>
+                </div>
+            </div>
             <div class="btns">
                 <div class="left-btn">
                     <span class="icon">@</span>
-                    <CloudUploadOutlined class="icon" />
-                    <PictureOutlined class="icon" />
-                    <PaperClipOutlined class="icon" />
+                    <a-upload class="icon" name="file" :showUploadList="false"
+                        :action="config.axios.admin + '/api/common/store/upload/flow-comment/' + props.tid"
+                        @change="(e: any) => handleUpload('file', e)">
+                        <CloudUploadOutlined />
+                    </a-upload>
+                    <a-upload class="icon" accept="image/*" name="file" :showUploadList="false"
+                        :action="config.axios.admin + '/api/common/store/upload/flow-comment/' + props.tid"
+                        @change="(e: any) => handleUpload('pic', e)">
+                        <PictureOutlined />
+                    </a-upload>
+                    <!-- <PaperClipOutlined class="icon" /> -->
                 </div>
                 <a-button class="btn-send" @click="send" :loading="commentValue.loading">发送</a-button>
             </div>
@@ -116,6 +145,19 @@ function loadComments() {
             res.body.forEach((item: any) => {
                 if (item.optxt) {
                     item.optxt = JSON.parse(item.optxt)
+                    if (item.optxt.images?.length) {
+                        item.optxt.images.forEach((img: any) => {
+                            img.url = config.axios.admin + '/api/common/store/preview/' + img.id
+                            img.uid = img.id
+                        })
+                    }
+                    if (item.optxt.files?.length) {
+                        item.optxt.files.forEach((f: any) => {
+                            f.url = config.axios.admin + '/api/common/store/download/' + f.id
+                            f.uid = f.id
+                            f.name = f.title
+                        })
+                    }
                 }
             })
             // 检查是否还有更多数据
@@ -246,6 +288,48 @@ function send() {
     })
 }
 
+function handleUpload(type: string, e: any) {
+    console.log('file upload ' + type, e)
+    if (e.file?.response?.success) {
+        // 上传成功
+        const attach = e.file.response.body
+        const file: any = {
+            id: attach.id,
+            title: attach.title,
+        }
+        if (type === 'pic') {
+            commentValue.value.images.push(file)
+        } else if (type === 'file') {
+            commentValue.value.files.push(file)
+        }
+    }
+}
+
+function delAttarch(type: string, index: any) {
+    if (type === 'img') {
+        const item: any = commentValue.value.images[index]
+        commentValue.value.images.splice(index, 1)
+        if (item.id) {
+            axios.admin({
+                url: '/api/common/store/delete/' + item.id,
+                method: 'post',
+            })
+        }
+    } else if (type === 'file') {
+        const item: any = commentValue.value.files[index]
+        commentValue.value.files.splice(index, 1)
+        if (item.id) {
+            axios.admin({
+                url: '/api/common/store/delete/' + item.id,
+                method: 'post',
+            })
+        }
+    }
+}
+
+function imageUrl(item: any) {
+    return config.axios.admin + '/api/common/store/preview/' + item.id
+}
 
 onMounted(() => {
     loadComments()
@@ -369,6 +453,7 @@ onMounted(() => {
         }
     }
 
+
     .footer {
         height: 210px;
         border-top: 1px solid #E2E2E2;
@@ -394,10 +479,65 @@ onMounted(() => {
             }
         }
 
-        .ref {
+        .extends {
             position: absolute;
             bottom: 62px;
             left: 10px;
+
+            .ref {}
+
+            .images {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                align-items: center;
+
+                .img {
+                    margin-right: 5px;
+
+                    .del {
+                        cursor: pointer;
+                        display: none;
+                        position: absolute;
+                        top: -2px;
+                        right: -2px;
+                    }
+
+                    .del:hover {
+                        color: red;
+                    }
+                }
+
+                .img:hover {
+                    .del {
+                        display: block;
+                    }
+                }
+            }
+
+            .files {
+                .item {
+                    margin-bottom: 2px;
+
+                    .del {
+                        cursor: pointer;
+                        display: none;
+                        position: absolute;
+                        top: -2px;
+                        right: -2px;
+                    }
+
+                    .del:hover {
+                        color: red;
+                    }
+                }
+
+                .item:hover {
+                    .del {
+                        display: block;
+                    }
+                }
+            }
         }
 
         .btns {
@@ -408,10 +548,16 @@ onMounted(() => {
             padding-left: 10px;
             align-items: center;
 
-            .icon {
-                font-size: 18px;
-                margin-right: 10px;
-                cursor: pointer;
+            .left-btn {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+
+                .icon {
+                    font-size: 18px;
+                    margin-right: 10px;
+                    cursor: pointer;
+                }
             }
 
             .btn-send {
