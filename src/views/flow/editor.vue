@@ -393,10 +393,6 @@ setNodeProps({
     name: 'notify.reject',
     control: 'flow-notice',
   },
-  'notice.notify.back': {
-    name: 'notify.back',
-    control: 'flow-notice',
-  },
   'notice.notify.copy': {
     name: 'notify.copy',
     control: 'flow-notice',
