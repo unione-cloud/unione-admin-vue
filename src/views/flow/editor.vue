@@ -76,6 +76,7 @@ import { utils } from 'unione-form-vue'
 import { computed, nextTick, provide, ref } from 'vue'
 import DraggableResizableVue from 'draggable-resizable-vue3'
 import { loadPreFormSync } from './lib/flowUtil'
+import { useConfigStore } from '@/config'
 
 defineOptions({
   name: 'FlowEditor',
@@ -463,6 +464,7 @@ provide('flowChart', () => {
   return ufmValue.value
 })
 
+const config = useConfigStore().config
 const dialog = useDialog()
 const visible = ref(false)
 const error = ref<any>({
@@ -546,6 +548,22 @@ const baseFormDef = ref({
     convert: {
       types: 'dict',
       dictName: 'FLOWLITECATEGORY'
+    }
+  }, {
+    title: '字体图标',
+    name: 'iconFont',
+    control: 'unione-icon-select',
+  }, {
+    title: '图片图标',
+    name: 'iconPic',
+    control: 'unione-upload-box',
+    props: {
+      listType: 'picture-card',
+      autoUpload: true,
+      valueType: 'string',
+      action: () => {
+        return config.axios.admin + '/api/common/store/upload/flow' + (flowObj.value?.id ? ('/' + flowObj.value?.id) : '')
+      },
     }
   }, {
     title: '流程说明',
