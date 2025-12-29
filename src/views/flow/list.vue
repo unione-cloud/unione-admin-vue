@@ -34,14 +34,12 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref } from 'vue'
 import { axios, useDialog } from 'unione-base-vue'
-import { Convertor } from 'unione-form-vue'
+import { ref } from 'vue'
 import { useRouter, type Router } from 'vue-router'
 import Editor from './editor.vue'
 
 const dialog = useDialog()
-const stsConvert = new Convertor({ types: 'dict', dictName: 'FLOWLITEPUBLISHSTS' })
 const router: Router = useRouter()
 
 const page = ref()
@@ -151,6 +149,15 @@ const define = ref({
       {
         name: 'done',
         title: '已办列表',
+        event: {
+          disable: ({ row }: any) => {
+            return row.status != 2
+          }
+        }
+      },
+      {
+        name: 'menu',
+        title: '菜单管理',
         event: {
           disable: ({ row }: any) => {
             return row.status != 2
