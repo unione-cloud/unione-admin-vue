@@ -30,6 +30,9 @@
       </template>
     </a-drawer>
     <Editor ref="editor" @refresh="refresh"></Editor>
+
+    <ResRelease :targetType="drawerRes.targetType" :targetId="drawerRes.targetId" :title="drawerRes.title"
+      :iconFont="drawerRes.iconFont" v-model:visible="drawerRes.visible"></ResRelease>
   </div>
 </template>
 
@@ -38,6 +41,7 @@ import { axios, useDialog } from 'unione-base-vue'
 import { ref } from 'vue'
 import { useRouter, type Router } from 'vue-router'
 import Editor from './editor.vue'
+import ResRelease from '@/components/res-release/index.vue'
 
 const dialog = useDialog()
 const router: Router = useRouter()
@@ -233,7 +237,23 @@ async function btnClick({ btn, event, row, keys }: any) {
       }
     })
   }
+
+  if (btn.name == 'menu') {
+    drawerRes.value.targetType = 'flow'
+    drawerRes.value.targetId = row.id
+    drawerRes.value.title = row.title
+    drawerRes.value.iconFont = row.iconFont
+    drawerRes.value.visible = true
+  }
 }
+
+const drawerRes = ref({
+  visible: false,
+  targetType: '',
+  targetId: '',
+  title: '',
+  iconFont: ''
+})
 
 const drawer = ref({
   title: '流程版本',

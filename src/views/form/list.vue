@@ -180,7 +180,7 @@ function btnClick({ btn, event, row, keys }: any) {
     drawerRes.value.targetType = 'form'
     drawerRes.value.targetId = row.id
     drawerRes.value.title = row.title
-    drawerRes.value.iconFont = row.iconName
+    drawerRes.value.iconFont = row.iconFont
     drawerRes.value.visible = true
   }
 }
