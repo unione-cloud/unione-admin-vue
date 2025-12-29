@@ -36,6 +36,8 @@ const define = ref({
     {
       title: '应用类别',
       name: 'category',
+      defaultValue: 'app',
+      visible: true,
       convert: {
         types: 'dict',
         dictName: 'APPCATEGORY'
@@ -69,6 +71,15 @@ const define = ref({
         dictName: 'TUREORFALSE'
       },
       isQuery: true
+    },
+    {
+      title: '显示顺序',
+      name: 'ordered',
+      sort: {
+        enable: true,
+        defoult: true,
+        asc: true
+      }
     },
     {
       title: '应用URL',
