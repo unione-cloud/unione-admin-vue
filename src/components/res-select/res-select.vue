@@ -43,7 +43,9 @@ const iconMap = ref<any>({
   app: 'AppstoreOutlined',
   menu: 'BarsOutlined',
   btn: 'GoldOutlined',
-  tool: 'FormatPainterOutlined'
+  tool: 'FormatPainterOutlined',
+  platpc: 'DesktopOutlined',
+  platap: 'MobileOutlined'
 })
 
 // tree 选中的节点
@@ -56,7 +58,17 @@ const treeNode = ref<any>({})
 const treeData = ref<any>([])
 const treeStore = ref<any>([])
 function loadTreeData() {
-  treeData.value = []
+  treeData.value = [{
+    id: 'pc',
+    ntype: 'platpc',
+    title: 'PC端',
+    children: []
+  }, {
+    id: 'app',
+    ntype: 'platap',
+    title: '移动端',
+    children: []
+  }]
   treeStore.value = []
 
   // 请求远程接口
@@ -83,6 +95,9 @@ function loadTreeData() {
           if (!checkedKeys.value.checked.includes(item.id)) {
             checkedKeys.value.checked.push(item.id)
             selectedTarget.value.push(item)
+          }
+          if (!checkedKeys.value.checked.includes(item.platform)) {
+            checkedKeys.value.checked.push(item.platform)
           }
         }
       })
@@ -144,7 +159,11 @@ function loadTreeData() {
             parent.children.push(treeNode.value[item.id])
           }
         } else {
-          treeData.value.push(treeNode.value[item.id])
+          if (item.platform == 'pc') {
+            treeData.value[0].children.push(treeNode.value[item.id])
+          } else if (item.platform == 'app') {
+            treeData.value[1].children.push(treeNode.value[item.id])
+          }
           expandedKeys.value.push(item.id)
         }
       })
