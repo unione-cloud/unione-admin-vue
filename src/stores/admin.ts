@@ -69,7 +69,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
           appId: item.appId,
           key: item.id,
           label: item.title,
-          icon: item.meta?.icon || 'UnorderedListOutlined',
+          icon: item.meta?.icon,
           path: item.path,
           parent: parent?.key || ''
         }
@@ -204,7 +204,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
                           //
                         }
                       }
-                      return {
+                      const menu = {
                         id: m.id,
                         appId: app.id,
                         title: m.title,
@@ -212,7 +212,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
                         url: m.url,
                         hidden: m.isHide == 1,
                         meta: {
-                          icon: m.icon || 'UnorderedListOutlined',
+                          icon: m.icon,
                           isExternal: m.isExternal,
                           isHide: m.isHide,
                           isIframe: m.isIframe,
@@ -220,6 +220,10 @@ export const useAdminStore = defineStore('unione-admin', () => {
                         },
                         children: processMenu(app, m.children)
                       }
+                      if (!menu.meta.psn && !menu.meta.icon) {
+                        menu.meta.icon = 'UnorderedListOutlined'
+                      }
+                      return menu
                     })
                   }
                   return mlist
