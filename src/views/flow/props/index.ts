@@ -13,6 +13,8 @@ import FlowDataFilter from './dataFilter/index.vue'
 import FlowParam from './flowParam.vue'
 import FlowBusiField from './busiField.vue'
 
+import FlowDone from '../done.vue'
+
 export default {
   install(app: App, options?: any) {
     app.component('FlowCandidate', FlowCandidate)
@@ -28,5 +30,7 @@ export default {
     app.component('FlowDataFilter', FlowDataFilter)
     app.component('FlowParam', FlowParam)
     app.component('FlowBusiField', FlowBusiField)
+
+    app.component('UnioneFlowDone', FlowDone)
   }
 }

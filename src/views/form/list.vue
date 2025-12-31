@@ -25,8 +25,8 @@
     <UnioneFormDesign ref="formDesign" :sn="designModal.sn" :title="designModal.title"
       v-model:visible="designModal.visible"></UnioneFormDesign>
 
-    <ResRelease :targetType="drawerRes.targetType" :targetId="drawerRes.targetId" :title="drawerRes.title"
-      :iconFont="drawerRes.iconFont" v-model:visible="drawerRes.visible"></ResRelease>
+    <ResRelease :targetType="drawerRes.targetType" :targetId="drawerRes.targetId" :targetSn="drawerRes.targetSn"
+      :title="drawerRes.title" :iconFont="drawerRes.iconFont" v-model:visible="drawerRes.visible"></ResRelease>
 
   </div>
 </template>
@@ -179,6 +179,7 @@ function btnClick({ btn, event, row, keys }: any) {
   if (btn.name == 'menu') {
     drawerRes.value.targetType = 'form'
     drawerRes.value.targetId = row.id
+    drawerRes.value.targetSn = row.sn
     drawerRes.value.title = row.title
     drawerRes.value.iconFont = row.iconFont
     drawerRes.value.visible = true
@@ -259,6 +260,7 @@ const drawerRes = ref({
   visible: false,
   targetType: '',
   targetId: '',
+  targetSn: '',
   title: '',
   iconFont: ''
 })

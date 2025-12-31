@@ -31,8 +31,8 @@
     </a-drawer>
     <Editor ref="editor" @refresh="refresh"></Editor>
 
-    <ResRelease :targetType="drawerRes.targetType" :targetId="drawerRes.targetId" :title="drawerRes.title"
-      :iconFont="drawerRes.iconFont" v-model:visible="drawerRes.visible"></ResRelease>
+    <ResRelease :targetType="drawerRes.targetType" :targetId="drawerRes.targetId" :targetSn="drawerRes.targetSn"
+      :title="drawerRes.title" :iconFont="drawerRes.iconFont" v-model:visible="drawerRes.visible"></ResRelease>
   </div>
 </template>
 
@@ -241,6 +241,7 @@ async function btnClick({ btn, event, row, keys }: any) {
   if (btn.name == 'menu') {
     drawerRes.value.targetType = 'flow'
     drawerRes.value.targetId = row.id
+    drawerRes.value.targetSn = row.sn
     drawerRes.value.title = row.title
     drawerRes.value.iconFont = row.iconFont
     drawerRes.value.visible = true
@@ -250,6 +251,7 @@ async function btnClick({ btn, event, row, keys }: any) {
 const drawerRes = ref({
   visible: false,
   targetType: '',
+  targetSn: '',
   targetId: '',
   title: '',
   iconFont: ''

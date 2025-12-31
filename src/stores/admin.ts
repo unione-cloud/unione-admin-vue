@@ -194,6 +194,16 @@ export const useAdminStore = defineStore('unione-admin', () => {
                   let mlist: Array<MenuItem> = []
                   if (menus && menus.length) {
                     mlist = menus.map((m: any) => {
+                      if (m.configs) {
+                        try {
+                          const configs = JSON.parse(m.configs)
+                          if (configs.meta) {
+                            m.meta = configs.meta
+                          }
+                        } catch (e) {
+                          //
+                        }
+                      }
                       return {
                         id: m.id,
                         appId: app.id,
@@ -205,7 +215,8 @@ export const useAdminStore = defineStore('unione-admin', () => {
                           icon: m.icon || 'UnorderedListOutlined',
                           isExternal: m.isExternal,
                           isHide: m.isHide,
-                          isIframe: m.isIframe
+                          isIframe: m.isIframe,
+                          ...(m.meta || {})
                         },
                         children: processMenu(app, m.children)
                       }
