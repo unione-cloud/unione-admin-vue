@@ -23,11 +23,29 @@ export function apiDirDelete(data: any) {
 /** 文件查询 */
 export function getApiFileFind(data: any, type: number) {
   if (type == 1) {
-    return getApiFileFindMine(data)
+    return axios.admin({
+      url: `/api/common/file/find/mine`,
+      method: 'post',
+      data
+    })
   } else if (type == 2) {
-    return getApiFileFindMineShare(data)
+    return axios.admin({
+      url: `/api/common/file/find/mineShare`,
+      method: 'post',
+      data
+    })
   } else if (type == 3) {
-    return getApiFileFindShareMine(data)
+    return axios.admin({
+      url: `/api/common/file/find/shareMine`,
+      method: 'post',
+      data
+    })
+  } else if (type == 4) {
+    return axios.admin({
+      url: `/api/common/file/find/other`,
+      method: 'post',
+      data
+    })
   }
   return axios.admin({
     url: `/api/common/file/find`,

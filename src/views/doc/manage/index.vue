@@ -193,8 +193,8 @@ export default {
         if (val && val.meta.fileType) {
           this.fileType = val.meta.fileType
         }
-        if (val && val.matched && val.matched[1]) {
-          this.queryType = val.matched[1].meta.queryType || 1
+        if (val && val.matched && val.matched[val.matched.length - 1]) {
+          this.queryType = val.matched[val.matched.length - 1].meta.queryType || 1
           this.session.setStorage('doc:queryType', this.queryType + '')
         }
         if (val && val.query.ownerId) {
@@ -258,10 +258,10 @@ export default {
           ninTypes,
           ownerId: this.ownerId
         },
-        sortOrder: 'ASC',
-        pageSize: 99999,
+        sorts: [{ name: 'lastUpdated', asc: false }],
+        pageSize: 50,
       }
-      return getApiFileFind(params, this.queryType || 0)
+      return getApiFileFind(params, this.queryType || 1)
         .then((res: any) => {
           if (res.success) {
             res.body.map((v: any) => {
