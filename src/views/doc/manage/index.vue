@@ -532,7 +532,7 @@ export default {
       }
       this.dialog.confirm({
         title: '提示',
-        content: '确定公开此文件?',
+        content: `确定${fileData.isPublic == 1 ? '取消公开' : '公开'}此文件?`,
         onOk: async () => {
           let permis = [
             {
