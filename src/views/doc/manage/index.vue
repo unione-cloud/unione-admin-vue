@@ -759,7 +759,7 @@ function handleUpload() {
           listData.value = listData.value
             .concat(res.body)
             //@ts-ignore
-            .sort((a, b) => dayjs(a.created).valueOf() - dayjs(b.created).valueOf())
+            .sort((b, a) => dayjs(a.created).valueOf() - dayjs(b.created).valueOf())
           nextTick(() => {
             uploadVisible.value = false
             message.success('附件上传成功')
