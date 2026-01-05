@@ -7,23 +7,19 @@
       <span class="close-bgmask" @click="Hide"></span>
       <div class="video-player" ref="videoPlayer"></div>
     </div>
-    <div v-if="!['mov', 'mp4', 'jpg', 'gif', 'png', 'jpeg'].includes(suffix) && !pdfUrl && !txtData" class="loading">
-      <div class="bgmask"><a-spin /></div>
-      <div class="popur-node" @click="Hide"></div>
-    </div>
     <div v-if="pdfUrl" class="Pdf_box">
       <span class="close-bgmask" @click="Hide"></span>
       <iframe :src="config.axios.admin + `/pdf/web/viewer.html?file=${pdfUrl}&permisKeys=${Pdata.permisKeys}`"></iframe>
     </div>
-
-    <a-modal width="600px" v-model="textVisible" :title="Pdata.name" :footer="null">
-      {{ txtData }}
+    <a-modal wrapClassName="unione-modal-full txt-file-preview" v-model:open="textVisible" :title="Pdata.name"
+      :footer="null">
+      <unione-code-editor v-model:value="txtData" :lang="Pdata.suffix" disabled></unione-code-editor>
     </a-modal>
   </div>
 </template>
 
 <script>
-import { VIDEO_SUFFIX, PREVIEW_TYPE, PDF_SUFFIX } from '../../config'
+import { VIDEO_SUFFIX, PREVIEW_TYPE, PDF_SUFFIX, TXT_SUFFIX } from '../../config'
 import { getFile } from '../../api'
 import { useConfigStore } from '@/config';
 import { message } from 'ant-design-vue';
@@ -109,7 +105,7 @@ export default {
           console.log('videoInfo', videoInfo)
         })
       })
-    } else if (PREVIEW_TYPE.includes(this.suffix)) {
+    } else {
       this.getFile(this.Pdata)
     }
   },
@@ -117,12 +113,14 @@ export default {
   methods: {
     /** 获取文件 */
     async getFile(record) {
-      if (record.suffix == 'txt') {
-        let data = await getFile(record).catch((err) => {
-          this.$message.error(err)
-        })
+      this.pdfUrl = ''
+      this.textVisible = false
+      if (TXT_SUFFIX.includes(this.suffix)) {
         this.textVisible = true
-        this.txtData = JSON.stringify(data)
+        let data = await getFile(record, 'text').catch((err) => {
+          message.error(err)
+        })
+        this.txtData = data.data
       } else if (PDF_SUFFIX.includes(this.suffix)) {
         this.pdfUrl = this.config.axios.admin + `/api/common/store/preview/${record.id}`
       }
@@ -350,6 +348,17 @@ export default {
       top: 50%;
       left: 50%;
     }
+  }
+}
+</style>
+<style lang="less">
+.txt-file-preview {
+  .left-mask {
+    height: calc(100% - 75px) !important;
+  }
+
+  .ant-modal-body {
+    overflow-y: auto;
   }
 }
 </style>

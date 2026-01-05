@@ -96,7 +96,7 @@ import {
 import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 import { useDialog, useSession } from 'unione-base-vue';
-import { FILE_SUFFIX, DOCUMENT_SUFFIX, TXT_SUFFIX, IMAGE_SUFFIX, PREVIEW_TYPE, VIDEO_SUFFIX, AUDIO_SUFFIX } from '../config';
+import { FILE_SUFFIX, DOCUMENT_SUFFIX, TXT_SUFFIX, IMAGE_SUFFIX, PREVIEW_TYPE, VIDEO_SUFFIX, AUDIO_SUFFIX, PDF_SUFFIX } from '../config';
 
 defineOptions({
   name: 'FlowSquare'
@@ -420,10 +420,9 @@ function onSend(record: any) {
     return false
   }
 
-  if (PREVIEW_TYPE.includes(record.suffix)) {
-    if (!IMAGE_SUFFIX.includes(record.suffix)) {
-      currentFile.value = record
-    }
+  if (TXT_SUFFIX.includes(record.suffix) || PDF_SUFFIX.includes(record.suffix) || DOCUMENT_SUFFIX.includes(record.suffix) ||
+    VIDEO_SUFFIX.includes(record.suffix) || AUDIO_SUFFIX.includes(record.suffix)) {
+    currentFile.value = record
   } else {
     //@ts-ignore
     currentFile.value = {}

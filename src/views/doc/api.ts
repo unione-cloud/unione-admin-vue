@@ -237,14 +237,14 @@ export function systemSysOrgFind(data: any) {
 }
 
 /** 查看文件 */
-export function getFile(record: any) {
-  let url = `/api/store/preview`
+export function getFile(record: any, suffix = 'blob') {
+  let url = `/api/common/store/preview`
   if (record.isPublic == 1) {
-    url = `/api/store/preview/public`
+    url = `/api/common/store/preview/public`
   }
   return axios.admin({
     url: `${url}/${record.id}`,
     method: 'get',
-    responseType: record.suffix == 'txt' ? '' : 'blob'
+    responseType: suffix
   })
 }
