@@ -564,6 +564,9 @@ const baseFormDef = ref({
       action: () => {
         return config.axios.admin + '/api/common/store/upload/flow' + (flowObj.value?.id ? ('/' + flowObj.value?.id) : '')
       },
+      data: {
+        isPublic: 1
+      }
     }
   }, {
     title: '流程说明',
