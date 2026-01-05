@@ -11,9 +11,9 @@
               :PInArray="in_array" @onUpload="onUpload" />
           </div>
 
-          <FileBox class="doc-file-box" :PublicType="queryType != 1" :spinning="spinning" :listdata="listData"
-            @onSend="onSend" :showType="showType" @returnCheckedArray="onChecked" @onMenuCMD="onMenuCMD"
-            @onDeleteBtn="onDeleteBtn" />
+          <FileBox @scroll="loadMore" class="doc-file-box" :PublicType="queryType != 1" :spinning="spinning"
+            :listdata="listData" @onSend="onSend" :showType="showType" @returnCheckedArray="onChecked"
+            @onMenuCMD="onMenuCMD" @onDeleteBtn="onDeleteBtn" />
 
 
         </div>
@@ -142,6 +142,9 @@ const tabList = ref([
 
 const queryData = ref({
   type: 0,
+  page: 1,
+  pageSize: 70,
+  nomore: false,
   name: ''
 })
 
@@ -155,7 +158,7 @@ const newDirVisible = ref(false),
   uploadVisible = ref(false),
   dirName = ref(null)
 /** 文件、文件夹数据存储 */
-const listData = ref([]),
+const listData = ref<any>([]),
   /** 当前路线图下标指针 */
   MapIndex = ref(-1),
   // 查看模式  视图/列表
@@ -256,6 +259,7 @@ onMounted(() => {
   showType.value = session.getStorage('doc:showType') || 0
 
   getConfig()
+
 })
 
 function getConfig() {
@@ -270,12 +274,25 @@ function getConfig() {
 async function doQuery() {
   listData.value = []
   spinning.value = true
+  queryData.value.nomore = false
+  queryData.value.page = 1
   listData.value = await getApiFiles().then((res: any) => res)
   spinning.value = false
 }
+
+async function loadMore() {
+  if (queryData.value.nomore) {
+    return
+  }
+  queryData.value.page++
+  spinning.value = true
+  const list = await getApiFiles().then((res: any) => res)
+  listData.value = [...listData.value, ...list]
+  spinning.value = false
+}
+
 /** 获取文件数据 */
 function getApiFiles() {
-
   let params = {
     body: {
       //@ts-ignore
@@ -285,7 +302,8 @@ function getApiFiles() {
       fileType: activeKey.value,
     },
     sorts: [{ name: 'lastUpdated', asc: false }],
-    pageSize: 50,
+    page: queryData.value.page,
+    pageSize: queryData.value.pageSize,
   }
   return getApiFileFind(params, queryType.value || 1)
     .then((res: any) => {
@@ -298,6 +316,7 @@ function getApiFiles() {
             suffix: v.type,
           })
         })
+        queryData.value.nomore = res.body.length < queryData.value.pageSize
         return res.body
       } else {
         message.error({ content: res.message, key: '服务器错误' })

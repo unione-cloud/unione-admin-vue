@@ -2,7 +2,7 @@
 <template>
   <a-spin :spinning="spinning" style="background: white">
     <div class="Box" id="Box">
-      <div v-show="showType == 0" :class="['FileBox', env && 'FileBoxPro', 'scrollBar']">
+      <div v-show="showType == 0" :class="['FileBox', env && 'FileBoxPro', 'scrollBar']" ref="fileBox">
         <a-empty v-if="sort_data.length <= 0" style="margin-top: 20px" />
         <!-- @click="isRename ? null : onSend(item)" -->
         <div class="fileItem" :class="{ activity: item.ischecked || currentFileData.id == item.id }" :key="item.id"
@@ -57,7 +57,7 @@
           </span>
         </div>
       </div>
-      <div v-if="showType == 1" style="background: white" class="common-table scrollBar">
+      <div v-if="showType == 1" style="background: white" class="common-table scrollBar" ref="fileTable">
         <a-table :columns="columns" :rowKey="(record, index) => record.id" :rowSelection="rowSelection"
           :dataSource="sort_data" :pagination="false" bordered>
           <template v-slot:name="text, record">
@@ -222,6 +222,13 @@ export default {
           }
         }
       }
+
+      this.$refs.fileBox.addEventListener('scroll', (e) => {
+        if (e.target.scrollTop + e.target.clientHeight >= e.target.scrollHeight) {
+          this.$emit('scroll', e)
+        }
+      })
+
     })
   },
   watch: {
