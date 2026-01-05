@@ -562,7 +562,7 @@ const baseFormDef = ref({
       autoUpload: true,
       valueType: 'string',
       action: () => {
-        return config.axios.admin + '/api/common/store/upload/flow' + (flowObj.value?.id ? ('/' + flowObj.value?.id) : '')
+        return config.axios.admin + '/api/common/store/upload/public/flow' + (flowObj.value?.id ? ('/' + flowObj.value?.id) : '')
       },
       data: {
         isPublic: 1
