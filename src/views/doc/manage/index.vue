@@ -32,10 +32,10 @@
 
     <!-- 上传文件 -->
     <a-modal v-model:open="uploadVisible" title="上传文件" :footer="null" :maskClosable="false">
-      <div class="modalTop" style="margin-bottom: 10px">
+      <div class="doc-upload-box" style="margin-bottom: 10px">
         <div>
           是否公开：
-          <a-switch checked-children="是" un-checked-children="否" v-model="isUpdatePublic" />
+          <a-switch checked-children="是" un-checked-children="否" v-model:checked="isUpdatePublic" />
         </div>
 
         <a-button class="pirmaryBtn" style="margin-top: 10px" @click="selectFileBtn">
@@ -45,13 +45,13 @@
           v-show="isUpdatePublic || !docConfig.filePermisEnable" :disabled="fileList.length === 0"
           @click="handleUpload">开始上传</a-button>
         <div id="doc-myfile">
-          <a-upload :accept="accept" :file-list="fileList" :multiple="true" :before-upload="beforeUpload"
+          <a-upload :accept="accept" v-model:file-list="fileList" :multiple="true" :before-upload="beforeUpload"
             :remove="handleRemove"></a-upload>
         </div>
       </div>
 
       <div class="upload-auth">
-        <auth-box v-model="authData" v-if="docConfig.filePermisEnable" v-show="!isUpdatePublic" />
+        <auth-box v-model:value="authData" v-if="docConfig.filePermisEnable" v-show="!isUpdatePublic" />
       </div>
 
       <div style="margin-top: 7px; text-align: right" v-if="docConfig.filePermisEnable" v-show="!isUpdatePublic">
@@ -165,7 +165,7 @@ const listData = ref([]),
   /** 当前登陆人信息 */
   principal = ref({}),
   /** 上传附件文件数据 */
-  fileList = ref([]),
+  fileList = ref<any>([]),
   uploading = ref(false),
   /** 上传成功后返回数据列表 表头 */
   columns = ref([
@@ -174,9 +174,9 @@ const listData = ref([]),
     { title: '操作', dataIndex: 'operation', scopedSlots: { customRender: 'operation' } },
   ]),
   /** 上传成功后返回数据列表 数据 */
-  tableData = ref([]),
-  /** 是否默认上传公开文件 */
-  isUpdatePublic = ref(false),
+  tableData = ref([])
+/** 是否默认上传公开文件 */
+const isUpdatePublic = ref(false),
   /** 当前附件信息 */
   currentFile = ref({
     suffix: '',
@@ -187,8 +187,6 @@ const listData = ref([]),
   authData = ref({
     permis: [],
   }),
-  /** 保存上传时的状态 */
-  loading = ref(false),
   /** doc配置 */
   docConfig = ref({
     filePermisEnable: false,
@@ -314,25 +312,12 @@ function getApiFiles() {
 
 /** 保存附件上传是的权限 */
 async function handleOk() {
-  // this.loading = true
   let list = tableData.value
   let ids: any = []
   let permis = JSON.parse(JSON.stringify(authData.value.permis))
-  let dirId = undefined
 
   list.map((v: any) => {
     ids.push(v.id)
-    permis.map((p: any) => {
-      Object.assign(p, {
-        fileId: v.id,
-        dirId: v.dirId != '-1' ? v.dirId : undefined,
-        fileName: v.name,
-        fileTitle: v.title,
-        fileType: v.type,
-        list: p.list.toString(),
-        auditResult: 1,
-      })
-    })
   })
   let body = {
     ids,
@@ -394,7 +379,7 @@ function onSend(record: any) {
         MapIndex.value = roadMap.value.length - 1
       } else {
         //@ts-ignore
-        const index = this.roadMap.findIndex((e) => e.id === record.id)
+        const index = roadMap.value.findIndex((e) => e.id === record.id)
         if (index === -1) {
           //@ts-ignore
           roadMap.value.splice(MapIndex.value + 1, roadMap.value.length - MapIndex.value, record)
@@ -580,7 +565,7 @@ function doPublic(fileData: any) {
       let data = await apiPermisUpdate(body)
       if (data.success) {
         //@ts-ignore
-        this.listData.forEach((e: any) => {
+        listData.value.forEach((e: any) => {
           if (e.id == body.id) {
             e.isPublic = body.isPublic
             e.permis = body.permis
@@ -673,8 +658,6 @@ function onDeleteBtn(fileData: any) {
       } else {
         fileSids = listData.value.filter((r: any) => r.ischecked).map((r: any) => r.id)
       }
-      // console.log(this.in_array)
-      // return
 
       let isOk = true
       let key = 'deleteMessage'
@@ -684,7 +667,7 @@ function onDeleteBtn(fileData: any) {
           if (res.success) {
             isOk = true
             //@ts-ignore
-            this.listData = this.listData.filter((e) => !fileSids.includes(e.id))
+            listData.value = listData.value.filter((e) => !fileSids.includes(e.id))
           } else {
             message.error({ content: res.message, key })
           }
@@ -702,6 +685,8 @@ function onDeleteBtn(fileData: any) {
 function onUpload() {
   uploadVisible.value = true
   tableData.value = []
+  fileList.value = []
+  authData.value.permis = []
 }
 
 /**
@@ -713,32 +698,6 @@ function selectFileBtn() {
   btn.click()
 }
 
-/**
- * @description: deleteItemBtn 上传后回调表格的数据删除按钮
- * @param {Object} record 对象
- */
-function deleteItemBtn(record: any) {
-  dialog.confirm({
-    title: '提示',
-    content: '确定删除此文件 ? ',
-    onOk: async () => {
-      await apiFileDelete({ body: [record.id] }).then((res: any) => {
-        if (res.success) {
-          //@ts-ignore
-          const index = tableData.value.findIndex((e) => e.id === record.id)
-          tableData.value.splice(index, 1)
-          listData.value.splice(
-            //@ts-ignore
-            listData.value.findIndex((e) => e.id === record.id),
-            1
-          )
-        } else {
-          message.error(res.message)
-        }
-      })
-    },
-  })
-}
 
 /**
  * @description: handleRemove 点击移除文件时的回调
@@ -777,9 +736,9 @@ function handleUpload() {
   })
   nextTick(() => {
     //@ts-ignore
-    formData.append('isPublic', this.isUpdatePublic ? 1 : 0)
+    formData.append('isPublic', isUpdatePublic.value ? 1 : 0)
     //@ts-ignore
-    formData.append('dirId', this.MapIndex > -1 ? this.roadMap[this.MapIndex].id : '-1')
+    formData.append('dirId', MapIndex.value > -1 ? roadMap.value[MapIndex.value].id : '-1')
     uploadBatch(formData, ownerId.value)
       .then(async (res: any) => {
         uploading.value = false
@@ -815,18 +774,6 @@ function handleUpload() {
         message.error('上传失败服务器错误')
       })
   })
-}
-
-/** 高级查询 */
-function queryBtn(param: any) {
-  queryData.value = param
-  doQuery()
-}
-/** 重置 */
-function emptyBtn() {
-  //@ts-ignore
-  queryData.value = {}
-  doQuery()
 }
 
 </script>
@@ -870,5 +817,12 @@ function emptyBtn() {
     }
   }
 
+}
+
+.doc-upload-box {
+  :deep(.ant-upload-list) {
+    max-height: 300px;
+    overflow-y: auto;
+  }
 }
 </style>
