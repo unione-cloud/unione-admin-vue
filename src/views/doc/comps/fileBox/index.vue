@@ -31,8 +31,15 @@
                                 ? 'fileicon-large-doc'
                                 : IMAGE_SUFFIX.includes(item.suffix) && !item.error ? 'fileicon-empty' : 'fileicon-large-unknow',
           ]">
-            <a-tag class="isPublic" v-if="item.isPublic == 1 && item.auditStatus == 2" color="green">公开</a-tag>
-            <a-tag class="isPending" v-else-if="item.isPublic == 1 && item.auditStatus != 2" color="red">公开/待审</a-tag>
+            <div class="file-sts">
+              <template v-if="(item.isPublic == 1 || item.isShare == 1)">
+                <a-tag v-if="item.isPublic == 1" color="green">公开</a-tag>
+                <a-tag v-if="item.isShare == 1" color="orange">共享</a-tag>
+              </template>
+              <template v-if="(item.isPublic == 1 || item.isShare == 1) && item.auditStatus != 2">
+                <a-tag color="red">待审</a-tag>
+              </template>
+            </div>
             <a-image v-if="IMAGE_SUFFIX.includes(item.suffix) && !item.error" @error="item.error = 1"
               :src="config.axios.admin + `/api/common/store/preview/${item.id}`" @click.stop />
           </div>
@@ -540,14 +547,22 @@ export default {
         background-repeat: no-repeat;
         cursor: pointer;
 
-        .isPublic,
-        .isPending {
+        .file-sts {
           position: absolute;
           z-index: 1;
           top: 0px;
           right: -8px;
-        }
+          display: flex;
+          flex-direction: row;
+          justify-content: end;
+          padding-right: 10px;
 
+          :deep(.ant-tag) {
+            transform: scale(0.8);
+            padding: 0 3px;
+            margin: -2px;
+          }
+        }
 
         &.fileicon-empty {
           background-image: none;

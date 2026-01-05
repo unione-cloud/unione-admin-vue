@@ -1,215 +1,252 @@
 <!-- 审批管理 -->
 <template>
-  <div class="manage">
-    <advanced-card>
-      <advanced-search @onSearch="queryBtn" :config="searchConfig" />
-    </advanced-card>
-    <div class="list-table">
-      <div class="btns">
-        <a-button size="small" :disabled="selectedRowKeys.length <= 0"
-          @click="toApproval(selectedRowKeys)">批量审批</a-button>
-      </div>
-      <div class="table">
-        <a-table :columns="columns" :dataSource="listData" :pagination="pagination" :loading="loading"
-          @change="handleTableChange" :rowKey="(record, index) => record.sid" :rowSelection="rowSelection"
-          class="table-list" size="small">
-          <template v-slot:operation="text, record">
-            <!-- :disabled="record.auditResult && record.auditResult != 1" -->
-            <a-button type="primary" size="small" @click="toApproval(record)"> 审批 </a-button>
-          </template>
-        </a-table>
-      </div>
-    </div>
+  <div class="doc-approval">
+    <unione-page-list ref="page" v-bind="define" @btnClick="btnClick"></unione-page-list>
 
-    <a-drawer width="350px" :title="formData.sid ? '审批' : '批量审批'" placement="right" :visible="visible" @close="onClose">
-      <div class="content">
-        <a-form-model layout="vertical" :model="formData" :rules="rules" ref="approvalForm">
-          <a-form-model-item label="审批说明" prop="auditOpinion">
-            <a-textarea :rows="5" :maxLength="100" v-model="formData.auditOpinion" placeholder="请输入审批说明" />
-          </a-form-model-item>
+    <a-drawer :title="drawer.title" :width="400" v-model:visible="drawer.visible" :placement="drawer.placement"
+      class="drawer-doc-audit" :mask-closable="false">
 
-          <div style="text-align: right">
-            <a-button type="primary" size="small" @click="onSubmit(2)"> 通过 </a-button>
-            <a-button type="danger" size="small" style="margin-left: 10px" @click="onSubmit(3)"> 拒接 </a-button>
-          </div>
-        </a-form-model>
-      </div>
+      <unione-form ref="form" :form="drawer.form"></unione-form>
+
+      <template #footer>
+        <div class="btns">
+          <a-button @click="drawer.visible = false">取消</a-button>
+          <a-button @click="drawer.toAudit" type="primary">提交</a-button>
+        </div>
+      </template>
     </a-drawer>
   </div>
 </template>
 
-<script>
-import AdvancedCard from '@/components/AdvancedCard/index.vue'
-import AdvancedSearch from '@/components/AdvancedSearch/index.vue'
-import Mixins from '@/views/approvalManage/mixins'
-import { apiPermisToAudit, apiPermisDoAudit } from '@/api/doc-service'
+<script lang="ts" setup>
+import { message } from 'ant-design-vue'
+import { axios, useDialog } from 'unione-base-vue'
+import { nextTick, ref } from 'vue'
 
-export default {
-  name: 'docApproval',
-  mixins: [Mixins],
-  components: { AdvancedCard, AdvancedSearch },
-  data() {
-    return {
-      queryData: {},
-      searchConfig: [
-        {
-          key: 'auditResult',
-          type: 'z-dict-select',
-          label: '审核结果',
-          dictName: 'DOCFILEAUDITSTS',
-        },
-      ],
-      columns: [
-        {
-          title: '序号',
-          dataIndex: 'index',
-          align: 'center',
-          width: 70,
-        },
-        {
-          title: '文件标题',
-          dataIndex: 'fileTitle',
-          align: 'center',
-        },
-        {
-          title: '文件类型',
-          dataIndex: 'fileType',
-          align: 'center',
-        },
-        {
-          title: '权限',
-          dataIndex: 'list',
-          align: 'center',
-          customRender: (text) => {
-            let a = text.split(',')
-            return a.map((v) => {
-              return <a-tag color="#2db7f5">{v == 'view' ? '预览' : '下载'}</a-tag>
-            })
+
+defineOptions({
+  name: 'DocApproval',
+})
+
+const dialog = useDialog()
+const page = ref()
+const define = ref({
+  storage: {
+    controller: '/api/system/doc/permis',
+    findUrl: '/toAudit'
+  },
+  fields: [
+    {
+      title: '文档名称',
+      name: 'fileTitle',
+    },
+    {
+      title: '文档类型',
+      name: 'fileType',
+      isQuery: true
+    },
+    {
+      title: '审核类型',
+      name: 'auditType',
+      convert: {
+        types: 'option',
+        options: [
+          {
+            label: '公开审核',
+            value: 1
           },
-        },
-        {
-          title: '权限拥有者标题',
-          dataIndex: 'ownerTitle',
-          align: 'center',
-        },
-        {
-          title: '审核结果',
-          dataIndex: 'auditResult',
-          align: 'center',
-          customRender: (text) => {
-            switch (text) {
-              case '1':
-              case 1:
-                return <a-tag color="#2db7f5">待审</a-tag>
-              case '2':
-              case 2:
-                return <a-tag color="#0b8235">通过</a-tag>
-              case '3':
-              case 3:
-                return <a-tag color="red">拒绝</a-tag>
-              case '4':
-              case 4:
-                return <a-tag color="#1889f1">变更</a-tag>
-              default:
-                return ''
-            }
-          },
-        },
-        {
-          title: '操作',
-          dataIndex: 'operation',
-          align: 'center',
-          scopedSlots: { customRender: 'operation' },
-          width: 120,
-        },
-      ],
-      rules: {
-        auditOpinion: [{ required: true, message: '请填写审批说明', trigger: 'blur' }],
+          {
+            label: '共享审核',
+            value: 2
+          }
+        ]
       },
-      listData: [],
+      isQuery: true
+    },
+    {
+      title: '申请权限',
+      name: 'list',
+      convert: {
+        types: 'dict',
+        dictName: 'DOCPERMISLIST'
+      },
+      isQuery: true
+    },
+    {
+      title: '目标类型',
+      name: 'ownerType',
+      convert: {
+        types: 'dict',
+        dictName: 'DOCPERMISTYPE'
+      },
+      isQuery: true
+    },
+    {
+      title: '目标名称',
+      name: 'ownerTitle',
+    },
+    {
+      title: '提交时间',
+      name: 'created',
+      sort: {
+        enable: true,
+        asc: false,
+        defoult: true
+      }
+    },
+    {
+      title: '审核时间',
+      name: 'auditTime',
+      sort: {
+        enable: true,
+        asc: false,
+        defoult: true
+      }
+    }, {
+      title: '审核结果',
+      name: 'auditResult',
+      isQuery: true,
+      convert: {
+        types: 'dict',
+        dictName: 'DOCFILEAUDITSTS'
+      },
+    }
+  ],
+  leftBtns: ['add', 'delBatch', {
+    title: '批量审核',
+    name: 'auditBatch',
+    props: {
+      type: 'primary'
+    }
+  }],
+  rightBtns: ['downTmpl', 'impData'],
+  operation: {
+    title: '操作',
+    width: 90,
+    btns: [
+      'view', 'edit', 'delete',
+      {
+        name: 'audit',
+        title: '审核'
+      },
+    ],
+    count: 2,
+    more: {
+      layout: 'vertical'
+    }
+  }
+})
+
+async function btnClick({ btn, row, rows }: any) {
+  if (btn.name == 'audit') {
+    // 审核
+    drawer.value.title = '文档审核'
+    drawer.value.row = row
+    drawer.value.visible = true
+    nextTick(() => {
+      form.value.setValue({
+        auditOpinion: '',
+        auditResult: '3'
+      })
+    })
+  }
+  if (btn.name == 'auditBatch') {
+    // 批量审核
+    drawer.value.title = '批量审核'
+    drawer.value.row = rows
+    drawer.value.visible = true
+    nextTick(() => {
+      form.value.setValue({
+        auditOpinion: '',
+        auditResult: '3'
+      })
+    })
+  }
+}
+
+const form = ref()
+const drawer = ref<any>({
+  title: '文档审核',
+  placement: 'right',
+  visible: false,
+  row: null,
+  form: {
+    fields: [{
+      title: '审核意见',
+      name: 'auditOpinion',
+      control: 'a-textarea',
+      props: {
+        required: true,
+        placeholder: '请输入审核意见',
+        rows: 8
+      }
+    }, {
+      title: '审核结果',
+      name: 'auditResult',
+      control: 'unione-radio-box',
+      value: '3',
+      convert: {
+        types: 'dict',
+        dictName: 'DOCFILEAUDITSTS',
+        filter: (items: any) => {
+          return items.filter((item: any) => item.value != 1)
+        }
+      },
+      props: {
+        required: true,
+      }
+    }],
+    setting: {
+      labelAlign: 'top'
     }
   },
-  //创建完成 访问当前this实例
-  created() {
-    this.doQuery()
-  },
-  //挂载完成 访问DOM元素
-  mounted() { },
-  //方法集合
-  methods: {
-    doQuery() {
-      this.loading = true
-      apiPermisToAudit({
-        body: {
-          ...this.searchData,
-        },
-        pageSize: this.pagination.pageSize,
-        page: this.pagination.current,
-      }).then((res) => {
-        this.loading = false
-        if (res.success) {
-          res.body.map((v, i) => {
-            Object.assign(v, {
-              index: this.pagination.current
-                ? (this.pagination.current - 1) * (this.pagination.pageSize ? this.pagination.pageSize : 10) + (i + 1)
-                : i + 1,
-            })
-          })
-          this.pagination.total = parseInt(res.total)
-          this.listData = res.body
-        } else {
-          this.$message.error(res.message)
-        }
-      })
-    },
-    /** 审核 */
-    toApproval(record) {
-      // this.record
-      this.visible = true
-      this.formData = {
-        auditOpinion: undefined,
-      }
-      if (Array.isArray(record)) {
-        return false
-      }
-      this.formData = record
-    },
+  toAudit: () => {
+    // 提交审核
+    form.value.validate().then((data: any) => {
+      dialog.confirm({
+        content: '确定提交审核么？',
+        onOk: () => {
 
-    /** 提交审核结果
-     * @param {Number} auditResult 1.待审 2.通过 3.拒绝
-     */
-    async onSubmit(auditResult) {
-      this.$refs.approvalForm.validate((valid, values) => {
-        if (valid) {
-          let body = {
-            auditOpinion: this.formData.auditOpinion,
-            ids: this.formData.sid ? [this.formData.sid] : this.selectedRowKeys,
-            auditResult,
+          const params: any = {
+            body: data
           }
-          // console.log(body)
-          // return
-          apiPermisDoAudit(body).then((res) => {
-            if (res.success) {
-              this.visible = false
-              this.formData = {}
-              this.$message.success('审批成功')
-              this.doQuery()
+          if (Array.isArray(drawer.value.row)) {
+            params.ids = drawer.value.row.map((item: any) => item.id)
+          } else {
+            params.body.id = drawer.value.row.id
+          }
+
+          axios.admin({
+            url: '/api/system/doc/permis/doAudit',
+            data: params,
+            method: 'POST'
+          }).then((result: any) => {
+            if (result.success) {
+              message.success('审核成功')
+              drawer.value.visible = false
+              page.value.reload()
             } else {
-              this.$message.error(res.message)
+              dialog.error(result.message || '审核失败')
             }
           })
         }
       })
-    },
+    })
+  }
+})
 
-    onClose() {
-      this.visible = false
-    },
-  },
-}
 </script>
 <style lang='less' scoped>
-.manage {
-  padding: 15px;
+.doc-approval {}
+</style>
+<style lang='less'>
+.drawer-doc-audit {
+  .btns {
+    text-align: right;
+
+    .ant-btn {
+      margin: 5px 10px;
+    }
+  }
 }
 </style>
