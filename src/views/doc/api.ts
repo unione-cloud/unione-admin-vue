@@ -209,210 +209,30 @@ export function apiPermisLoadWith(fileId: any) {
   })
 }
 
-// 审批记录查询
-export function getDocumentsApprovalFind(data: any) {
+/** 查询系统用户 */
+export function systemSysUserFind(data: any) {
   return axios.admin({
-    url: `/DocumentsApproval/find`,
+    url: `/api/system/user/find`,
     method: 'post',
     data
   })
 }
 
-// 审批管理 档案日志 查询
-export function getdocumentsLogFind(data: any) {
-  console.log(data)
+/** 查询系统角色 */
+export function systemSysRoleFind(data: any) {
   return axios.admin({
-    url: `/documentsLog/find`,
+    url: `/api/system/role/find`,
     method: 'post',
     data
   })
 }
 
-// 全部文件 文件上传
-export function getdocumentsFileUpload(data: any) {
-  console.log(data)
-  let url = `/documentsFile/upload?name=${data.name}`
-  for (const key in data) {
-    // eslint-disable-next-line no-prototype-builtins
-    if (data.hasOwnProperty(key)) {
-      if (key == 'name' || key == 'formData') {
-        //
-      } else if (data[key]) {
-        url += `&${key}=${data[key]}`
-      }
-    }
-  }
+/** 查询系统机构 */
+export function systemSysOrgFind(data: any) {
   return axios.admin({
-    url,
-    method: 'post',
-    data: data.formData,
-    dataType: 'formData',
-    processData: false
-  })
-}
-
-// 全部文件 文件删除
-export function getdocumentsFileDeletes(data: any) {
-  let url = `/documentsFile/deletes?ids=${data[0].fileType === 'DIR' ? 'DIR_' + data[0].id : 'FILE_' + data[0].id}`
-  data.map((v: any, i: any) => {
-    if (i > 0) {
-      switch (v.fileType) {
-        case 'DIR':
-          url += `&ids=DIR_${v.id}`
-          break
-        default:
-          url += `&ids=FILE_${v.id}`
-          break
-      }
-    }
-  })
-  return axios.admin({
-    url,
+    url: `/api/system/organ/find`,
     method: 'post',
     data
-  })
-}
-
-// 新建文件夹
-export function getdocumentsDirNewFile(data: any) {
-  let url = `/documentsDir/newFile?sname=${data.sname}`
-  for (const key in data) {
-    // eslint-disable-next-line no-prototype-builtins
-    if (data.hasOwnProperty(key)) {
-      if (key !== 'sname') {
-        if (data[key]) {
-          url += `&${key}=${data[key]}`
-        }
-      }
-    }
-  }
-  return axios.admin({
-    url,
-    method: 'post'
-  })
-}
-
-// 在线查看
-export function getdocumentsFileViewWith(data: any) {
-  return axios.admin({
-    url: `/documentsFile/view/${data.id}`,
-    method: 'get'
-  })
-}
-
-// 设置公开
-export function getdocumentsFileOpenPassWith(data: any) {
-  let url = `/documentsFile/openPass?id=${data.id}`
-  for (const key in data) {
-    // eslint-disable-next-line no-prototype-builtins
-    if (data.hasOwnProperty(key)) {
-      if (key !== 'id') {
-        url += `&${key}=${data[key]}`
-      }
-    }
-  }
-  return axios.admin({
-    url,
-    method: 'PATCH'
-  })
-}
-
-// 审批
-export function getdocumentsFileApprovalWith(data: any) {
-  let url = `/documentsFile/approval?opinion=${data.opinion}&status=${data.status}`
-  for (const key in data) {
-    // eslint-disable-next-line no-prototype-builtins
-    if (data.hasOwnProperty(key)) {
-      if (key === 'ids') {
-        data.ids.map((v: any) => {
-          url += `&ids=${v}`
-        })
-      }
-    }
-  }
-  return axios.admin({
-    url,
-    method: 'PATCH',
-    data
-  })
-}
-
-// 回收站
-export function getdocumentsFileRecycle(data: any) {
-  data = { body: data }
-  return axios.admin({
-    url: `/documentsFile/recycle`,
-    method: 'post',
-    data
-  })
-}
-
-// 回收站删除
-export function getdocumentsFilerecycleDelete(data: any) {
-  const arr: any[] = []
-  data.map((item: any) => {
-    Object.assign(item, {
-      deleteid: `${item.fileType}_${item.sid}`
-    })
-    arr.push(item.deleteid)
-  })
-  return axios.admin({
-    url: `/documentsFile/recycleDelete`,
-    method: 'POST',
-    data: arr
-  })
-}
-
-// 回收站还原
-export function getdocumentsFileRecycleCancel(data: any) {
-  const arr: any[] = []
-  data.map((item: any) => {
-    Object.assign(item, {
-      deleteid: `${item.fileType}_${item.id}`
-    })
-    arr.push(item.deleteid)
-  })
-  return axios.admin({
-    url: `/documentsFile/recycleCancel`,
-    method: 'post',
-    data: arr
-  })
-}
-
-// 文件下载
-export function getdocumentsFileDownload(data: any) {
-  // console.log(data)
-  let url = `/documentsFile/download?pass=FILE_${data[0].id}`
-  // let arr = []
-  data.map((v: any, i: any) => {
-    // arr.push(v.sid)
-    if (i !== 0) {
-      url += `&id=${v.id}`
-    }
-  })
-  // console.log(url)
-  const arr: any[] = []
-  data.map((item: any) => {
-    Object.assign(item, {
-      deleteid: `${item.fileType}_${item.id}`
-    })
-    arr.push(item.deleteid)
-  })
-
-  const urls = arr.join(',')
-  // return axios.admin({
-  //   url: `/documentsFile/download`,
-  //   method: 'get',
-  //   data: { pass: urls }
-  // })
-  axios({
-    method: 'get',
-    // url: '/documentsFile/download',
-    url,
-    responseType: 'blob'
-    // data: { pass: urls }
-  }).then((res: any) => {
-    console.log(res, 'res')
   })
 }
 

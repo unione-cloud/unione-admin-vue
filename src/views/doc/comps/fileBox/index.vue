@@ -2,7 +2,7 @@
 <template>
   <a-spin :spinning="spinning" style="background: white">
     <div class="Box" id="Box">
-      <div v-show="showType == 0" :class="['FileBox', env && 'FileBoxPro', 'scrollBar']" @click="fileBoxDown">
+      <div v-show="showType == 0" :class="['FileBox', env && 'FileBoxPro', 'scrollBar']">
         <a-empty v-if="sort_data.length <= 0" style="margin-top: 20px" />
         <!-- @click="isRename ? null : onSend(item)" -->
         <div class="fileItem" :class="{ activity: item.ischecked || currentFileData.id == item.id }" :key="item.id"
@@ -37,7 +37,8 @@
                 <a-tag v-if="item.isShare == 1" color="orange">共享</a-tag>
               </template>
               <template v-if="(item.isPublic == 1 || item.isShare == 1) && item.auditStatus != 2">
-                <a-tag color="red">待审</a-tag>
+                <a-tag color="red" v-if="item.auditStatus == 1">待审</a-tag>
+                <a-tag color="red" v-if="item.auditStatus == 3">拒绝</a-tag>
               </template>
             </div>
             <a-image v-if="IMAGE_SUFFIX.includes(item.suffix) && !item.error" @error="item.error = 1"
@@ -399,40 +400,6 @@ export default {
       }
     },
 
-    /** 鼠标按下事件 */
-    fileBoxDown(event) {
-      return
-      // let moveSelected = document.getElementById('moveSelected')
-      // let flag = true //是否开启拖拽的标志
-      // let selectedList = [] //拖拽多选选中的块集合
-
-      // moveSelected.style.top = event.pageY + 'px'
-      // moveSelected.style.left = event.pageX + 'px'
-      // let oldLeft = event.pageX
-      // let oldTop = event.pageY
-      // event.preventDefault() // 阻止默认行为
-      // event.stopPropagation() // 阻止事件冒泡
-
-      // document.onmousemove = (event) => {
-      //   if (!flag) return //只有开启了拖拽，才进行mouseover操作
-      //   if (event.pageX < oldLeft) {
-      //     //向左拖
-      //     moveSelected.style.left = event.pageX + 'px'
-      //     moveSelected.style.width = oldLeft - event.pageX + 'px'
-      //   } else {
-      //     moveSelected.style.width = event.pageX - oldLeft + 'px'
-      //   }
-      //   if (event.pageY < oldTop) {
-      //     //向上
-      //     moveSelected.style.top = event.pageY + 'px'
-      //     moveSelected.style.height = oldTop - event.pageY + 'px'
-      //   } else {
-      //     moveSelected.style.height = event.pageY - oldTop + 'px'
-      //   }
-      //   event.preventDefault() // 阻止默认行为
-      //   event.stopPropagation() // 阻止事件冒泡
-      // }
-    },
   },
 }
 </script>

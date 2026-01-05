@@ -15,7 +15,7 @@
       </div>
       <div class="content">
         <div class="tabs" v-if="
-          docConfig.filePermisEnable && docQueryType == 1 && !formData.isPublic
+          docConfig.filePermisEnable && docQueryType == 1
         ">
           <div class="tab" v-for="item in tabs" :key="item.key" @click="onTabs(item)"
             :class="[currentTab.key == item.key && 'active']">
@@ -63,7 +63,7 @@
           </div>
 
           <div class="auth" v-show="currentTab.key == 'auth'">
-            <auth-box v-model="formData" :isPublic="isPublic || indeterminate" />
+            <auth-box v-model:value="formData" :isPublic="isPublic || indeterminate" />
           </div>
         </div>
       </div>
@@ -259,12 +259,11 @@ export default {
     async doSave() {
       let data = {}
 
-      let permis = []
-      if (!this.isPublic) {
-        permis = this.formData.permis?.filter((e) => e.ownerType != 'public')
-      } else {
-        permis = [
-          {
+      let permis = this.formData.permis || []
+      if (this.isPublic) {
+        const pubPermis = this.formData.permis?.filter((e) => e.ownerType == 'public')
+        if (pubPermis.length == 0) {
+          permis.push({
             ownerType: 'public',
             ownerTitle: '文件公开',
             list: 'download',
@@ -274,8 +273,8 @@ export default {
               this.formData.updateName +
               `.${this.formData.title.split('.')[this.formData.title.split('.').length - 1]}`,
             fileName: this.formData.fileName,
-          },
-        ]
+          })
+        }
       }
 
       const param = {
@@ -385,7 +384,7 @@ export default {
 </script>
 <style lang='less' scoped>
 .attr_box {
-  width: 450px;
+  width: 500px;
   height: 680px;
   position: fixed;
   left: 30px;

@@ -8,9 +8,8 @@ export const USER_COLUMNS = [
   {
     title: '权限',
     dataIndex: 'auth',
-    scopedSlots: { customRender: 'auth' },
     align: 'center',
-    width: 160
+    width: 200
   }
 ]
 
@@ -24,9 +23,8 @@ export const ROLE_COLUMNS = [
   {
     title: '权限',
     dataIndex: 'auth',
-    scopedSlots: { customRender: 'auth' },
     align: 'center',
-    width: 160
+    width: 200
   }
 ]
 
@@ -40,8 +38,7 @@ export const ORG_COLUMNS = [
   {
     title: '权限',
     dataIndex: 'auth',
-    scopedSlots: { customRender: 'auth' },
     align: 'center',
-    width: 160
+    width: 200
   }
 ]

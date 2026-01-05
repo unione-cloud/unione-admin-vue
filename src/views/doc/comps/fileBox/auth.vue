@@ -9,7 +9,7 @@
     </div>
     <div class="content">
       <div class="auth">
-        <div class="title" v-if="!isPublic">
+        <div class="title">
           <!-- {{ currentTab.label }} -->
           <div class="btn pirmaryBtn" v-if="!currentTab.isSelect" @click="add(currentTab)">添加</div>
           <div class="btn pirmaryBtn" v-if="currentTab.isSelect" @click="rem(currentTab)">移除</div>
@@ -20,8 +20,7 @@
         </div>
         <div class="list common-table">
           <a-table bordered :columns="currentTab.columns" :rowKey="(record, index) => record.key"
-            :dataSource="isPublic ? [] : eValue.permis.filter((e) => e.ownerType == currentTab.ownerType)" size="small"
-            :rowSelection="currentTab.isSelect
+            :dataSource="eValue.permis.filter((e) => e.ownerType == currentTab.ownerType)" size="small" :rowSelection="currentTab.isSelect
               ? currentTab.ownerType == 'user'
                 ? userSelection
                 : currentTab.ownerType == 'role'
@@ -31,22 +30,18 @@
               " :pagination="{
                 pageSize: 5,
               }">
-            <template v-slot:auth="text, record">
-              <div>
-                <a-checkbox :checked="record.list.includes('view')" @change="(e) => onChange(e, record, 'view')">
-                  预览
-                </a-checkbox>
-                <a-checkbox :checked="record.list.includes('download')"
-                  @change="(e) => onChange(e, record, 'download')">
-                  下载
-                </a-checkbox>
-              </div>
+            <template #bodyCell="{ column, record }">
+              <template v-if="column.dataIndex == 'auth'">
+                <unione-radio-box v-model:value="record.list" class="auth_box"
+                  :convert="{ types: 'dict', dictName: 'DOCPERMISLIST' }"></unione-radio-box>
+              </template>
             </template>
           </a-table>
         </div>
       </div>
     </div>
-    <select-view v-model="openAuthSelect" @select="onSelect" :PactiveWindow="activeWindow" :inList="eValue.permis" />
+    <select-view v-model:value="openAuthSelect" @select="onSelect" :PactiveWindow="activeWindow"
+      :inList="eValue.permis" />
   </div>
 </template>
 
@@ -79,7 +74,7 @@ export default {
       authTypes: [
         { label: '用户权限', ownerType: 'user', columns: USER_COLUMNS, isSelect: false },
         { label: '角色权限', ownerType: 'role', columns: ROLE_COLUMNS, isSelect: false },
-        { label: '机构权限', ownerType: 'org', columns: ORG_COLUMNS, isSelect: false },
+        { label: '机构权限', ownerType: 'organ', columns: ORG_COLUMNS, isSelect: false },
       ],
       /** 打开选择器集合 */
       openAuthSelect: [],
@@ -111,7 +106,7 @@ export default {
           if (this.eValue.permis) {
             this.eValue.permis.map((v) => {
               Object.assign(v, {
-                key: v.sid || v.key,
+                key: v.id || v.key,
               })
             })
           }
@@ -153,15 +148,15 @@ export default {
       this.currentTab = tab
     },
     add(record) {
-      let index = this.openAuthSelect.findIndex((e) => e.id == `${record.ownerType}_${this.eValue.sid}`)
+      let index = this.openAuthSelect.findIndex((e) => e.id == `${record.ownerType}_${this.eValue.id}`)
       if (index > -1) {
-        this.activeWindow = `${record.ownerType}_${this.eValue.sid}`
+        this.activeWindow = `${record.ownerType}_${this.eValue.id}`
         return
       }
-      this.activeWindow = `${record.ownerType}_${this.eValue.sid}`
+      this.activeWindow = `${record.ownerType}_${this.eValue.id}`
       this.openAuthSelect.push({
         ...record,
-        id: `${record.ownerType}_${this.eValue.sid}`,
+        id: `${record.ownerType}_${this.eValue.id}`,
         fileData: this.eValue,
       })
     },
@@ -180,35 +175,8 @@ export default {
       })
     },
 
-    onChange(e, record, key) {
-      let isChecked = e.target.checked
-      let list = record.list
-      if (typeof list == 'string') {
-        list = list.split(',')
-      }
-      if (isChecked) {
-        if (key == 'download') {
-          list = ['view', 'download']
-        } else {
-          list.push(key)
-        }
-      } else {
-        if (key == 'view') {
-          list = []
-        } else {
-          let index = list.findIndex((e) => e == key)
-          if (index > -1) {
-            list.splice(index, 1)
-          }
-        }
-      }
-      Object.assign(record, {
-        list,
-      })
-    },
-
     onSelect(param) {
-      let index = this.eValue.permis.findIndex((e) => e.ownerId == param.record.sid)
+      let index = this.eValue.permis.findIndex((e) => e.ownerId == param.record.id)
       if (index > -1) {
         this.eValue.permis.splice(index, 1)
         this.$emit('change', this.eValue)
@@ -216,23 +184,27 @@ export default {
       }
 
       let data = {
-        ownerId: param.record.sid,
+        ownerId: param.record.id,
         ownerType: param.target.name,
       }
       if (param.target.name == 'user') {
-        data.ownerTitle = param.record.username
+        data.ownerTitle = param.record.realName
+        data.ownerName = param.record.username
       } else {
         data.ownerTitle = param.record.name
+      }
+      if (param.target.name == 'role') {
+        data.ownerName = param.record.sn
       }
 
       let authData = {
         ...data,
         key: this.eValue.permis.length,
-        fileId: this.eValue.sid,
+        fileId: this.eValue.id,
         fileName: this.eValue.fileName,
         fileTitle: this.eValue.name,
         fileType: this.eValue.fileType,
-        list: ['view'],
+        list: 'view',
       }
       this.eValue.permis.unshift(authData)
       this.$emit('change', this.eValue)
@@ -308,6 +280,13 @@ export default {
 
       .list {
         margin-top: 5px;
+
+        .auth_box {
+          :deep(.ant-radio-wrapper) {
+            margin-inline-end: 0;
+          }
+        }
+
       }
     }
   }

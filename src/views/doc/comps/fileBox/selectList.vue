@@ -6,13 +6,13 @@
     </div>
     <a-spin :spinning="spinning">
       <div class="list scrollBar" id="user-list-box">
-        <div class="item" v-for="item in listData" :key="item.sid">
+        <div class="item" v-for="item in listData" :key="item.id">
           <div class="title" :title="item.label">
             {{ item.label }}
           </div>
           <div class="btn" @click="onSelect(item)">
-            <a-button :type="inList.findIndex((e) => e.ownerId == item.sid) > -1 ? 'danger' : 'primary'" size="small">
-              {{inList.findIndex((e) => e.ownerId == item.sid) > -1 ? '移除' : '选择'}}
+            <a-button :type="inList.findIndex((e) => e.ownerId == item.id) > -1 ? 'danger' : 'primary'" size="small">
+              {{inList.findIndex((e) => e.ownerId == item.id) > -1 ? '移除' : '选择'}}
             </a-button>
           </div>
         </div>
@@ -22,6 +22,9 @@
 </template>
 
 <script>
+
+import { useSession } from 'unione-base-vue';
+import { systemSysUserFind, systemSysRoleFind, systemSysOrgFind } from '../../api'
 
 export default {
   components: {},
@@ -54,6 +57,13 @@ export default {
       },
     },
   },
+  setup() {
+    const session = useSession()
+
+    return {
+      session,
+    }
+  },
   //创建完成 访问当前this实例
   created() { },
   //挂载完成 访问DOM元素
@@ -63,20 +73,22 @@ export default {
     async doQuery(page) {
       let data = {}
       let param = {
-        body: { keywords: this.keywords },
+        body: {},
         page: this.page,
         pageSize: 10,
+        keywords: this.keywords
       }
-      // this.spinning = true
-      // if (this.ownerType == 'user') {
-      //   data = await systemSysUserFind(param)
-      // } else if (this.ownerType == 'role') {
-      //   data = await systemSysRoleFind(param)
-      // } else if (this.ownerType == 'org') {
-      //   data = await systemSysOrgFind(param)
-      // }
-
-      // this.spinning = false
+      this.spinning = true
+      if (this.ownerType == 'user') {
+        data = await systemSysUserFind(param)
+        const principal = this.session.getPrincipal()
+        data.body = data.body.filter((v) => v.id != principal.id)
+      } else if (this.ownerType == 'role') {
+        data = await systemSysRoleFind(param)
+      } else if (this.ownerType == 'organ') {
+        data = await systemSysOrgFind(param)
+      }
+      this.spinning = false
       if (data.success) {
         this.handlerList(data.body)
         this.total = (data.total && parseInt(data.total)) || 0

@@ -88,7 +88,7 @@ export default {
           return (record.fileData.name ? `${record.fileData.name}的` : '') + '用户权限'
         case 'role':
           return (record.fileData.name ? `${record.fileData.name}的` : '') + '角色权限'
-        case 'org':
+        case 'organ':
           return (record.fileData.name ? `${record.fileData.name}的` : '') + '机构权限'
       }
     },
