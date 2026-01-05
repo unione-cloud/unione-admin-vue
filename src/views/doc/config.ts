@@ -51,11 +51,12 @@ export const VIDEO_SUFFIX = [
   'vob'
 ]
 
+/** 音频后缀 */
+export const AUDIO_SUFFIX = ['mp3', 'ogg', 'wav', 'ape', 'cda', 'au', 'midi', 'mac', 'aac']
+
 /** 文档后缀名 */
 export const DOCUMENT_SUFFIX = [
   'pdf',
-  'swf',
-  'html',
   'odt',
   'ott',
   'sxw',
@@ -63,29 +64,31 @@ export const DOCUMENT_SUFFIX = [
   'docx',
   'rtf',
   'wpd',
-  'txt',
   'ods',
   'ots',
   'sxc',
   'xls',
   'xlsx',
-  'csv',
-  'tsv',
   'odp',
   'otp',
   'sxi',
   'ppt',
   'pptx',
   'odg',
-  'otg',
-  'svg',
+  'otg'
+]
+
+export const PDF_SUFFIX = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx']
+
+export const TXT_SUFFIX = [
+  'txt',
+  'html',
   'css',
   'java',
   'js',
   'xml',
   'sql',
   'json',
-  'html',
   'properties',
   'mD',
   'conf',
@@ -97,16 +100,12 @@ export const DOCUMENT_SUFFIX = [
   'gitignore',
   'log',
   'htm',
+  'tsv',
   'cnf'
 ]
 
-export const PDF_SUFFIX = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx']
-
-/** 音频后缀 */
-export const AUDIO_SUFFIX = ['mp3', 'ogg', 'wav', 'ape', 'cda', 'au', 'midi', 'mac', 'aac']
-
 /** 文件类型后缀处理 */
-export const FILE_SUFFIX = {
+export const FILE_SUFFIX: any = {
   0: undefined,
   1: IMAGE_SUFFIX,
   2: VIDEO_SUFFIX,
