@@ -535,6 +535,7 @@ export default {
             transform: scale(0.8);
             padding: 0 3px;
             margin: -2px;
+            user-select: none;
           }
         }
 
