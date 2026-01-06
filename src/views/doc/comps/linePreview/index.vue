@@ -7,7 +7,8 @@
     <div v-if="VIDEO_SUFFIX.includes(suffix)" class="video_Player">
       <div class="popur-node" @click="Hide"></div>
       <span class="close-bgmask" @click="Hide"></span>
-      <div class="video-player" ref="videoPlayer"></div>
+      <video class="video-player mp4" :src="mp4Url" controls v-if="mp4Url" autoplay></video>
+      <div class="video-player" ref="videoPlayer" v-else></div>
     </div>
 
     <!-- PDF文件预览 -->
@@ -51,6 +52,7 @@ export default {
       bDrag: false,
       imgLeft: 0,
       imgTop: 0,
+      mp4Url: null,
       pdfUrl: null,
       /** 文本视图控制器 */
       textVisible: false,
@@ -81,6 +83,10 @@ export default {
   },
   mounted() {
     if (VIDEO_SUFFIX.includes(this.suffix)) {
+      if (this.suffix === 'mp4') {
+        this.mp4Url = this.config.axios.admin + `/api/common/store/stream/${this.Pdata.id}.mp4`
+        return
+      }
       if (window.Jessibuca) {
         this.$nextTick(() => {
           this.initVideoPlayer()
@@ -300,6 +306,10 @@ export default {
     background: rgba(0, 0, 0, 0.9);
     text-align: center;
     font-size: 0;
+
+    &.mp4 {
+      background-color: #000000;
+    }
   }
 
   .loading {
