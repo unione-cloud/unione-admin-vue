@@ -86,7 +86,7 @@ import {
   apiDirDetail,
   apiPermisUpdate,
   apiPermisLoadWith,
-} from '../../api'
+} from '../../docApi'
 import AuthBox from './auth.vue'
 import { message } from 'ant-design-vue';
 

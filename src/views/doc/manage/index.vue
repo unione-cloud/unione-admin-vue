@@ -91,7 +91,7 @@ import {
   apiStoreDownload,
   getApiFileFind,
   uploadBatch,
-} from '../api';
+} from '../docApi';
 
 import { message } from 'ant-design-vue';
 import dayjs from 'dayjs';

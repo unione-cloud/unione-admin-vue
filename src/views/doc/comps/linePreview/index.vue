@@ -26,7 +26,7 @@
 
 <script>
 import { VIDEO_SUFFIX, PDF_SUFFIX, TXT_SUFFIX } from '../../config'
-import { getFile } from '../../api'
+import { getFile } from '../../docApi'
 import { useConfigStore } from '@/config';
 import { message } from 'ant-design-vue';
 

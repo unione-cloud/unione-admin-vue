@@ -24,7 +24,7 @@
 <script>
 
 import { useSession } from 'unione-base-vue';
-import { systemSysUserFind, systemSysRoleFind, systemSysOrgFind } from '../../api'
+import { systemSysUserFind, systemSysRoleFind, systemSysOrgFind } from '../../docApi'
 
 export default {
   components: {},

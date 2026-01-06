@@ -128,7 +128,7 @@
 
 <script>
 import AttrBox from './attrBox.vue'
-import { apiFileUpdate, apiDirSave } from '../../api'
+import { apiFileUpdate, apiDirSave } from '../../docApi'
 import { IMAGE_SUFFIX } from '../../config'
 import { useSession } from 'unione-base-vue';
 import { useConfigStore } from '@/config';
