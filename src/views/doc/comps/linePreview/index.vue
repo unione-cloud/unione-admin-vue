@@ -91,7 +91,8 @@ export default {
           dom.remove()
         }
         const script = document.createElement('script')
-        script.src = '/video/jessibuca.js'
+        script.src = this.config.web.ctx + '/video/jessibuca.js'
+        script.id = 'JessibucaLoader'
         script.onload = () => {
           this.initVideoPlayer()
         }
@@ -141,7 +142,7 @@ export default {
         },
         forceNoOffscreen: true,
         isNotMute: false,
-        decoder: '/video/decoder.js'
+        decoder: this.config.web.ctx + '/video/decoder.js'
       })
       this.videoPlayer.on('audioInfo', function (audioInfo) {
         console.log('audioInfo', audioInfo)
