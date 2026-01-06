@@ -2,15 +2,21 @@
 <!-- 在线预览 -->
 <template>
   <div class="ViewBoxLine">
+
+    <!-- 视频文件播放 -->
     <div v-if="VIDEO_SUFFIX.includes(suffix)" class="video_Player">
       <div class="popur-node" @click="Hide"></div>
       <span class="close-bgmask" @click="Hide"></span>
       <div class="video-player" ref="videoPlayer"></div>
     </div>
+
+    <!-- PDF文件预览 -->
     <div v-if="pdfUrl" class="Pdf_box">
       <span class="close-bgmask" @click="Hide"></span>
       <iframe :src="config.axios.admin + `/pdf/web/viewer.html?file=${pdfUrl}&permisKeys=${Pdata.permisKeys}`"></iframe>
     </div>
+
+    <!-- 文本文件预览 -->
     <a-modal wrapClassName="unione-modal-full txt-file-preview" v-model:open="textVisible" :title="Pdata.name"
       :footer="null">
       <unione-code-editor v-model:value="txtData" :lang="Pdata.suffix" disabled></unione-code-editor>
@@ -19,7 +25,7 @@
 </template>
 
 <script>
-import { VIDEO_SUFFIX, PREVIEW_TYPE, PDF_SUFFIX, TXT_SUFFIX } from '../../config'
+import { VIDEO_SUFFIX, PDF_SUFFIX, TXT_SUFFIX } from '../../config'
 import { getFile } from '../../api'
 import { useConfigStore } from '@/config';
 import { message } from 'ant-design-vue';
@@ -75,36 +81,22 @@ export default {
   },
   mounted() {
     if (VIDEO_SUFFIX.includes(this.suffix)) {
-      this.$nextTick(() => {
-        this.videoPlayer = new Jessibuca({
-          container: $container,
-          videoBuffer: 0.2, // 缓存时长
-          isResize: false,
-          text: '',
-          loadingText: '',
-          useMSE: false,
-          debug: true,
-          showBandwidth: true, // 显示网速
-          operateBtns: {
-            fullscreen: true,
-            screenshot: true,
-            play: true,
-            audio: true,
-            recorder: false
-          },
-          forceNoOffscreen: true,
-          isNotMute: false,
-          decoder: '/video/decoder.js'
+      if (window.Jessibuca) {
+        this.$nextTick(() => {
+          this.initVideoPlayer()
         })
-
-        this.jessibuca.on('audioInfo', function (audioInfo) {
-          console.log('audioInfo', audioInfo)
-        })
-
-        this.jessibuca.on('videoInfo', function (videoInfo) {
-          console.log('videoInfo', videoInfo)
-        })
-      })
+      } else {
+        const dom = document.querySelector('#JessibucaLoader')
+        if (dom) {
+          dom.remove()
+        }
+        const script = document.createElement('script')
+        script.src = '/video/jessibuca.js'
+        script.onload = () => {
+          this.initVideoPlayer()
+        }
+        document.body.appendChild(script)
+      }
     } else {
       this.getFile(this.Pdata)
     }
@@ -126,11 +118,54 @@ export default {
       }
     },
 
+    initVideoPlayer() {
+      this.videoPlayer = new Jessibuca({
+        container: this.$refs.videoPlayer,
+        videoBuffer: 0.2, // 缓存时长
+        enableStashBuffer: false,
+        cacheSegmentCount: 0,
+        lowLatencyMode: true,
+        isResize: false,
+        text: '',
+        loadingText: '加载中...',
+        useMSE: true,
+        autoWasm: true,
+        debug: true,
+        showBandwidth: true, // 显示网速
+        operateBtns: {
+          fullscreen: true,
+          screenshot: true,
+          play: true,
+          audio: true,
+          recorder: false
+        },
+        forceNoOffscreen: true,
+        isNotMute: false,
+        decoder: '/video/decoder.js'
+      })
+      this.videoPlayer.on('audioInfo', function (audioInfo) {
+        console.log('audioInfo', audioInfo)
+      })
+      this.videoPlayer.on('videoInfo', function (videoInfo) {
+        console.log('videoInfo', videoInfo)
+      })
+      const host = window.location.protocol + '//' + window.location.host
+      const url = host + this.config.axios.admin + `/api/common/store/stream/${this.Pdata.id}.${this.Pdata.suffix}`
+      console.log('play video url', url)
+      this.videoPlayer.play(url)
+      // //this.videoPlayer.play('http://pull-demo.volcfcdnrd.com/live/st-4536523_yzmhde.flv')
+      // this.videoPlayer.play(url.replace('5173', '8080') + '?token=Y0Spf/Rz6no/rekGaC5OJ4N0uhk6ZiyfNaEgOOASZgyetcEXGIGE1eQXNLLK9KEf')
+
+    },
+
     /**
      * @description: Hide 隐藏当前显示的图片
      */
     Hide() {
       this.$emit('onHide')
+      if (this.videoPlayer) {
+        this.videoPlayer.destroy()
+      }
     },
 
     handleError() {
@@ -196,53 +231,6 @@ export default {
 </script>
 <style lang='less' scoped>
 .ViewBoxLine {
-  .img_box {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 10000000000;
-    display: block;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.3);
-    text-align: center;
-    font-size: 0;
-
-    .popur-node {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 100;
-    }
-
-    .view-img-wrap {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      z-index: 1002;
-      width: 40%;
-      vertical-align: middle;
-      cursor: move;
-      -moz-user-select: none;
-      /*火狐*/
-      -webkit-user-select: none;
-      /*webkit浏览器*/
-      -ms-user-select: none;
-      /*IE10*/
-      -khtml-user-select: none;
-      /*早期浏览器*/
-      user-select: none;
-
-      img {
-        position: relative;
-        z-index: -1;
-        width: 100%;
-        height: 100%;
-      }
-    }
-  }
 
   .Pdf_box {
     position: fixed;
@@ -300,36 +288,17 @@ export default {
     }
   }
 
-  .video_Player {
+  .video-player {
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 10000000000;
+    z-index: 1000;
     display: block;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.9);
     text-align: center;
     font-size: 0;
-
-    .popur-node {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 100;
-    }
-
-    #example_video_1 {
-      top: 50%;
-      left: 50%;
-      position: absolute;
-      width: 60%;
-      height: 50%;
-      z-index: 101;
-      transform: translate(-50%, -50%);
-    }
   }
 
   .loading {
