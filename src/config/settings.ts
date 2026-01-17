@@ -2,7 +2,7 @@
  * 默认配置项
  */
 export default {
-  isDebug: false,
+  isDebug: true,
   // view setting
   view: {
     logo: {
@@ -73,5 +73,9 @@ export default {
       { label: '流程节点ID', value: 'flowNodeId', dataType: 'Long' },
       { label: '流程任务ID', value: 'flowTaskId', dataType: 'Long' }
     ]
-  }
+  },
+  listPageUrl: '/data/page/list',
+  addPageUrl: '/data/page/add',
+  editPageUrl: '/data/page/edit',
+  viewPageUrl: '/data/page/view'
 }
