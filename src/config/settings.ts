@@ -2,7 +2,7 @@
  * 默认配置项
  */
 export default {
-  isDebug: true,
+  isDebug: false,
   // view setting
   view: {
     logo: {
