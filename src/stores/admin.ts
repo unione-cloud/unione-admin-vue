@@ -48,8 +48,10 @@ export const useAdminStore = defineStore('unione-admin', () => {
             ...(item.meta || {}),
             url: item.url
           },
-          props: item.props || {},
-          component: item.component
+          props: item.props || {}
+        }
+        if (item.component) {
+          route.component = item.component
         }
         if (item.children && item.children.length) {
           route.children = buildRoute(item.children)
