@@ -1,5 +1,5 @@
 # 使用Nginx镜像部署
-FROM nginx:alpine
+FROM nginx
 
 # 复制自定义Nginx配置
 COPY nginx.conf /etc/nginx/conf.d/default.conf
