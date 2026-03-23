@@ -137,7 +137,7 @@ const isIframe = computed(() => {
     return route.query.isIframe?.toString() === '1';
   }
   // 生产环境: 严格依赖URL参数
-  return route.query.isIframe?.toString() === '1' || route.meta.isIframe == 1 || route.query.isIframe?.toString() === 'true' || route.meta.isIframe == true;
+  return route.query.isIframe?.toString() === '1' || route.query.isIframe?.toString() === 'true'
 })
 </script>
 
