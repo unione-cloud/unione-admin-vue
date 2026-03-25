@@ -448,7 +448,7 @@ onMounted(() => {
     ctx: 'flow',
     controller: '/api/engine/task',
     findUrl: '/todo',
-    findParams: [{ name: 'flowSn', value: props.fsn }]
+    findParams: [{ name: 'fsn', value: flowSn.value }]
   })
 
   if (flowSn.value) {
