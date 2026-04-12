@@ -309,8 +309,13 @@ function torelease() {
             return
         }
         const parentNode = resNodeMap.value[newRelease[0]]
+        if (['pc', 'app'].includes(parentNode.id)) {
+            dialog.info('表单不能发布在根目录下')
+            return
+        }
+        console.log('parentNode', parentNode)
         data.appId = parentNode.appId
-        data.pid = parentNode.id
+        data.pid = ['pc', 'app'].includes(parentNode.pid) ? -1 : parentNode.id
         data.name = parentNode.name + ':' + props.targetSn
 
         // 新增资源发布
