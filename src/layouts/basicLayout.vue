@@ -40,7 +40,7 @@
           <unione-breadcrumb />
           <iframe class="unione-iframe-content" v-if="iframeUrl" :src="iframeUrl"></iframe>
           <component class="unione-page-content" v-else-if="$route.meta.isIframe != 1 && viewComponent"
-            :is="viewComponent" />
+            :is="viewComponent" :key="$route.path" />
           <RouterView v-else :key="$route.name?.toString()"></RouterView>
         </a-layout-content>
       </a-layout>
@@ -50,7 +50,7 @@
         <iframe class="unione-iframe-content" v-if="$route.meta.url && $route.meta.isIframe == 1"
           :src="$route.meta.url.toString()"></iframe>
         <component class="unione-page-content" v-else-if="$route.meta.isIframe != 1 && viewComponent"
-          :is="viewComponent" />
+          :is="viewComponent" :key="$route.path" />
         <RouterView v-else :key="$route.name?.toString()"></RouterView>
       </a-layout-content>
     </template>
