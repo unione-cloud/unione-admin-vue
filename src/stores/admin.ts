@@ -247,7 +247,6 @@ export const useAdminStore = defineStore('unione-admin', () => {
                   }
                 })
                 session.setStorage('menuList', JSON.stringify(menuList))
-                debugger
                 process(menuList)
               } else {
                 if (errorDialog.value) {
