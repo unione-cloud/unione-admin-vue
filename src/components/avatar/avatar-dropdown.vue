@@ -34,9 +34,9 @@
 <script lang="ts" setup>
 import { useConfigStore } from '@/config'
 import { LogoutOutlined, SettingOutlined } from '@ant-design/icons-vue'
-import { useSession } from 'unione-base-vue'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAdminStore } from '@/stores/admin'
 
 const config = useConfigStore().config
 
@@ -52,14 +52,12 @@ const props = defineProps({
 })
 
 const router = useRouter()
-const session = useSession()
+const admin = useAdminStore()
 const handleToSettings = () => {
   router.push({ path: '/ucenter' })
 }
 const handleLogout = () => {
-  session.doLogout().then(() => {
-    router.push({ path: '/login' })
-  })
+  admin.logout()
 }
 
 const avatarUrl = computed(() => {

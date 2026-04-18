@@ -247,6 +247,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
                   }
                 })
                 session.setStorage('menuList', JSON.stringify(menuList))
+                debugger
                 process(menuList)
               } else {
                 if (errorDialog.value) {
@@ -415,6 +416,26 @@ export const useAdminStore = defineStore('unione-admin', () => {
     return session.isLogin()
   }
 
+  function logout() {
+    session.doLogout().then(() => {
+      menuData.value = []
+      menuMap.value = {}
+      topMenu.value = {
+        selectedKeys: [],
+        openKeys: [],
+        list: []
+      }
+      sideMenu.value = {
+        collapsed: false,
+        selectedKeys: [],
+        openKeys: [],
+        list: []
+      }
+      session.delStorage('menuList')
+      router.push({ path: '/login' })
+    })
+  }
+
   return {
     menuData,
     sideMenu,
@@ -423,6 +444,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
     topMenuClick,
     sideMenuClick,
     view,
+    logout,
     isLogin,
     rebuildMenu,
     loadBreadcrumbList
