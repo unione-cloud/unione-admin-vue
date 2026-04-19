@@ -264,6 +264,7 @@ const isIframe = computed(() => {
       .logo-box {
         .logo-title {
           background-image: url('/logo_light.png');
+          border-bottom: 1px solid #f5f5f5;
         }
       }
     }
