@@ -250,7 +250,9 @@ const isIframe = computed(() => {
 
 
   &.light {
-    .unione-layout-sider {
+
+    .unione-layout-sider,
+    .unione-header-left {
       .logo-box {
         .logo-title {
           background-image: url('/logo_light.png');
