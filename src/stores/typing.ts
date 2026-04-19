@@ -62,7 +62,6 @@ export interface LoginData {
 
 export interface ViewSetting {
   primaryColor?: string
-  navTheme?: string
   hideFooter?: boolean
   layout?: string
   contentWidth?: string

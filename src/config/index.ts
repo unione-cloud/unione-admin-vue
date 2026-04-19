@@ -12,6 +12,8 @@ export const useConfigStore = defineStore('unione-config', () => {
 
   if (session.getStorage('unione-config')) {
     config.value = JSON.parse(session.getStorage('unione-config'))
+  } else {
+    loadConfig('personal')
   }
 
   /**
@@ -29,7 +31,9 @@ export const useConfigStore = defineStore('unione-config', () => {
       .then()
     if (res.body) {
       res.body.forEach((row: any) => {
-        utils.obj.setValue(config.value, row.sn, row.valueUsed || row.valueDefault)
+        if (row.valueUsed || row.valueDefault) {
+          utils.obj.setValue(config.value, row.sn, row.valueUsed || row.valueDefault)
+        }
         conf[row.sn] = row
         session.setStorage('unione-config', JSON.stringify(config.value))
       })

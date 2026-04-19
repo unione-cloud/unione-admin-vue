@@ -10,7 +10,6 @@ export default {
         text: '',
         side: 'UCA',
         css: {
-          'background-image': 'url(' + (import.meta.env.VITE_APP_CTX || '') + '/logo.png)',
           'background-size': '100% 100%',
           height: '64px',
           width: '200px'
@@ -22,7 +21,6 @@ export default {
       subTitle: '欢迎使用Cloud Admin'
     },
     primaryColor: '#1890FF', // primary color of ant design
-    navTheme: 'light', // light | dark
     hideFooter: false, //  auto hide footer
     layout: 'topside', // sidemenu | topmenu | topside
     contentWidth: 'fixed', // layout of content: Fluid or Fixed, only works when layout is topmenu

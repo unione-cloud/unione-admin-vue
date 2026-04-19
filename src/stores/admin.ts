@@ -28,7 +28,12 @@ export const useAdminStore = defineStore('unione-admin', () => {
   // view配置
   const view = ref<ViewSetting>(configObj.config.view)
   // personal配置
-  const personal = ref<Personal>(configObj.config.personal)
+  const personal = ref<Personal>(
+    configObj.config.personal || {
+      layout: 'topside',
+      theme: 'light'
+    }
+  )
   // const view = computed(() => config.view)
   const router = useRouter()
   const dialog = useDialog()
@@ -306,7 +311,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
   }
 
   watch(
-    () => personal.value.layout,
+    () => personal.value?.layout,
     (newVal) => {
       rebuildMenu()
     }
@@ -336,7 +341,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
     if (!menu) {
       return
     }
-    if (personal.value.layout == 'topside') {
+    if (personal.value?.layout == 'topside') {
       sideMenu.value.selectedKeys = []
       sideMenu.value.openKeys = []
       sideMenu.value.list = menu.children

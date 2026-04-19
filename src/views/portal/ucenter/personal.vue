@@ -10,18 +10,14 @@
         </template>
       </a-list-item-meta>
       <template v-slot:actions>
-        <unione-radio-box
-          :convert="{
-            types: 'option',
-            options: [
-              { value: 'sidemenu', label: '左侧菜单' },
-              { value: 'topmenu', label: '顶部菜单' },
-              { value: 'topside', label: '混合菜单' }
-            ]
-          }"
-          @change="toSetConfig(layout)"
-          v-model:value="layout.value"
-        ></unione-radio-box>
+        <unione-radio-box :convert="{
+          types: 'option',
+          options: [
+            { value: 'sidemenu', label: '左侧菜单' },
+            { value: 'topmenu', label: '顶部菜单' },
+            { value: 'topside', label: '混合菜单' }
+          ]
+        }" @change="toSetConfig(layout)" v-model:value="layout.value"></unione-radio-box>
       </template>
     </a-list-item>
 
@@ -34,6 +30,15 @@
           <span> {{ theme.descs }} </span>
         </template>
       </a-list-item-meta>
+      <template v-slot:actions>
+        <unione-radio-box :convert="{
+          types: 'option',
+          options: [
+            { value: 'light', label: '浅色主题' },
+            { value: 'dark', label: '深色主题' }
+          ]
+        }" @change="toSetConfig(theme)" v-model:value="theme.value"></unione-radio-box>
+      </template>
     </a-list-item>
   </a-list>
 </template>
@@ -73,7 +78,7 @@ function loadConfigs() {
 }
 
 function toSetConfig(conf: any) {
-  if (conf.sn == 'personal.layout') {
+  if (['personal.layout', 'personal.theme'].includes(conf.sn)) {
     config.setConfig(conf.sn, conf.value)
   }
 }

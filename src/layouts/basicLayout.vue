@@ -1,16 +1,17 @@
 <template>
-  <a-layout class="unione-basic-layout">
+  <a-layout :class="['unione-basic-layout', theme]">
     <template v-if="!isIframe">
       <a-layout-sider v-model:collapsed="sideMenu.collapsed" :collapsedWidth="50" collapsible
-        class="unione-layout-sider" v-if="sideMenu.list && sideMenu.list.length">
+        class="unione-layout-sider" v-if="sideMenu.list && sideMenu.list.length" :theme="theme">
         <div class="logo-box">
           <div class="logo-title" :style="view.logo.title.css">
             {{ sideMenu.collapsed ? view.logo.title.side : view.logo.title.text }}
           </div>
         </div>
         <a-menu class="unione-sider-menu" v-model:openKeys="sideMenu.openKeys"
-          v-model:selectedKeys="sideMenu.selectedKeys" mode="inline" theme="dark" :inline-collapsed="sideMenu.collapsed"
-          :items="sideMenu.list" @click="({ key }: any) => admin.sideMenuClick(key)"></a-menu>
+          v-model:selectedKeys="sideMenu.selectedKeys" mode="inline" :theme="theme"
+          :inline-collapsed="sideMenu.collapsed" :items="sideMenu.list"
+          @click="({ key }: any) => admin.sideMenuClick(key)"></a-menu>
       </a-layout-sider>
       <a-layout>
         <a-layout-header style="background: #fff; padding: 0" class="unione-layout-header"
@@ -64,6 +65,7 @@ import { default as AvatarDropdown } from '@/components/avatar/avatar-dropdown.v
 import { default as NoticeIcon } from '@/components/notice-icon/index.vue'
 import { useSession } from 'unione-base-vue'
 import { useAdminStore } from '@/stores/admin'
+import { useConfigStore } from '@/config'
 
 const instance = getCurrentInstance()
 const app = computed<any>(() => {
@@ -73,9 +75,14 @@ const app = computed<any>(() => {
 // 会话对象
 const session = useSession()
 const route = useRoute()
+const configStore = useConfigStore()
 
 const principal = computed(() => {
   return session.getPrincipal()
+})
+
+const theme = computed(() => {
+  return configStore.config.personal?.theme || 'dark'
 })
 
 // Admin对象
@@ -154,12 +161,19 @@ const isIframe = computed(() => {
 
       .logo-title {
         color: #ffffff;
+        background-image: url('/logo.png');
+        background-size: 100% 100%;
       }
     }
 
     &.ant-layout-sider-collapsed {
-      .logo {
-        margin: 5px;
+      .logo-title {
+        background-image: none !important;
+        background-color: #1890ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: auto !important;
       }
 
       .unione-sider-menu {
@@ -233,5 +247,17 @@ const isIframe = computed(() => {
       height: 100%;
     }
   }
+
+
+  &.light {
+    .unione-layout-sider {
+      .logo-box {
+        .logo-title {
+          background-image: url('/logo_light.png');
+        }
+      }
+    }
+  }
+
 }
 </style>
