@@ -276,7 +276,8 @@ const manage = ref<any>({
   params: {},
   page: {
     storage: {
-      controller: '/api/base/dict'
+      controller: '/api/base/dict',
+      orderBy: 'ordered asc'
     },
     fields: [
       {
