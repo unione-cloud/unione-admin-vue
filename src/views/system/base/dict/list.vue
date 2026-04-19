@@ -376,11 +376,13 @@ const manage = ref<any>({
           node.appName = parent.appName
           node.dictName = parent.dictName
           node.dictType = parent.dictType
+          node.ordered = parent.children.length + 1
         } else {
           node.parentId = manage.value.target.id
           node.appName = manage.value.target.appName
           node.dictType = manage.value.target.dictType
           node.dictName = manage.value.target.dictName
+          node.ordered = 1
         }
       }
     }
