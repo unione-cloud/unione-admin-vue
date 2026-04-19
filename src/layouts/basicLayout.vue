@@ -106,7 +106,15 @@ const viewComponent = computed(() => {
   if (route.meta.isIframe != 1 && route.meta.url) {
     if (route.meta.url.toString().startsWith('@')) {
       // return pageComponents[route.meta.url.toString().replace('@', '')]
-      const component = app.value?.component(route.meta.url.toString().replace('@', ''))
+      let pageName = route.meta.url.toString().replace('@', '')
+      //@ts-ignore
+      if (route.query?.psn?.endsWith(':form') && pageName == 'UnionePageList') {
+        pageName = 'UnionePageForm'
+        //@ts-ignore
+      } else if (route.query?.psn?.endsWith(':view') && pageName == 'UnionePageList') {
+        pageName = 'UnionePageView'
+      }
+      const component = app.value?.component(pageName)
       if (component) {
         return component
       }
