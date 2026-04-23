@@ -11,6 +11,8 @@ import UnioneFormSelect from './form-select/index.vue'
 import UnioneAvatar from './avatar/index.vue'
 import UnioneBreadcrumb from './breadcrumb/index.vue'
 
+import JobTaskHandleScript from './job-task/handleScript.vue'
+
 export default {
   install(app: any, options: any) {
     // 配置此应用
@@ -26,5 +28,7 @@ export default {
     app.component('UnioneAvatar', UnioneAvatar)
     app.component('UnioneNoticeView', UnioneNoticeView)
     app.component('UnioneBreadcrumb', UnioneBreadcrumb)
+
+    app.component('JobTaskHandleScript', JobTaskHandleScript)
   }
 }

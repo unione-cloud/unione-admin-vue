@@ -51,7 +51,8 @@ export default {
   // axios setting
   axios: {
     admin: '/portal',
-    flow: '/flow'
+    flow: '/flow',
+    job: '/job'
   },
   // web setting
   web: {

@@ -50,8 +50,8 @@ export default defineConfig(({ mode }) => {
           // rewrite: path => path.replace('', '') // 不用路径重写
         },
         '/job': {
-          // target: 'http://localhost:8080',
-          target: 'http://192.168.56.1',
+          target: 'http://localhost:8080',
+          // target: 'http://192.168.56.1',
           // target: 'https://online.unione.cloud', // 代理的目标地址
           changeOrigin: true // 搭建代理服务器，开启代理
           // secure: true, // 是否代理https接口
