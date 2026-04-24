@@ -12,6 +12,7 @@
               class="vers">v{{
                 item.vers
               }}</span></div>
+          <div class="vert">{{ item.vert }}</div>
         </a-timeline-item>
       </a-timeline>
       <a-empty v-else description="暂无历史"></a-empty>
@@ -27,6 +28,25 @@
 
     <ResRelease :targetType="drawerRes.targetType" :targetId="drawerRes.targetId" :targetSn="drawerRes.targetSn"
       :title="drawerRes.title" :iconFont="drawerRes.iconFont" v-model:visible="drawerRes.visible"></ResRelease>
+
+    <a-modal :title="releaseModal.title" :width="550" v-model:visible="releaseModal.visible"
+      wrapClassName="data-define-release-modal" center>
+      <a-form-item label="数据定义">
+        <div class="text-label">{{ releaseModal.row?.title }}</div>
+      </a-form-item>
+      <a-form-item label="版本号">
+        <div class="text-label">{{ releaseModal.row?.vers }}</div>
+      </a-form-item>
+      <a-form-item label="版本说明" required>
+        <a-textarea v-model:value="releaseModal.vert" :rows="4" />
+      </a-form-item>
+      <template #footer>
+        <div class="btns">
+          <a-button @click="releaseModal.visible = false">取消</a-button>
+          <a-button type="primary" @click="releaseModal.doRelease">发布</a-button>
+        </div>
+      </template>
+    </a-modal>
 
   </div>
 </template>
@@ -165,7 +185,9 @@ function btnClick({ btn, event, row, keys }: any) {
     drawer.value.loadHistorys(row)
   }
   if (btn.name == 'release') {
-    toRelease(row)
+    releaseModal.value.row = row
+    releaseModal.value.visible = true
+    releaseModal.value.vert = ''
   }
   if (btn.name == 'view') {
     router.push({
@@ -271,31 +293,43 @@ const designModal = ref({
   title: '表单设计',
 })
 
-function toRelease(row: any) {
-  dialog.confirm({
-    content: '确定要发布当前表单么？',
-    onOk: () => {
-      axios.admin({
-        url: '/api/data/define/release',
-        method: 'post',
-        data: [row.id]
-      }).then((result: any) => {
-        if (result.success) {
-          dialog.success({
-            title: '发布成功',
-            content: result.body
-          })
-          page.value.reload()
-        } else {
-          dialog.error({
-            title: '发布失败',
-            content: result.body
-          })
-        }
-      })
+const releaseModal = ref<any>({
+  visible: false,
+  title: '发布表单',
+  row: {},
+  vert: '',
+  doRelease: () => {
+    if (!releaseModal.value.vert) {
+      dialog.error('请输入版本说明')
+      return
     }
-  })
-}
+    axios.admin({
+      url: '/api/data/define/release',
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      data: {
+        id: releaseModal.value.row.id,
+        vert: releaseModal.value.vert
+      }
+    }).then((result: any) => {
+      if (result.success) {
+        releaseModal.value.visible = false
+        dialog.success({
+          title: '发布成功',
+          content: result.body
+        })
+        page.value.reload()
+      } else {
+        dialog.error({
+          title: '发布失败',
+          content: result.body
+        })
+      }
+    })
+  }
+})
 
 </script>
 
@@ -309,12 +343,24 @@ function toRelease(row: any) {
     }
   }
 
+  .vert {
+    color: #999;
+  }
+
   .btns {
     text-align: center;
 
     :deep(.ant-btn) {
       margin: 5px 10px;
     }
+  }
+}
+</style>
+
+<style lang="less">
+.data-define-release-modal {
+  .ant-form-item {
+    margin-bottom: 10px;
   }
 }
 </style>
