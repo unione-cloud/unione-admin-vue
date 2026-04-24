@@ -31,13 +31,13 @@
 
     <a-modal :title="releaseModal.title" :width="550" v-model:visible="releaseModal.visible"
       wrapClassName="data-define-release-modal" center>
-      <a-form-item label="数据定义">
+      <a-form-item label="数据定义" :labelCol="{ span: 4 }">
         <div class="text-label">{{ releaseModal.row?.title }}</div>
       </a-form-item>
-      <a-form-item label="版本号">
+      <a-form-item label="版本号" :labelCol="{ span: 4 }">
         <div class="text-label">{{ releaseModal.row?.vers }}</div>
       </a-form-item>
-      <a-form-item label="版本说明" required>
+      <a-form-item label="版本说明" :labelCol="{ span: 4 }" required>
         <a-textarea v-model:value="releaseModal.vert" :rows="4" />
       </a-form-item>
       <template #footer>
