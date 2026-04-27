@@ -8,8 +8,8 @@
         <div class="login-form" v-if="formType === 'login'">
           <div class="box-head">
             <div class="app-info">
-              <div class="app-title">{{ view.login.appTitle }}</div>
-              <div class="sub-title">{{ view.login.subTitle }}</div>
+              <div class="app-title">{{ systemTitle }}</div>
+              <div class="sub-title">{{ welcome }}</div>
             </div>
             <div class="app-qr"><img :src="ImageQr" /></div>
           </div>
@@ -23,7 +23,7 @@
                 <a-form-item label="用户密码" name="password">
                   <a-input-password v-model:value="formData.password" />
                 </a-form-item>
-                <a-form-item label="验证码" name="captcha" required>
+                <a-form-item label="验证码" name="captcha" required v-if="captchaEnabled">
                   <div class="captcha-box">
                     <img class="img" :src="imageCaptcha.src" @click="imageCaptcha.refresh()" />
                     <a-input v-model:value="formData.captcha" @keyup.enter="toLogin" />
@@ -124,6 +124,7 @@ import ImageQr from '@/assets/login/qr.png'
 import { Modal } from 'ant-design-vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useConfigStore } from '@/config'
+import { setDocumentTitle } from '@/utils/domUtil'
 
 defineOptions({
   name: 'UinoneLogin'
@@ -134,14 +135,39 @@ const route = useRoute()
 const config: any = useConfigStore().config
 const dialog = useDialog()
 
+const session = useSession()
+const formType = ref<'login' | 'forget' | 'register'>('login')
+
 // Admin对象
 const admin = useAdminStore()
 const view: any = computed(() => {
   return admin.view
 })
+const system = computed(() => {
+  return admin.system
+})
+const systemTitle = computed(() => {
+  const title = system.value?.name || view.value.title;
+  setDocumentTitle(title);
+  return title;
+})
+const welcome = computed(() => {
+  if (system.value?.configs?.login) {
+    if (Object.keys(system.value.configs.login).includes('welcome')) {
+      return system.value.configs.login.welcome
+    }
+  }
+  return view.value.login.welcome
+})
+const captchaEnabled = computed(() => {
+  if (system.value?.configs?.login) {
+    if (Object.keys(system.value.configs.login).includes('captchaEnabled')) {
+      return system.value.configs.login.captchaEnabled
+    }
+  }
+  return view.value.login.captchaEnabled
+})
 
-const session = useSession()
-const formType = ref<'login' | 'forget' | 'register'>('login')
 
 // 登录表单
 const loginType = ref('username')
@@ -316,6 +342,8 @@ onMounted(() => {
     } else {
       router.push('/home')
     }
+  } else {
+    admin.entry()
   }
 })
 

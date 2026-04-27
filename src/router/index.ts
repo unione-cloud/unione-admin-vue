@@ -8,6 +8,7 @@ import {
   UnionePageList
 } from 'unione-form-vue'
 import { useAdminStore } from '@/stores/admin'
+import { setDocumentTitle } from '@/utils/domUtil'
 
 export const local: Array<MenuItem> = [
   {
@@ -353,6 +354,11 @@ router.beforeEach((to, from, next) => {
   }
 
   const admin = useAdminStore()
+  const systemTitle = sessionStorage.getItem('systemTitle') || 'Unione Cloud'
+  setDocumentTitle(to.meta?.title + '-' + systemTitle)
+
+  admin.entry()
+
   if (!admin.isLogin()) {
     next({ path: '/login' })
   }

@@ -5,6 +5,8 @@ export default {
   isDebug: false,
   // view setting
   view: {
+    title: 'Unione Cloud Admin',
+    welcome: 'Welcome to Unione Cloud Admin',
     logo: {
       title: {
         text: '',
@@ -17,8 +19,8 @@ export default {
       }
     },
     login: {
-      appTitle: 'Unione Cloud Admin',
-      subTitle: '欢迎使用Cloud Admin'
+      welcome: '欢迎使用Cloud Admin',
+      captchaEnabled: true
     },
     primaryColor: '#1890FF', // primary color of ant design
     hideFooter: false, //  auto hide footer

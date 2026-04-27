@@ -61,6 +61,8 @@ export interface LoginData {
 }
 
 export interface ViewSetting {
+  title?: string
+  welcome?: string
   primaryColor?: string
   hideFooter?: boolean
   layout?: string

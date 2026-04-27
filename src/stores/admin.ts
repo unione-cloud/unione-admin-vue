@@ -10,6 +10,7 @@ import * as Icons from '@ant-design/icons-vue/lib/icons'
  * Admin Store
  */
 export const useAdminStore = defineStore('unione-admin', () => {
+  const system = ref<any>()
   const configObj = useConfigStore()
   // 菜单数据集合
   const menuData = ref<Array<MenuItem>>([])
@@ -47,11 +48,11 @@ export const useAdminStore = defineStore('unione-admin', () => {
       items.forEach((item) => {
         const route: any = {
           name: item.id,
-          title: item.title,
           path: item.path,
           meta: {
             ...(item.meta || {}),
-            url: item.url
+            url: item.url,
+            title: item.title
           },
           props: item.props || {}
         }
@@ -440,6 +441,26 @@ export const useAdminStore = defineStore('unione-admin', () => {
     })
   }
 
+  function entry() {
+    console.log('location', location)
+    if (system.value) {
+      return
+    }
+    axios
+      .admin({
+        url: '/api/entry',
+        method: 'get'
+      })
+      .then((res: any) => {
+        if (res.success) {
+          system.value = res.body
+          sessionStorage.setItem('systemTitle', system.value?.name || view.value.title)
+        } else {
+          dialog.error(res.message)
+        }
+      })
+  }
+
   return {
     menuData,
     sideMenu,
@@ -451,6 +472,8 @@ export const useAdminStore = defineStore('unione-admin', () => {
     logout,
     isLogin,
     rebuildMenu,
-    loadBreadcrumbList
+    loadBreadcrumbList,
+    system,
+    entry
   }
 })

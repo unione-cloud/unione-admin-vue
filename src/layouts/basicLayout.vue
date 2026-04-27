@@ -4,8 +4,8 @@
       <a-layout-sider v-model:collapsed="sideMenu.collapsed" :collapsedWidth="50" collapsible
         class="unione-layout-sider" v-if="sideMenu.list && sideMenu.list.length" :theme="theme">
         <div class="logo-box">
-          <div class="logo-title" :style="view.logo.title.css">
-            {{ sideMenu.collapsed ? view.logo.title.side : view.logo.title.text }}
+          <div class="logo-title" :style="logoTitleCss">
+            {{ sideMenu.collapsed ? logoTitleSide : logoTitleText }}
           </div>
         </div>
         <a-menu class="unione-sider-menu" v-model:openKeys="sideMenu.openKeys"
@@ -100,6 +100,27 @@ const topMenu = computed(() => {
 })
 const view: any = computed(() => {
   return admin.view
+})
+const logoTitleText = computed(() => {
+  const logo = admin.system?.configs?.logo
+  if (logo && Object.keys(logo).includes('title')) {
+    return logo.text
+  }
+  return view.value.logo.title.text
+})
+const logoTitleSide = computed(() => {
+  const logo = admin.system?.configs?.logo
+  if (logo && Object.keys(logo).includes('side')) {
+    return logo.side
+  }
+  return view.value.logo.title.side
+})
+const logoTitleCss = computed(() => {
+  const logo = admin.system?.configs?.logo
+  if (logo && Object.keys(logo).includes('css')) {
+    return logo.css
+  }
+  return view.value.logo.title.css || {}
 })
 
 const viewComponent = computed(() => {
