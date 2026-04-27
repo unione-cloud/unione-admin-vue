@@ -12,6 +12,7 @@ import * as Icons from '@ant-design/icons-vue/lib/icons'
 export const useAdminStore = defineStore('unione-admin', () => {
   const system = ref<any>()
   const configObj = useConfigStore()
+  const loading = ref<any>({})
   // 菜单数据集合
   const menuData = ref<Array<MenuItem>>([])
   const menuMap = ref<any>({})
@@ -442,10 +443,17 @@ export const useAdminStore = defineStore('unione-admin', () => {
   }
 
   function entry() {
-    console.log('location', location)
     if (system.value) {
+      const pathname = location.pathname.split('/')[1]
+      if (pathname == system.value.ctx) {
+        return
+      }
+    }
+    if (loading.value.system) {
       return
     }
+
+    loading.value.system = true
     axios
       .admin({
         url: '/api/entry',
@@ -458,6 +466,9 @@ export const useAdminStore = defineStore('unione-admin', () => {
         } else {
           dialog.error(res.message)
         }
+      })
+      .finally(() => {
+        loading.value.system = false
       })
   }
 
