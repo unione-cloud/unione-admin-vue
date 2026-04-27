@@ -40,6 +40,26 @@
         }" @change="toSetConfig(theme)" v-model:value="theme.value"></unione-radio-box>
       </template>
     </a-list-item>
+
+    <a-list-item>
+      <a-list-item-meta>
+        <template v-slot:title>
+          <a>{{ lang.title }}</a>
+        </template>
+        <template v-slot:description>
+          <span> {{ lang.descs }} </span>
+        </template>
+      </a-list-item-meta>
+      <template v-slot:actions>
+        <unione-radio-box :convert="{
+          types: 'option',
+          options: [
+            { value: 'zh-CN', label: '中文' },
+            { value: 'en-US', label: '英文' }
+          ]
+        }" @change="toSetConfig(lang)" v-model:value="lang.value"></unione-radio-box>
+      </template>
+    </a-list-item>
   </a-list>
 </template>
 
@@ -66,6 +86,15 @@ const theme = ref<any>({
   descs: '系统主题风格配置',
   value: 'light'
 })
+
+const lang = ref<any>({
+  sn: 'personal.lang',
+  title: '语言',
+  descs: '系统语言配置',
+  value: 'zh-CN'
+})
+
+
 
 function loadConfigs() {
   config.loadConfig('personal').then((configs: any) => {
