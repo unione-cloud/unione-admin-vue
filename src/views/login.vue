@@ -105,6 +105,24 @@
             </a-form-item>
           </a-form>
         </div>
+        <div class="lic-form" v-if="formType == 'licInstall'">
+          <div class="title">
+            License安装
+          </div>
+          <a-form-item label="MAC" help="复制mac给销售人员，申请License，然后点击下方按钮导入License完成安装。">{{ licInstaller.macVar
+          }}</a-form-item>
+          <div class="btns">
+            <a-upload accept=".lic" :before-upload="licInstaller.doInstall">
+              <a-button>
+                <upload-outlined></upload-outlined>
+                导入License
+              </a-button>
+            </a-upload>
+            <a-button type="link" class="btn-login" @click="formType = 'login'">返回登录</a-button>
+          </div>
+        </div>
+        <div class="lic-expire" v-if="!licVerifyVar && formType != 'licInstall'">License未安装或已过期<a class="link"
+            @click="licInstaller.toInstall">点击安装</a></div>
       </div>
     </div>
   </div>
@@ -125,6 +143,9 @@ import { Modal } from 'ant-design-vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useConfigStore } from '@/config'
 import { setDocumentTitle } from '@/utils/domUtil'
+import { licVerify } from 'unione-base-vue'
+import FormVar from './flow/props/formVar.vue'
+
 
 defineOptions({
   name: 'UinoneLogin'
@@ -136,7 +157,45 @@ const config: any = useConfigStore().config
 const dialog = useDialog()
 
 const session = useSession()
-const formType = ref<'login' | 'forget' | 'register'>('login')
+const formType = ref<'login' | 'forget' | 'register' | 'licInstall'>('login')
+const licVerifyVar = computed(() => licVerify.value)
+const licInstaller = ref<any>({
+  macVar: '',
+  loading: false,
+  toInstall: () => {
+    formType.value = 'licInstall'
+    axios.admin({
+      url: '/api/lic/mac',
+      method: 'get'
+    }).then((res: any) => {
+      licInstaller.value.macVar = res.body
+    })
+  },
+  doInstall: (file: any) => {
+    if (!file || file.size < 100) {
+      dialog.error('请选择License文件')
+      return false
+    }
+    licInstaller.value.loading = true
+    const data = new FormData()
+    data.append('file', file)
+    axios.admin({
+      url: '/api/lic/install',
+      method: 'post',
+      data
+    }).then((res: any) => {
+      if (res.success) {
+        dialog.success('License安装成功')
+        formType.value = 'login'
+      } else {
+        dialog.error(res.message)
+      }
+    }).finally(() => {
+      licInstaller.value.loading = false
+    })
+    return false
+  }
+})
 
 // Admin对象
 const admin = useAdminStore()
@@ -403,7 +462,8 @@ onMounted(() => {
 
     .box-body {
       display: flex;
-      height: calc(100% - 50px);
+      // height: calc(100% - 50px);
+      position: sticky;
 
       .ads-box {
         width: 55%;
@@ -533,6 +593,39 @@ onMounted(() => {
         }
 
       }
+
+      .lic-form {
+        padding-top: 50px;
+
+        .title {
+          color: #134ce4;
+          font-size: 30px;
+          font-weight: bold;
+          text-align: center;
+          user-select: none;
+          margin-bottom: 30px;
+        }
+
+        .btns {
+          display: flex;
+        }
+      }
+
+      .lic-expire {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        text-align: center;
+        color: red;
+        font-weight: bold;
+
+        .link {
+          color: #4096ff;
+          cursor: pointer;
+          margin-left: 5px;
+        }
+      }
+
     }
   }
 }
