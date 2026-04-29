@@ -357,13 +357,14 @@ router.beforeEach((to, from, next) => {
   const systemTitle = sessionStorage.getItem('systemTitle') || 'Unione Cloud'
   setDocumentTitle(to.meta?.title + '-' + systemTitle)
 
-  admin.entry()
-
-  if (!admin.isLogin()) {
-    next({ path: '/login' })
-  }
-  admin.initRoute(to).then(() => {
-    next()
+  admin.entry().then(() => {
+    if (!admin.isLogin()) {
+      next({ path: '/login' })
+    } else {
+      admin.initRoute(to).then(() => {
+        next()
+      })
+    }
   })
 })
 

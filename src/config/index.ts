@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import setting from './settings'
 import { utils, axios, useDialog, useSession } from 'unione-base-vue'
+import constant from './constant'
 import { defineStore } from 'pinia'
 
 /**
@@ -23,6 +24,10 @@ export const useConfigStore = defineStore('unione-config', () => {
    */
   async function loadConfig(name: String) {
     const conf: any = {}
+    const token = session.getStorage(constant.ACCESS_TOKEN)
+    if (!token) {
+      return conf
+    }
     const res = await axios
       .admin({
         method: 'POST',

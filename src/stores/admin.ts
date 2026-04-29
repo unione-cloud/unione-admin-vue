@@ -445,33 +445,37 @@ export const useAdminStore = defineStore('unione-admin', () => {
   }
 
   function entry() {
-    if (system.value) {
-      const pathname = location.pathname.split('/')[1]
-      if (pathname == system.value.ctx) {
-        return
-      }
-    }
-    if (loading.value.system) {
-      return
-    }
-
-    loading.value.system = true
-    axios
-      .admin({
-        url: '/api/entry',
-        method: 'get'
-      })
-      .then((res: any) => {
-        if (res.success) {
-          system.value = res.body
-          sessionStorage.setItem('systemTitle', system.value?.name || view.value.title)
-        } else {
-          dialog.error(res.message)
+    return new Promise((resolve, reject) => {
+      if (system.value && system.value.id) {
+        const pathname = location.pathname.split('/')[1]
+        if (pathname == system.value.ctx) {
+          return resolve(system.value)
         }
-      })
-      .finally(() => {
-        loading.value.system = false
-      })
+      }
+      if (loading.value.system) {
+        return reject('system loading')
+      }
+
+      loading.value.system = true
+      axios
+        .admin({
+          url: '/api/entry',
+          method: 'get'
+        })
+        .then((res: any) => {
+          if (res.success) {
+            system.value = res.body
+            sessionStorage.setItem('systemTitle', system.value?.name || view.value.title)
+            resolve(system.value)
+          } else {
+            dialog.error(res.message)
+            reject(res.message)
+          }
+        })
+        .finally(() => {
+          loading.value.system = false
+        })
+    })
   }
 
   return {
