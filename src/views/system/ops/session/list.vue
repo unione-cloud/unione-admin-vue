@@ -81,7 +81,7 @@ function btnClick({ btn, event, row, rows }: any) {
   console.log('table btn click', btn, event, row)
   if (btn.name == 'delete' || btn.name == 'delBatch') {
     const data: any = []
-    if (rows) {
+    if (rows && rows.length > 0) {
       rows.forEach((item: any) => {
         data.push({
           id: item.id,
@@ -107,7 +107,7 @@ function btnClick({ btn, event, row, rows }: any) {
         }).then((res: any) => {
           if (res.success) {
             dialog.success('踢出成功')
-            page.value.refresh()
+            page.value.reload()
           } else {
             dialog.error(res.message)
           }
