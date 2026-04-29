@@ -38,6 +38,14 @@ const define = ref({
       name: 'ipAddr',
     },
     {
+      title: '操作系统',
+      name: 'os',
+    },
+    {
+      title: '设备类型',
+      name: 'device',
+    },
+    {
       title: '所在城市',
       name: 'ipCity',
     },
