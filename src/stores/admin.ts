@@ -10,7 +10,9 @@ import * as Icons from '@ant-design/icons-vue/lib/icons'
  * Admin Store
  */
 export const useAdminStore = defineStore('unione-admin', () => {
-  const system = ref<any>()
+  const system = ref<any>({
+    ctx: window.location.pathname.split('/')[1] || 'portal'
+  })
   const configObj = useConfigStore()
   const loading = ref<any>({})
   // 菜单数据集合
