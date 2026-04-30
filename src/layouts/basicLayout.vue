@@ -18,8 +18,8 @@
           v-if="(sideMenu.list && sideMenu.list.length) || (topMenu.list && topMenu.list.length)">
           <div class="unione-header-left">
             <div class="logo-box" v-if="!sideMenu.list || !sideMenu.list.length">
-              <div class="logo-title" :style="view.logo.title.css">
-                {{ sideMenu.collapsed ? view.logo.title.side : view.logo.title.text }}
+              <div class="logo-title" :style="logoTitleCss">
+                {{ sideMenu.collapsed ? logoTitleSide : logoTitleText }}
               </div>
             </div>
             <a-menu class="unione-header-menu" mode="horizontal" v-model:openKeys="topMenu.openKeys"
@@ -228,6 +228,8 @@ const isIframe = computed(() => {
         .logo-title {
           color: #ffffff;
           position: absolute;
+          background-image: url('/logo.png');
+          background-size: 100% 100%;
         }
       }
 
