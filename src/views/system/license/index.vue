@@ -8,7 +8,7 @@
                 License安装
             </div>
             <a-form-item label="MAC" help="复制mac给销售人员，申请License，然后点击下方按钮导入License完成安装。">{{ licInstaller.macVar
-            }}</a-form-item>
+                }}</a-form-item>
             <div class="btns">
                 <a-upload accept=".lic" :before-upload="licInstaller.doInstall">
                     <a-button>
@@ -121,10 +121,12 @@ onMounted(() => {
     padding-top: 150px;
 
     .lic-expire {
+        width: 500px;
         margin: 0 auto;
         font-size: 20px;
         color: red;
         font-weight: bold;
+        text-align: center;
 
         .link {
             color: #4096ff;
@@ -134,6 +136,7 @@ onMounted(() => {
     }
 
     .lic-form {
+        width: 500px;
         margin: 0 auto;
 
         .title {
