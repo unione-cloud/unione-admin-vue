@@ -268,6 +268,9 @@ export const router = createRouter({
       children: [
         {
           path: '/home',
+          meta: {
+            title: '首页'
+          },
           name: 'home',
           component: () => import('@/views/home.vue')
         },
