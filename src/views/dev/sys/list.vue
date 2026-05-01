@@ -42,6 +42,15 @@ const define = ref({
       name: 'alias',
     },
     {
+      title: '类型',
+      name: 'types',
+      convert: {
+        types: 'dict',
+        dictName: 'APPTYPES'
+      },
+      isQuery: true
+    },
+    {
       title: '系统ctx',
       name: 'ctx',
     },
@@ -178,6 +187,16 @@ const drawer = ref({
       {
         title: '系统简称',
         name: 'alias',
+      },
+      {
+        title: '系统类型',
+        name: 'types',
+        control: 'unione-select-box',
+        value: 'pc',
+        convert: {
+          types: 'dict',
+          dictName: 'APPTYPES'
+        },
       },
       {
         title: '系统ctx',
