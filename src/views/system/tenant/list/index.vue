@@ -192,11 +192,27 @@ const drawer = ref({
       },
       {
         title: '系统图标',
-        name: 'logo'
+        name: 'logo',
+        control: 'unione-upload-box',
+        props: {
+          accept: 'image/*',
+          listType: 'picture-card',
+          limit: 1,
+          valueType: 'string',
+          bucket: 'system'
+        }
       },
       {
         title: '登录图标',
-        name: 'loginAd'
+        name: 'loginAd',
+        control: 'unione-upload-box',
+        props: {
+          accept: 'image/*',
+          listType: 'picture-card',
+          limit: 1,
+          valueType: 'string',
+          bucket: 'system'
+        }
       },
       {
         title: '管理员',

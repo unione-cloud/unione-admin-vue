@@ -339,15 +339,39 @@ const drawer = ref({
       },
       {
         title: '图片图标(小)',
-        name: 'picMix'
+        name: 'picMix',
+        control: 'unione-upload-box',
+        props: {
+          accept: 'image/*',
+          listType: 'picture-card',
+          limit: 1,
+          valueType: 'string',
+          bucket: 'system'
+        }
       },
       {
         title: '图片图标(中)',
-        name: 'picMid'
+        name: 'picMid',
+        control: 'unione-upload-box',
+        props: {
+          accept: 'image/*',
+          listType: 'picture-card',
+          limit: 1,
+          valueType: 'string',
+          bucket: 'system'
+        }
       },
       {
         title: '图片图标(大)',
-        name: 'picMax'
+        name: 'picMax',
+        control: 'unione-upload-box',
+        props: {
+          accept: 'image/*',
+          listType: 'picture-card',
+          limit: 1,
+          valueType: 'string',
+          bucket: 'system'
+        }
       },
       {
         title: '模版应用',
