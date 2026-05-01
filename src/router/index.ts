@@ -342,7 +342,7 @@ export const router = createRouter({
 
 //路由守卫
 const whiteRouteName: Array<string> = ['NotFound', 'login']
-router.beforeEach((to, from, next) => {
+router.beforeEach((to: any, from: any, next) => {
   // ...
   // 返回 false 以取消导航
   console.log('from', from)
@@ -355,7 +355,7 @@ router.beforeEach((to, from, next) => {
 
   const admin = useAdminStore()
   const systemTitle = sessionStorage.getItem('systemTitle') || 'Unione Cloud'
-  setDocumentTitle(to.meta?.title + '-' + systemTitle)
+  setDocumentTitle((to.meta?.title || to.title) + '-' + systemTitle)
 
   admin.entry()
   if (!admin.isLogin()) {
