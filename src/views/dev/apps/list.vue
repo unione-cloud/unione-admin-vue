@@ -207,16 +207,16 @@ async function btnClick({ btn, event, row, keys }: any) {
     })
   }
   if (btn.name == 'api') {
-    router.push({ path: '/system/base/apps/api', query: { appId: row.id } })
+    router.push({ path: '/dev/base/apps/api', query: { appId: row.id } })
   }
   if (btn.name == 'res') {
-    router.push({ path: '/system/base/apps/res', query: { appId: row.id } })
+    router.push({ path: '/dev/base/apps/res', query: { appId: row.id } })
   }
   if (btn.name == 'vers') {
-    router.push({ path: '/system/base/apps/vers', query: { appId: row.id } })
+    router.push({ path: '/dev/base/apps/vers', query: { appId: row.id } })
   }
   if (btn.name == 'onlinedoc') {
-    router.push({ path: '/system/base/apps/doc', query: { appId: row.id, appName: row.name } })
+    router.push({ path: '/dev/base/apps/doc', query: { appId: row.id, appName: row.name } })
   }
   if (btn.name.startsWith('sts-')) {
     const status = btn.name.split('-')[1]
