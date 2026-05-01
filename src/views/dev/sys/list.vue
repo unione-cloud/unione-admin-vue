@@ -91,9 +91,16 @@ const define = ref({
   ],
   operation: {
     title: '操作',
-    width: 200,
+    width: 280,
     btns: [
-      'view',
+      {
+        name: 'view',
+        title: '预览',
+      },
+      {
+        name: 'design',
+        title: '设计',
+      },
       {
         name: 'status',
         title: '状态',
@@ -124,7 +131,7 @@ const define = ref({
         ]
       },
     ],
-    count: 2,
+    count: 4,
     more: {
       layout: 'vertical'
     }
