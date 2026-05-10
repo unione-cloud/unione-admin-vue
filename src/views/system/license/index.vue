@@ -23,30 +23,39 @@
                 License信息
             </div>
             <div class="info">
-                <a-form-item label="持有者" :label-col="{ span: 5 }" class="value-box">
+                <a-form-item label="持有者" :label-col="{ span: 4 }" class="value-box">
                     {{ licenseCtx.holder.name }}
                 </a-form-item>
-                <a-form-item label="有效期" :label-col="{ span: 5 }" class="value-box">
+                <a-form-item label="有效期" :label-col="{ span: 4 }" class="value-box">
                     <div class="value">{{ licenseCtx.notBefore.substring(0, 10) }} - {{ licenseCtx.notAfter.substring(0,
                         10) }}</div>
                 </a-form-item>
-                <a-form-item label="发行人" :label-col="{ span: 5 }" class="value-box">
+                <a-form-item label="发行人" :label-col="{ span: 4 }" class="value-box">
                     {{ licenseCtx.issuer.name }}
                 </a-form-item>
-                <a-form-item label="发行时间" :label-col="{ span: 5 }" class="value-box">
+                <a-form-item label="发行时间" :label-col="{ span: 4 }" class="value-box">
                     {{ licenseCtx.issued.substring(0, 10) }}
                 </a-form-item>
-                <a-form-item label="授权MAC" :label-col="{ span: 5 }" class="value-box">
-                    {{ licenseCtx.extra.mac }}
-                </a-form-item>
-                <a-form-item label="会话数量" :label-col="{ span: 5 }" help="最大同时在线用户数量">
+                <a-form-item label="会话数量" :label-col="{ span: 4 }" help="最大同时在线用户数量">
                     <div class="value">{{ licenseCtx.extra.umount }}</div>
                 </a-form-item>
-                <a-form-item label="授权网段" :label-col="{ span: 5 }" help="授权网段可以访问系统">
+                <a-form-item label="授权网段" :label-col="{ span: 4 }" help="授权网段可以访问系统">
                     <div class="value">{{ licenseCtx.extra.netSeg }}</div>
                 </a-form-item>
-                <a-form-item label="授权信息" :label-col="{ span: 5 }">
+                <a-form-item label="授权信息" :label-col="{ span: 4 }">
                     <div class="value">{{ licenseCtx.info }}</div>
+                </a-form-item>
+                <a-form-item label="MAC" :label-col="{ span: 4 }" class="value-box">
+                    {{ licenseCtx.extra.mac }}
+                </a-form-item>
+                <a-form-item label="OS" :label-col="{ span: 4 }" class="value-box">
+                    {{ licenseInfo.os }}
+                </a-form-item>
+                <a-form-item label="Disk" :label-col="{ span: 4 }" class="value-box">
+                    {{ licenseInfo.disk }}
+                </a-form-item>
+                <a-form-item label="Location" :label-col="{ span: 4 }" class="value-box">
+                    {{ licenseInfo.location }}
                 </a-form-item>
             </div>
         </div>
@@ -54,26 +63,32 @@
 </template>
 <script setup lang="ts">
 import { axios, useDialog } from 'unione-base-vue';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 const dialog = useDialog()
 defineOptions({
     name: 'LicenseIndex'
 })
 
-const licenseCtx = ref<any>()
+const licenseInfo = ref<any>()
+const licenseCtx = computed(() => {
+    return licenseInfo.value?.license
+})
 function loadLicenseCtx() {
     axios.admin({
         url: '/api/lic/info',
         method: 'get'
     }).then((res: any) => {
-        licenseCtx.value = res.body
+        licenseInfo.value = res.body
     })
 }
 
 const viewType = ref('view')
 const licInstaller = ref<any>({
     macVar: '',
+    osVar: '',
+    diskVar: '',
+    locationVar: '',
     loading: false,
     toInstall: () => {
         viewType.value = 'install'
@@ -81,7 +96,10 @@ const licInstaller = ref<any>({
             url: '/api/lic/mac',
             method: 'get'
         }).then((res: any) => {
-            licInstaller.value.macVar = res.body
+            licInstaller.value.macVar = res.body.mac
+            licInstaller.value.osVar = res.body.os
+            licInstaller.value.diskVar = res.body.disk
+            licInstaller.value.locationVar = res.body.location
         })
     },
     doInstall: (file: any) => {
@@ -154,7 +172,7 @@ onMounted(() => {
     }
 
     .lic-view {
-        width: 500px;
+        width: 618px;
         margin: 0 auto;
         background-color: #f5f5f5;
         padding: 20px;

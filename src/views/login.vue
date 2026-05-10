@@ -111,6 +111,9 @@
           </div>
           <a-form-item label="MAC" help="复制mac给销售人员，申请License，然后点击下方按钮导入License完成安装。">{{ licInstaller.macVar
           }}</a-form-item>
+          <a-form-item label="OS" :wrapperCol="{ span: 18 }">{{ licInstaller.osVar }}</a-form-item>
+          <a-form-item label="Disk">{{ licInstaller.diskVar }}</a-form-item>
+          <a-form-item label="Location">{{ licInstaller.locationVar }}</a-form-item>
           <div class="btns">
             <a-upload accept=".lic" :before-upload="licInstaller.doInstall">
               <a-button>
@@ -161,6 +164,9 @@ const formType = ref<'login' | 'forget' | 'register' | 'licInstall'>('login')
 const licVerifyVar = computed(() => licVerify.value)
 const licInstaller = ref<any>({
   macVar: '',
+  osVar: '',
+  diskVar: '',
+  locationVar: '',
   loading: false,
   toInstall: () => {
     formType.value = 'licInstall'
@@ -168,7 +174,10 @@ const licInstaller = ref<any>({
       url: '/api/lic/mac',
       method: 'get'
     }).then((res: any) => {
-      licInstaller.value.macVar = res.body
+      licInstaller.value.macVar = res.body.mac
+      licInstaller.value.osVar = res.body.os
+      licInstaller.value.diskVar = res.body.disk
+      licInstaller.value.locationVar = res.body.location
     })
   },
   doInstall: (file: any) => {
@@ -604,6 +613,10 @@ onMounted(() => {
           text-align: center;
           user-select: none;
           margin-bottom: 30px;
+        }
+
+        :deep(.ant-form-item) {
+          margin-bottom: 5px;
         }
 
         .btns {
