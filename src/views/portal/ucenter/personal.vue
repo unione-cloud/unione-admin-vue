@@ -52,11 +52,8 @@
       </a-list-item-meta>
       <template v-slot:actions>
         <unione-radio-box :convert="{
-          types: 'option',
-          options: [
-            { value: 'zh-CN', label: '中文' },
-            { value: 'en-US', label: '英文' }
-          ]
+          types: 'dict',
+          dictName: 'UNIONE_I18N_LANG',
         }" @change="toSetConfig(lang)" v-model:value="lang.value"></unione-radio-box>
       </template>
     </a-list-item>
@@ -65,7 +62,7 @@
 
 <script lang="ts" setup>
 import { computed, nextTick, onMounted, ref } from 'vue'
-import { axios, useDialog } from 'unione-base-vue'
+import { axios, useDialog, utils } from 'unione-base-vue'
 import { useAdminStore } from '@/stores/admin'
 import { useConfigStore } from '@/config'
 
@@ -99,10 +96,8 @@ const lang = ref<any>({
 function loadConfigs() {
   config.loadConfig('personal').then((configs: any) => {
     console.log('loaded config', configs)
-    layout.value = configs[layout.value.sn] || layout.value
-    layout.value.value = layout.value.valueUsed || layout.value.valueDefault
-    theme.value = configs[theme.value.sn] || theme.value
-    theme.value.value = theme.value.valueUsed || theme.value.valueDefault
+    layout.value.value = utils.obj.getValue(configs, layout.value.sn) || layout.value.value
+    theme.value.value = utils.obj.getValue(configs, theme.value.sn) || theme.value.value
   })
 }
 

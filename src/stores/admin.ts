@@ -329,6 +329,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
           menuData.value = menuList
           reject(true)
         })
+        configObj.loadConfig('personal')
       } else {
         resolve(true)
       }
