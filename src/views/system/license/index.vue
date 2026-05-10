@@ -8,7 +8,7 @@
                 License安装
             </div>
             <a-form-item label="MAC" help="复制mac给销售人员，申请License，然后点击下方按钮导入License完成安装。">{{ licInstaller.macVar
-                }}</a-form-item>
+            }}</a-form-item>
             <div class="btns">
                 <a-upload accept=".lic" :before-upload="licInstaller.doInstall">
                     <a-button>
@@ -27,7 +27,7 @@
                     {{ licenseCtx.holder.name }}
                 </a-form-item>
                 <a-form-item label="有效期" :label-col="{ span: 4 }" class="value-box">
-                    <div class="value">{{ licenseCtx.notBefore.substring(0, 10) }} - {{ licenseCtx.notAfter.substring(0,
+                    <div class="value">{{ licenseCtx.notBefore.substring(0, 10) }} 至 {{ licenseCtx.notAfter.substring(0,
                         10) }}</div>
                 </a-form-item>
                 <a-form-item label="发行人" :label-col="{ span: 4 }" class="value-box">
