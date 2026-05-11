@@ -29,14 +29,16 @@ export const useConfigStore = defineStore('unione-config', () => {
       return conf
     }
 
-    const configJson = session.getStorage('unione-config')
-    if (configJson) {
-      config.value = JSON.parse(configJson)
-      const confValue = utils.obj.getValue(config.value, name)
-      if (confValue) {
-        const tmp: any = {}
-        tmp[name] = confValue
-        return tmp
+    if (name != 'personal') {
+      const configJson = session.getStorage('unione-config')
+      if (configJson) {
+        config.value = JSON.parse(configJson)
+        const confValue = utils.obj.getValue(config.value, name)
+        if (confValue) {
+          const tmp: any = {}
+          tmp[name] = confValue
+          return tmp
+        }
       }
     }
 
