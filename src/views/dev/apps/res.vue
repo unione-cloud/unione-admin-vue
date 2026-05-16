@@ -57,7 +57,7 @@ const unionePage = ref<any>({
       name: 'url',
       required: false,
       props: {
-        tooltip: '1、内部菜单：url指向vue页面路径,views目录,/开头;  2、外部菜单：url指向外部链接'
+        tooltip: '1、内部页面：url指向vue页面路径,views目录,/开头; 2、全局组件：url指向页面组件名称@开头; 3、外部页面：url指向外部链接'
       },
       event: {
         visible: (value: any, formData: any) => {
