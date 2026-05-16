@@ -67,6 +67,7 @@ const unionePage = ref<any>({
           if (formData.isExternal == 0) {
             return '菜单URL'
           }
+          return '连接URL'
         }
       }
     },
