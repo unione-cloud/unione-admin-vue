@@ -122,6 +122,7 @@ const define = ref({
       name: 'lastUpdated'
     }
   ],
+  rightBtns: ['downTmpl'],
   operation: {
     title: '操作',
     width: 250,
