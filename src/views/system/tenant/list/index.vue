@@ -76,8 +76,12 @@ const define = ref({
       isQuery: true
     },
     {
-      title: '创建时间',
-      name: 'created'
+      title: '开始时间',
+      name: 'timeLimitStart'
+    },
+    {
+      title: '过期时间',
+      name: 'timeLimitEnd'
     },
     {
       title: '修改时间',
@@ -246,6 +250,34 @@ const drawer = ref({
         convert: {
           types: 'dict',
           dictName: 'TENANTSTATUS'
+        }
+      },
+      {
+        title: '最大用户数',
+        name: 'maxUserCount',
+        control: 'a-input-number'
+      },
+      {
+        title: '最大在线用户数',
+        name: 'maxUserOnline',
+        control: 'a-input-number'
+      },
+      {
+        title: '开始时间',
+        name: 'timeLimitStart',
+        control: 'a-date-picker',
+        props: {
+          format: 'YYYY-MM-DD',
+          valueFormat: 'YYYY-MM-DD'
+        }
+      },
+      {
+        title: '到期时间',
+        name: 'timeLimitEnd',
+        control: 'a-date-picker',
+        props: {
+          format: 'YYYY-MM-DD',
+          valueFormat: 'YYYY-MM-DD'
         }
       },
       {
