@@ -1,6 +1,6 @@
 <template>
     <div class="unione-page license-page">
-        <div class="lic-expire" v-if="!licenseCtx && viewType != 'install'">License未安装或已过期<a class="link"
+        <div class="lic-expire" v-if="!licenseCtx && !tentantVar && viewType != 'install'">License未安装或已过期<a class="link"
                 @click="licInstaller.toInstall">点击安装</a>
         </div>
         <div class="lic-form" v-if="viewType == 'install'">
@@ -18,44 +18,64 @@
                 </a-upload>
             </div>
         </div>
-        <div class="lic-view" v-if="licenseCtx && viewType == 'view'">
+        <div class="lic-view" v-if="(licenseCtx || tentantVar) && viewType == 'view'">
             <div class="title">
                 License信息
             </div>
             <div class="info">
                 <a-form-item label="持有者" :label-col="{ span: 4 }" class="value-box">
-                    {{ licenseCtx.holder.name }}
+                    {{ licenseCtx?.holder?.name || tentantVar?.name }}
                 </a-form-item>
                 <a-form-item label="有效期" :label-col="{ span: 4 }" class="value-box">
-                    <div class="value">{{ licenseCtx.notBefore.substring(0, 10) }} 至 {{ licenseCtx.notAfter.substring(0,
-                        10) }}</div>
+                    <div class="value">{{ licenseCtx?.notBefore?.substring(0, 10) || tentantVar?.timeLimitStart || '随时'
+                    }} 至 {{
+                            licenseCtx?.notAfter?.substring(0, 10) || tentantVar?.timeLimitEnd || '永久' }}</div>
                 </a-form-item>
-                <a-form-item label="发行人" :label-col="{ span: 4 }" class="value-box">
+                <a-form-item label="发行人" :label-col="{ span: 4 }" class="value-box" v-if="licenseCtx?.issuer?.name">
                     {{ licenseCtx.issuer.name }}
                 </a-form-item>
                 <a-form-item label="发行时间" :label-col="{ span: 4 }" class="value-box">
-                    {{ licenseCtx.issued.substring(0, 10) }}
+                    {{ licenseCtx?.issued?.substring(0, 10) || tentantVar?.created?.substring(0, 10) }}
+                </a-form-item>
+                <a-form-item label="用户数量" :label-col="{ span: 4 }" class="value-box" v-if="tentantVar">
+                    {{ tentantVar.maxUserCount || '无限制' }}
                 </a-form-item>
                 <a-form-item label="会话数量" :label-col="{ span: 4 }" help="最大同时在线用户数量">
-                    <div class="value">{{ licenseCtx.extra.umount }}</div>
+                    <div class="value">{{ licenseCtx?.extra?.umount || tentantVar?.maxUserOnline || '无限制' }}</div>
                 </a-form-item>
-                <a-form-item label="授权网段" :label-col="{ span: 4 }" help="授权网段可以访问系统">
-                    <div class="value">{{ licenseCtx.extra.netSeg }}</div>
+                <a-form-item label="授权网段" :label-col="{ span: 4 }" help="授权网段可以访问系统" v-if="licenseCtx?.extra?.netSeg">
+                    <div class="value">{{ licenseCtx?.extra?.netSeg }}</div>
                 </a-form-item>
-                <a-form-item label="授权信息" :label-col="{ span: 4 }">
-                    <div class="value">{{ licenseCtx.info }}</div>
+                <a-form-item label="授权信息" :label-col="{ span: 4 }" v-if="licenseCtx?.info?.netSeg">
+                    <div class="value">{{ licenseCtx?.info?.netSeg }}</div>
                 </a-form-item>
-                <a-form-item label="MAC" :label-col="{ span: 4 }" class="value-box">
-                    {{ licenseCtx.extra.mac }}
+                <a-form-item label="MAC" :label-col="{ span: 4 }" class="value-box" v-if="licenseCtx?.extra?.mac">
+                    {{ licenseCtx?.extra?.mac }}
                 </a-form-item>
-                <a-form-item label="OS" :label-col="{ span: 4 }" class="value-box">
-                    {{ licenseInfo.os }}
+                <a-form-item label="OS" :label-col="{ span: 4 }" class="value-box" v-if="licenseInfo?.osVar">
+                    {{ licenseInfo?.osVar }}
                 </a-form-item>
-                <a-form-item label="Disk" :label-col="{ span: 4 }" class="value-box">
-                    {{ licenseInfo.disk }}
+                <a-form-item label="Disk" :label-col="{ span: 4 }" class="value-box" v-if="licenseInfo?.diskVar">
+                    {{ licenseInfo?.diskVar }}
                 </a-form-item>
-                <a-form-item label="Location" :label-col="{ span: 4 }" class="value-box">
-                    {{ licenseInfo.location }}
+                <a-form-item label="Location" :label-col="{ span: 4 }" class="value-box"
+                    v-if="licenseInfo?.locationVar">
+                    {{ licenseInfo?.locationVar }}
+                </a-form-item>
+                <a-form-item label="联系人" :label-col="{ span: 4 }" class="value-box" v-if="tentantVar">
+                    {{ tentantVar.linkMan }}
+                </a-form-item>
+                <a-form-item label="联系电话" :label-col="{ span: 4 }" class="value-box" v-if="tentantVar">
+                    {{ tentantVar.linkTel }}
+                </a-form-item>
+                <a-form-item label="联系地址" :label-col="{ span: 4 }" class="value-box" v-if="tentantVar">
+                    {{ tentantVar.linkAdd }}
+                </a-form-item>
+                <a-form-item label="所在城市" :label-col="{ span: 4 }" class="value-box" v-if="tentantVar">
+                    {{ tentantVar.locationCity }}
+                </a-form-item>
+                <a-form-item label="所在省份" :label-col="{ span: 4 }" class="value-box" v-if="tentantVar">
+                    {{ tentantVar.locationProvince }}
                 </a-form-item>
             </div>
         </div>
@@ -73,6 +93,9 @@ defineOptions({
 const licenseInfo = ref<any>()
 const licenseCtx = computed(() => {
     return licenseInfo.value?.license
+})
+const tentantVar = computed(() => {
+    return licenseInfo.value?.tenant
 })
 function loadLicenseCtx() {
     axios.admin({
