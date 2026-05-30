@@ -8,9 +8,10 @@
                         <div class="flow-item" v-if="item.category == activeKey || activeKey == 'all'"
                             @click="handleClick(item)">
                             <div class="flow-item-icon">
-                                <component :is="item.iconFont" v-if="!item.iconFont" class="icon"></component>
+                                <component :is="item.iconFont" v-if="!item.iconPic && item.iconFont" class="icon">
+                                </component>
                                 <a-image class="icon" :src="imageUrl(item)" :width="50" :height="50" :preview="false"
-                                    v-else></a-image>
+                                    v-else-if="item.iconPic"></a-image>
                                 <span class="icon" v-if="!item.iconFont && !item.iconPic">{{ item.title.charAt(0)
                                     }}</span>
                             </div>
