@@ -18,14 +18,20 @@
                                 }
                             }
                         }" :row-selection="selection" :data-source="doVarFilter(item.vars)" :pagination="false"
-                        :scroll="{ x: props.width - 100 }" size="small" row-key="name"></a-table>
+                        :scroll="{ x: props.width - 100 }" size="small" row-key="name"
+                        v-if="item.key != 'expVar'"></a-table>
+                    <div v-if="item.key == 'expVar'" class="exp-var-select">
+                        <a-textarea :rows="8" v-model:value="expVarValue"></a-textarea>
+                        <div class="tips">请输入表达式，支持常量，流程变量，系统变量，如：{var.flowInsId},{var.formId},{sys.now},{sys.userId}
+                        </div>
+                    </div>
                 </a-tab-pane>
             </template>
         </a-tabs>
     </div>
 </template>
 <script setup lang="ts">
-import { inject, onMounted, ref, type PropType } from 'vue'
+import { inject, onMounted, ref, watch, type PropType } from 'vue'
 import { loadFormDataModelById, loadFormDataModels } from '../../lib/flowUtil'
 import { useConfigStore } from '@/config'
 
@@ -66,6 +72,7 @@ const varMatchStats = defineModel('varMatchStats', {
     }
 })
 
+
 const activeKey = ref(props.scope[0])
 const activeTable = ref('')
 const varData = ref<any>([
@@ -98,6 +105,9 @@ const varData = ref<any>([
                 dataType: f.dataType
             }
         })
+    }, {
+        title: '表达式',
+        key: 'expVar'
     }
 ])
 const columns = ref([{
@@ -217,14 +227,23 @@ function doVarFilter(vars: any[]) {
 const flowGraph: any = inject('flowGraph')
 const activeNode: any = inject('activeNode')
 
+const expVarValue = ref('')
+watch(() => props.target, (val: any) => {
+    expVarValue.value = ''
+    if (val) {
+        if (val.bindType == 'expVar') {
+            expVarValue.value = val.bindValue + ''
+        } else {
+            selection.value.selectedRowKeys = [val.bindValue]
+        }
+        activeKey.value = val.bindType
+    }
+}, { immediate: true })
 
 /**
  * 初始化变量列表
  */
 function init() {
-    selection.value.selectedRowKeys = []
-    selection.value.selectedRowList = []
-
     const flowChart = props.flowChart || flowGraph && flowGraph().getJson()
 
     if (props.scope.includes('flowVar')) {
@@ -347,6 +366,23 @@ function getSelected() {
             list: selection.value.selectedRowList,
         }
     }
+    if (activeKey.value == 'expVar') {
+        if (!expVarValue.value || !expVarValue.value.trim()) {
+            return {
+                type: activeKey.value,
+                names: [],
+                list: [],
+            }
+        }
+        return {
+            type: activeKey.value,
+            names: [expVarValue.value],
+            list: [{
+                name: expVarValue.value.trim(),
+                title: expVarValue.value.indexOf('{') > -1 ? '表达式' : '常量',
+            }],
+        }
+    }
     return {
         type: activeKey.value,
         names: selection.value.selectedRowKeys,
@@ -377,6 +413,15 @@ defineExpose({
 
     .form-var-select {
         margin: 5px 15px;
+    }
+
+    .exp-var-select {
+        margin: 5px;
+
+        .tips {
+            font-size: 13px;
+            color: #999;
+        }
     }
 }
 </style>

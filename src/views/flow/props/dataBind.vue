@@ -1,10 +1,17 @@
 <template>
   <div class="flow-data-bind">
-    <a-button type="primary" size="small" @click="toreload()" class="btn-add">
-      <template #icon>
-        <ReloadOutlined style="transform: scale(0.95);" />
-      </template>
-    </a-button>
+    <div class="btns">
+      <a-button type="primary" size="small" @click="toReload()" class="btn-reload">
+        <template #icon>
+          <ReloadOutlined style="transform: scale(0.95);" />
+        </template>
+      </a-button>
+      <a-button type="primary" size="small" @click="toAdd()" class="btn-add">
+        <template #icon>
+          <PlusOutlined style="transform: scale(0.95);" />
+        </template>
+      </a-button>
+    </div>
     <div class="field-item" style="background-color: #f5f5f5;">
       <div class="field-item-info">
         <div class="field-item-main">
@@ -34,6 +41,26 @@
         </div>
       </div>
     </template>
+    <div class="field-item" v-if="addBind.visible">
+      <div class="field-item-info">
+        <div class="field-item-main">
+          <a-select v-model:value="addBind.field" placeholder="请选择目标字段" :options="addBind.options()" />
+        </div>
+      </div>
+      <div class="field-item-actions">
+        <a-button type="text" size="small" @click="addBind.ok" title="确定">
+          <template #icon>
+            <SaveOutlined />
+          </template>
+        </a-button>
+        <a-button type="text" danger size="small" @click="addBind.cancel" title="取消">
+          <template #icon>
+            <DeleteOutlined />
+          </template>
+        </a-button>
+      </div>
+    </div>
+
     <div v-if="!modelValue?.length" class="empty-tip">
       暂无参数，请先绑定数据对象
     </div>
@@ -51,7 +78,7 @@ import { axios, useDialog } from 'unione-base-vue'
 const props = defineProps({
   scope: {
     type: Array<string>,
-    default: () => ['flowVar', 'nodeVar', 'formVar', 'dataNode', 'sysVar']
+    default: () => ['flowVar', 'nodeVar', 'formVar', 'dataNode', 'sysVar', 'expVar']
   },
   dataType: {
     type: String,
@@ -68,11 +95,95 @@ const modelValue = defineModel('value', {
   type: Array<any>,
 })
 
+const optionList = ref<any>([])
+/**
+ * 加载目标字段列表
+ */
+function loadOptionList() {
+  const dataType = props.formValue[props.dataType]
+  if (props.dataType == 'form' || dataType == 'form') {
+    // 获取数据表单字段
+    if (!props.formValue.formSn) {
+      return
+    }
+    loadFormDataModelById(props.formValue.formSn).then((res: any) => {
+      optionList.value = []
+      if (res) {
+        const dataModel = res.filter((item: any) => item.group == 'master')
+        if (dataModel[0]?.fields) {
+          optionList.value = dataModel[0].fields.map((item: any) => ({
+            label: item.title + '(' + item.name + ')',
+            value: item.name,
+            title: item.title
+          }))
+        }
+      }
+    })
+  } else if (props.dataType == 'api' || dataType == 'api') {
+    // 获取接口字段列表
+    optionList.value = []
+  } else if (props.dataType == 'subflow' || dataType == 'subflow') {
+    if (!props.formValue.flowId) {
+      return
+    }
+    // 获取子流程字段
+    axios.flow({
+      url: '/api/tmpl/load/flowChart/' + props.formValue.flowId,
+      method: 'POST',
+    }).then((result: any) => {
+      if (result.success && result.body) {
+        // 子流程参数
+        optionList.value = (result.body.setting?.vars?.global || []).map((item: any) => ({
+          label: item.title + '(' + item.name + ')',
+          value: item.name,
+          title: item.title
+        }))
+      }
+    })
+  }
+}
+
+const addBind = ref<any>({
+  visible: false,
+  field: null,
+  options: () => {
+    const map = modelValue.value?.map((item: any) => item.name)
+    return optionList.value.filter((item: any) => !map?.includes(item.name))
+  },
+  ok: () => {
+    if (!addBind.value.field) {
+      return
+    }
+    if (!modelValue.value) {
+      modelValue.value = []
+    }
+    const option = optionList.value.find((item: any) => item.value == addBind.value.field)
+    if (!option) {
+      return
+    }
+    modelValue.value.push({
+      name: addBind.value.field,
+      title: option.title
+    })
+    addBind.value.field = null
+    addBind.value.visible = false
+    handleChange()
+  },
+  cancel: () => {
+    addBind.value.visible = false
+  }
+})
+function toAdd() {
+  addBind.value.visible = true
+  if (!optionList.value?.length) {
+    loadOptionList()
+  }
+}
 
 /**
  * 重新加载数据
  */
-function toreload() {
+function toReload() {
   if (!modelValue.value?.length) {
     doreload()
     return
@@ -169,12 +280,14 @@ onMounted(() => {
   }
   flowGraph().on('formRef:change', (selected: any) => {
     modelValue.value = []
+    optionList.value = []
     if (selected) {
       doreload()
     }
   })
   flowGraph().on('flowRef:change', (selected: any) => {
     modelValue.value = []
+    optionList.value = []
     if (selected) {
       doreload()
     }
@@ -184,13 +297,27 @@ onMounted(() => {
 </script>
 <style lang="less" scoped>
 .flow-data-bind {
-  .btn-add {
-    cursor: pointer;
-    margin-top: -20px;
-    float: right;
-    width: 20px;
-    height: 20px;
-    line-height: 20px;
+
+  .btns {
+    display: flex;
+    gap: 4px;
+    flex-direction: row;
+    justify-content: end;
+    margin-bottom: 5px;
+
+    .btn-add {
+      cursor: pointer;
+      width: 20px;
+      height: 20px;
+      line-height: 20px;
+    }
+
+    .btn-reload {
+      cursor: pointer;
+      width: 20px;
+      height: 20px;
+      line-height: 20px;
+    }
   }
 
   .field-item {

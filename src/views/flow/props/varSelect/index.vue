@@ -112,7 +112,7 @@ const varListRef = ref()
 function handelOk() {
     const selected = varListRef.value?.getSelected()
     if (selected?.names?.length > 0) {
-        if (props.target?.dataType && !varMatchStats.value.dataType) {
+        if (props.target?.dataType && !varMatchStats.value.dataType && selected.type != 'expVar') {
             if (props.target.dataType != 'String') {
                 dialog.error({ content: '数据类型不匹配，不能绑定' })
                 return
