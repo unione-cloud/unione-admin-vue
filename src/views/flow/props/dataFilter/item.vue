@@ -62,6 +62,8 @@
         <a-select class="box-item field-action" v-model:value="modelValue.paramValue"
           :options="paramFields[modelValue.paramType]" placeholder="请选择数据字段" @select="selectParam"
           v-if="['sysVar', 'flowVar', 'dataNode'].includes(modelValue.paramType)"></a-select>
+        <a-input v-else-if="modelValue.paramType == 'expVar'" v-model:value="modelValue.paramValue" placeholder="请输入表达式"
+          class="box-item field-action"></a-input>
         <a-tree-select class="box-item field-action" v-else v-model:value="modelValue.paramValue" placeholder="请选择数据字段"
           :treeLine="{ showLine: true }" :tree-data="paramFields[item.paramType]" @select="selectParam">
         </a-tree-select>
@@ -126,6 +128,9 @@ const paramTypes = ref([{
 }, {
   label: '系统变量',
   value: 'sysVar'
+}, {
+  label: '表达式',
+  value: 'expVar'
 }])
 const paramFields = ref<any>({
   sysVar: config.config.flow.systemFieldList.map((f: any) => {
