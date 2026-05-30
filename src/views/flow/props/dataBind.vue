@@ -29,7 +29,8 @@
             <span class="field-item-title" :title="param.title + '(' + param.name + ')'">{{ param.title }}({{ param.name
             }})</span>
             <span class="field-item-equle">=</span>
-            <span class="field-item-bind" @click="dataBind.toBind(param)">{{ param.bindTitle || '未绑定' }}</span>
+            <span class="field-item-bind" @click="dataBind.toBind(param)" :title="param.bindValue">{{ param.bindTitle ||
+              '未绑定' }}</span>
           </div>
         </div>
         <div class="field-item-actions">
