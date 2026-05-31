@@ -3,13 +3,8 @@
   <div class="unione-page unione-page-list unione-ums-category">
     <unione-page-list ref="page" v-bind="define" @btnClick="btnClick"></unione-page-list>
 
-    <a-drawer
-      :title="drawer.title"
-      :width="550"
-      v-model:visible="drawer.visible"
-      :placement="drawer.placement"
-      class="drawer-form"
-    >
+    <a-drawer :title="drawer.title" :width="550" v-model:visible="drawer.visible" :placement="drawer.placement"
+      class="drawer-form">
       <unione-form :form="drawer.form" ref="form"></unione-form>
 
       <div class="btns">
@@ -139,6 +134,8 @@ function setStatus(id: string, status: number) {
           url: '/api/ums/category/status',
           method: 'post',
           data: { id, status }
+        }, {
+          useMessage: true
         })
         .then((res: any) => {
           page.value.reload()

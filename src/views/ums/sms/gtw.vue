@@ -130,6 +130,8 @@ function setStatus(id: string, status: number) {
           url: '/api/ums/smsGtw/status',
           method: 'post',
           data: { id, status }
+        }, {
+          useMessage: true
         })
         .then((res: any) => {
           page.value.reload()
