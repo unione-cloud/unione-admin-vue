@@ -22,7 +22,8 @@
                         v-if="item.key != 'expVar'"></a-table>
                     <div v-if="item.key == 'expVar'" class="exp-var-select">
                         <a-textarea :rows="8" v-model:value="expVarValue"></a-textarea>
-                        <div class="tips">请输入表达式，支持常量，流程变量，系统变量，如：{var.flowInsId},{var.formId},{sys.now},{sys.userId}
+                        <div class="tips">
+                            请输入表达式，支持常量，流程变量，系统变量，如：${vars.flowInsId},${vars.formId},${sys.now},${sys.userId}
                         </div>
                     </div>
                 </a-tab-pane>
@@ -379,7 +380,7 @@ function getSelected() {
             names: [expVarValue.value],
             list: [{
                 name: expVarValue.value.trim(),
-                title: expVarValue.value.indexOf('{') > -1 ? '表达式' : '常量',
+                title: expVarValue.value.indexOf('$') > -1 ? '表达式' : '常量',
             }],
         }
     }
