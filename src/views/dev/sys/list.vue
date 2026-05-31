@@ -10,10 +10,17 @@
 <script setup lang="ts">
 import { nextTick, ref } from 'vue'
 import { useDialog } from 'unione-base-vue'
-import { Convertor } from 'unione-form-vue'
+import { Convertor, viewRegistry } from 'unione-form-vue'
 
 const dialog = useDialog()
 const stsConvert = new Convertor({ types: 'dict', dictName: 'APPSTATUS' })
+
+viewRegistry.regViewFactory((name: string) => {
+  const fullPath = `/src${name}`;
+  // 预加载views目录下所有.vue文件，{ eager: false }保持懒加载特性
+  const modules: any = import.meta.glob('@/views/**/*.vue', { eager: false });
+  return modules[fullPath]
+})
 
 const designRef = ref()
 
