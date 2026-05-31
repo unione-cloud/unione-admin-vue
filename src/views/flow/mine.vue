@@ -1,6 +1,7 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <UnionePage class="unione-flow-mine" setting-title="页面设置" :engine="engine">
+
     <template v-for="item in widgets" :key="item.wid">
       <component :is="item.widget" :wid="item.wid" :widget="item" :engine="engine" @btnClick="btnClick"
         v-if="item.widget == 'unione-table'" ref="table"></component>
@@ -256,7 +257,7 @@ onMounted(() => {
     ctx: 'flow',
     controller: '/api/engine/instance',
     findUrl: '/mine',
-    findParams: [{ name: 'sn', value: props.fsn }]
+    findParams: [{ name: 'sn', value: flowSn.value }]
   })
 
   if (flowSn.value) {
