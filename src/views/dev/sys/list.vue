@@ -42,6 +42,14 @@ const define = ref({
       name: 'alias',
     },
     {
+      title: '全局',
+      name: 'isGlobal',
+      convert: {
+        types: 'dict',
+        dictName: 'TUREORFALSE'
+      }
+    },
+    {
       title: '类型',
       name: 'types',
       convert: {

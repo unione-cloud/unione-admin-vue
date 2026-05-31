@@ -47,12 +47,10 @@ const define = ref({
     {
       title: '应用名称',
       name: 'name',
-      isQuery: true
     },
     {
       title: '应用编码',
       name: 'sn',
-      isQuery: true
     },
     {
       title: '应用类型',
@@ -102,7 +100,7 @@ const define = ref({
       name: 'icon'
     },
     {
-      title: '平台应用',
+      title: '全局',
       name: 'isPlatform',
       convert: {
         types: 'dict',

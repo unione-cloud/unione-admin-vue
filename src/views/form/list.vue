@@ -80,16 +80,22 @@ const define = ref({
     {
       title: '表单名称',
       name: 'title',
-      isQuery: true
     },
     {
       title: '表单编码',
       name: 'sn',
-      isQuery: true
     },
     {
       title: '版本号',
       name: 'vers',
+    },
+    {
+      title: '全局',
+      name: 'isGlobal',
+      convert: {
+        types: 'dict',
+        dictName: 'TUREORFALSE'
+      }
     },
     {
       title: '同步标志',

@@ -36,17 +36,22 @@ const define = ref({
     {
       title: '应用名称',
       name: 'appName',
-      isQuery: true
     },
     {
       title: '字典名称',
       name: 'dictName',
-      isQuery: true
     },
     {
       title: '字典标题',
       name: 'dictValue',
-      isQuery: true
+    },
+    {
+      title: '全局',
+      name: 'isGlobal',
+      convert: {
+        types: 'dict',
+        dictName: 'TUREORFALSE'
+      }
     },
     {
       title: '字典类型',
@@ -54,9 +59,9 @@ const define = ref({
       convert: {
         types: 'option',
         options: [
-          { value: 1, label: '平台' },
-          { value: 2, label: '租户' },
-          { value: 3, label: '机构' }
+          { value: '1', label: '平台' },
+          { value: '2', label: '租户' },
+          { value: '3', label: '机构' }
         ]
       },
       isQuery: true

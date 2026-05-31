@@ -57,21 +57,26 @@ const define = ref({
     {
       title: '应用名称',
       name: 'appName',
-      isQuery: true
     },
     {
       title: '流程标题',
       name: 'title',
-      isQuery: true
     },
     {
       title: '流程编码',
       name: 'sn',
-      isQuery: true
     },
     {
       title: '流程版本',
       name: 'vers'
+    },
+    {
+      title: '全局',
+      name: 'isGlobal',
+      convert: {
+        types: 'dict',
+        dictName: 'TUREORFALSE'
+      }
     },
     {
       title: '流程分类',
