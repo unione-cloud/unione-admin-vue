@@ -22,7 +22,7 @@ import { Convertor } from 'unione-form-vue'
 import { useRouter, type Router } from 'vue-router'
 
 const dialog = useDialog()
-const stsConvert = new Convertor({ types: 'dict', dictName: 'APPSTATUS' })
+const stsConvert = new Convertor({ types: 'dict', dictName: 'USEORNOT' })
 const router: Router = useRouter()
 
 const page = ref()
