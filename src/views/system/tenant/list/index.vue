@@ -291,6 +291,12 @@ const drawer = ref({
         }
       },
       {
+        title: '角色',
+        name: 'roleList',
+        control: 'unione-role-input',
+        value: 'TENANT-ADMIN,FORM-DEV'
+      },
+      {
         title: '备注信息',
         name: 'descs',
         control: 'a-textarea'
