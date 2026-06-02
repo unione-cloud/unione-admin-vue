@@ -250,7 +250,7 @@ const drawer = ref({
       {
         title: '租户状态',
         name: 'status',
-        control: 'unione-select-box',
+        control: 'unione-radio-box',
         value: 1,
         convert: {
           types: 'dict',
@@ -294,7 +294,12 @@ const drawer = ref({
         title: '角色',
         name: 'roleList',
         control: 'unione-role-input',
-        value: 'TENANT-ADMIN,FORM-DEV'
+        value: 'TENANT-ADMIN,FORM-DEV',
+        event: {
+          visible: (value: any, formValue: any) => {
+            return !formValue.id
+          }
+        }
       },
       {
         title: '备注信息',
