@@ -1,5 +1,6 @@
 import UnioneUserSelect from './user-select/index.vue'
 import UnioneRoleSelect from './role-select/index.vue'
+import UnioneRoleInput from './role-select/role-input.vue'
 import UnioneOrganSelect from './organ-select/index.vue'
 import UnioneGroupSelect from './group-select/index.vue'
 import UnionePostSelect from './post-select/index.vue'
@@ -18,6 +19,7 @@ export default {
     // 配置此应用
     app.component('UnioneUserSelect', UnioneUserSelect)
     app.component('UnioneRoleSelect', UnioneRoleSelect)
+    app.component('UnioneRoleInput', UnioneRoleInput)
     app.component('UnioneOrganSelect', UnioneOrganSelect)
     app.component('UnioneGroupSelect', UnioneGroupSelect)
     app.component('UnionePostSelect', UnionePostSelect)
