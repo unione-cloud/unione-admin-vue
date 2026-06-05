@@ -183,12 +183,35 @@ const drawer = ref({
       {
         title: '租户标识',
         name: 'sn',
-        required: true
+        required: true,
+        event: {
+          disabled: (val: any, formValue: any) => {
+            return !!formValue.id
+          }
+        }
       },
       {
         title: '租户名称',
         name: 'name',
-        required: true
+        required: true,
+        event: {
+          disabled: (val: any, formValue: any) => {
+            return !!formValue.id
+          }
+        }
+      },
+      {
+        title: '登录密码',
+        name: 'password',
+        control: 'a-input-password',
+        event: {
+          required: (val: any, formValue: any) => {
+            return !formValue.id
+          },
+          visible: (val: any, formValue: any) => {
+            return !formValue.id || !!formValue.adminId
+          }
+        }
       },
       {
         title: '租户域名',
@@ -296,8 +319,8 @@ const drawer = ref({
         control: 'unione-role-input',
         value: 'TENANT-ADMIN,FORM-DEV',
         event: {
-          visible: (value: any, formValue: any) => {
-            return !formValue.id
+          visible: (val: any, formValue: any) => {
+            return !formValue.id || !!formValue.adminId
           }
         }
       },
