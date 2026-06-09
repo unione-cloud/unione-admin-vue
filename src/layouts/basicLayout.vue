@@ -17,7 +17,7 @@
         <a-layout-header style="background: #fff; padding: 0" class="unione-layout-header"
           v-if="(sideMenu.list && sideMenu.list.length) || (topMenu.list && topMenu.list.length)">
           <div class="unione-header-left">
-            <div class="logo-box" v-if="!sideMenu.list || !sideMenu.list.length">
+            <div class="logo-box expanded" v-if="!sideMenu.list || !sideMenu.list.length">
               <div class="logo-title" :style="logoTitleCss">
                 {{ sideMenu.collapsed ? logoTitleSide : logoTitleText }}
               </div>
@@ -302,18 +302,15 @@ const isIframe = computed(() => {
 
 
   &.light {
+    .logo-box {
+      .logo-title {
+        border-bottom: 1px solid #f5f5f5;
+        background-color: #ffffff;
+      }
 
-    .unione-header-left {
-      .logo-box {
+      &.expanded {
         .logo-title {
-          border-bottom: 1px solid #f5f5f5;
-          background-color: #ffffff;
-        }
-
-        &.expanded {
-          .logo-title {
-            background-image: url('/logo_light.png');
-          }
+          background-image: url('/logo_light.png') !important;
         }
       }
     }
