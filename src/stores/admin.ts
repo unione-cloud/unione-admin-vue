@@ -234,6 +234,12 @@ export const useAdminStore = defineStore('unione-admin', () => {
                       if (!menu.meta.psn && !menu.meta.icon) {
                         menu.meta.icon = 'UnorderedListOutlined'
                       }
+                      if (
+                        app.url?.toLowerCase().startsWith('http://') ||
+                        menu.url?.toLowerCase().startsWith('https://')
+                      ) {
+                        menu.url = app.url + menu.url
+                      }
                       return menu
                     })
                   }
