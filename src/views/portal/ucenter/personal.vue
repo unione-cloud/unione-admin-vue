@@ -92,12 +92,10 @@ const lang = ref<any>({
 })
 
 
-
 function loadConfigs() {
   config.loadConfig('personal').then((configs: any) => {
-    console.log('loaded config', configs)
-    layout.value.value = utils.obj.getValue(configs, layout.value.sn) || layout.value.value
-    theme.value.value = utils.obj.getValue(configs, theme.value.sn) || theme.value.value
+    layout.value.value = configs[layout.value.sn]?.valueUsed || layout.value.value
+    theme.value.value = configs[theme.value.sn]?.valueUsed || theme.value.value
   })
 }
 

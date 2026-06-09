@@ -2,7 +2,7 @@ import { ref, h, computed, nextTick, watch } from 'vue'
 import { defineStore } from 'pinia'
 import type { MenuItem, ViewSetting, Personal } from './typing'
 import { useConfigStore } from '@/config'
-import { axios, useDialog, useSession } from 'unione-base-vue'
+import { axios, useDialog, useSession, utils } from 'unione-base-vue'
 import { useRouter } from 'vue-router'
 import * as Icons from '@ant-design/icons-vue/lib/icons'
 
@@ -467,6 +467,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
           if (res.success) {
             system.value = res.body
             sessionStorage.setItem('systemTitle', system.value?.name || view.value.title)
+            session.setStorage('system', JSON.stringify(system.value))
             resolve(system.value)
           } else {
             dialog.error(res.message)

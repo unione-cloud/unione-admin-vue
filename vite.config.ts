@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd())
   // console.log('vite build env mode=' + mode, env)
   return {
-    base: mode === 'dev' ? '/dev' : '/dist-cloud',
+    base: mode === 'dev' ? '/grgt' : '/dist-cloud',
     plugins: [vue(), VueDevTools()],
     resolve: {
       alias: {

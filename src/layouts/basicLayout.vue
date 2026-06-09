@@ -3,7 +3,7 @@
     <template v-if="!isIframe">
       <a-layout-sider v-model:collapsed="sideMenu.collapsed" :collapsedWidth="50" collapsible
         class="unione-layout-sider" v-if="sideMenu.list && sideMenu.list.length" :theme="theme">
-        <div class="logo-box">
+        <div :class="['logo-box', sideMenu.collapsed ? 'collapsed' : 'expanded']">
           <div class="logo-title" :style="logoTitleCss">
             {{ sideMenu.collapsed ? logoTitleSide : logoTitleText }}
           </div>
@@ -116,11 +116,23 @@ const logoTitleSide = computed(() => {
   return view.value.logo.title.side
 })
 const logoTitleCss = computed(() => {
+  let style: any = { ...(view.value.logo.title.css || {}) }
   const logo = admin.system?.configs?.logo
   if (logo && Object.keys(logo).includes('css')) {
-    return logo.css
+    style = { ...logo.css }
   }
-  return view.value.logo.title.css || {}
+  if (admin.system) {
+    if (sideMenu.value.collapsed) {
+      if (admin.system.logoSmall && !logoTitleSide.value) {
+        style.backgroundImage = 'url(' + configStore.config.axios.admin + '/api/common/store/preview/public/' + admin.system.logoSmall + ')'
+      }
+    } else {
+      if (admin.system.logoLarge) {
+        style.backgroundImage = 'url(' + configStore.config.axios.admin + '/api/common/store/preview/public/' + admin.system.logoLarge + ')'
+      }
+    }
+  }
+  return style
 })
 
 const viewComponent = computed(() => {
@@ -190,14 +202,18 @@ const isIframe = computed(() => {
 
       .logo-title {
         color: #ffffff;
-        background-image: url('/logo.png');
         background-size: 100% 100%;
+      }
+
+      &.expanded {
+        .logo-title {
+          background-image: url('/logo.png');
+        }
       }
     }
 
     &.ant-layout-sider-collapsed {
       .logo-title {
-        background-image: none !important;
         background-color: #1890ff;
         display: flex;
         align-items: center;
@@ -206,7 +222,7 @@ const isIframe = computed(() => {
       }
 
       .unione-sider-menu {
-        /deep/.ant-menu-item-icon {
+        :deep(.ant-menu-item-icon) {
           font-size: 20px;
         }
       }
@@ -226,10 +242,15 @@ const isIframe = computed(() => {
         display: inline-block;
 
         .logo-title {
-          color: #ffffff;
+          color: #FFFFFF;
           position: absolute;
-          background-image: url('/logo.png');
           background-size: 100% 100%;
+        }
+
+        &.expanded {
+          .logo-title {
+            background-image: url('/logo.png');
+          }
         }
       }
 
@@ -253,7 +274,7 @@ const isIframe = computed(() => {
     .unione-header-right {
       float: right;
 
-      /deep/.item {
+      :deep(.item) {
         margin: 0 10px;
       }
     }
@@ -282,12 +303,17 @@ const isIframe = computed(() => {
 
   &.light {
 
-    .unione-layout-sider,
     .unione-header-left {
       .logo-box {
         .logo-title {
-          background-image: url('/logo_light.png');
           border-bottom: 1px solid #f5f5f5;
+          background-color: #ffffff;
+        }
+
+        &.expanded {
+          .logo-title {
+            background-image: url('/logo_light.png');
+          }
         }
       }
     }

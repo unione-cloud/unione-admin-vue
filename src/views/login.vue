@@ -3,7 +3,7 @@
     <div class="login-box">
       <div class="box-body">
         <div class="ads-box">
-          <img class="ad-pic" :src="ImageAd" />
+          <img class="ad-pic" :src="systemLogo" />
         </div>
         <div class="login-form" v-if="formType === 'login'">
           <div class="box-head">
@@ -219,6 +219,12 @@ const systemTitle = computed(() => {
   setDocumentTitle(title);
   return title;
 })
+const systemLogo = computed(() => {
+  if (system.value?.configs?.login?.adImage) {
+    return config.axios.admin + '/api/common/store/preview/public/' + system.value.configs.login.adImage
+  }
+  return ImageAd
+})
 const welcome = computed(() => {
   if (system.value?.configs?.login) {
     if (Object.keys(system.value.configs.login).includes('welcome')) {
@@ -235,6 +241,7 @@ const captchaEnabled = computed(() => {
   }
   return view.value.login.captchaEnabled
 })
+
 
 
 // 登录表单
