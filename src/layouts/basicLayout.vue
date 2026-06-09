@@ -310,7 +310,7 @@ const isIframe = computed(() => {
 
       &.expanded {
         .logo-title {
-          background-image: url('/logo_light.png') !important;
+          background-image: url('/logo_light.png');
         }
       }
     }
