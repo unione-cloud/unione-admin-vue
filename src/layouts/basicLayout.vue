@@ -246,12 +246,6 @@ const isIframe = computed(() => {
           position: absolute;
           background-size: 100% 100%;
         }
-
-        &.expanded {
-          .logo-title {
-            background-image: url('/logo.png');
-          }
-        }
       }
 
       .trigger {
@@ -300,6 +294,15 @@ const isIframe = computed(() => {
     }
   }
 
+  &.dark {
+    .logo-box {
+      &.expanded {
+        .logo-title {
+          background-image: url('/logo.png');
+        }
+      }
+    }
+  }
 
   &.light {
     .logo-box {
