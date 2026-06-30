@@ -8,6 +8,9 @@ const helper = ref({
   baseURL: '/openai/v1',
   apiKey: 'sk--EmgF4LwGb7gM-bkFp9gEA',
   model: 'deepseek-v4-pro-online',
+  voice: {
+    enable: false
+  }
 })
 
 const admin = useAdminStore()
