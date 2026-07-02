@@ -31,7 +31,18 @@ const unionePage = ref<any>({
       convert: { types: 'dict', dictName: 'POSTTYPES' }
     },
     { title: '岗位图标', name: 'iconFont', control: 'unione-icon-select' },
-    { title: '岗位图片', name: 'iconPic' },
+    {
+      title: '岗位图片',
+      name: 'iconPic',
+      control: 'unione-upload-box',
+      props: {
+        accept: 'image/*',
+        listType: 'picture-card',
+        limit: 1,
+        valueType: 'string',
+        bucket: 'system'
+      }
+    },
     { title: '显示顺序', name: 'ordered', control: 'a-input-number', value: 1 },
     {
       title: '岗位状态',

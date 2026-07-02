@@ -76,8 +76,12 @@ const define = ref({
       isQuery: true
     },
     {
-      title: '创建时间',
-      name: 'created'
+      title: '开始时间',
+      name: 'timeLimitStart'
+    },
+    {
+      title: '过期时间',
+      name: 'timeLimitEnd'
     },
     {
       title: '修改时间',
@@ -179,53 +183,97 @@ const drawer = ref({
       {
         title: '租户标识',
         name: 'sn',
-        required: true
+        required: true,
+        event: {
+          disabled: (val: any, formValue: any) => {
+            return !!formValue.id
+          }
+        }
       },
       {
         title: '租户名称',
         name: 'name',
-        required: true
+        required: true,
+        event: {
+          disabled: (val: any, formValue: any) => {
+            return !!formValue.id
+          }
+        }
+      },
+      {
+        title: '登录密码',
+        name: 'password',
+        control: 'a-input-password',
+        event: {
+          required: (val: any, formValue: any) => {
+            return !formValue.id
+          },
+          visible: (val: any, formValue: any) => {
+            return !formValue.id || !!formValue.adminId
+          }
+        }
       },
       {
         title: '租户域名',
         name: 'domain'
       },
-      {
-        title: '系统图标',
-        name: 'logo'
-      },
-      {
-        title: '登录图标',
-        name: 'loginAd'
-      },
-      {
-        title: '管理员',
-        name: 'adminId'
-      },
+      // {
+      //   title: '租户logo',
+      //   name: 'logo',
+      //   control: 'unione-upload-box',
+      //   props: {
+      //     accept: 'image/*',
+      //     listType: 'picture-card',
+      //     limit: 1,
+      //     valueType: 'string',
+      //     bucket: 'system'
+      //   }
+      // },
+      // {
+      //   title: '登录图标',
+      //   name: 'loginAd',
+      //   control: 'unione-upload-box',
+      //   props: {
+      //     accept: 'image/*',
+      //     listType: 'picture-card',
+      //     limit: 1,
+      //     valueType: 'string',
+      //     bucket: 'system'
+      //   }
+      // },
       {
         title: '联系人',
-        name: 'linkMan'
-      },
-      {
-        title: '联系地址',
-        name: 'linkAdd'
+        name: 'linkMan',
+        required: true
       },
       {
         title: '联系电话',
-        name: 'linkTel'
-      },
-      {
-        title: '所在城市',
-        name: 'locationCity'
+        name: 'linkTel',
+        required: true
       },
       {
         title: '所在省份',
         name: 'locationProvince'
       },
       {
+        title: '所在城市',
+        name: 'locationCity'
+      },
+      {
+        title: '联系地址',
+        name: 'linkAdd'
+      },
+      {
+        title: '租户配置',
+        widget: 'unione-section',
+        props: {
+          type: 'line'
+        }
+      },
+      {
         title: '租户状态',
         name: 'status',
-        control: 'unione-select-box',
+        control: 'unione-radio-box',
         value: 1,
         convert: {
           types: 'dict',
@@ -233,8 +281,53 @@ const drawer = ref({
         }
       },
       {
+        title: '最大机构数',
+        name: 'maxOrganCount',
+        control: 'a-input-number'
+      },
+      {
+        title: '最大用户数',
+        name: 'maxUserCount',
+        control: 'a-input-number'
+      },
+      {
+        title: '最大在线用户',
+        name: 'maxUserOnline',
+        control: 'a-input-number'
+      },
+      {
+        title: '开始时间',
+        name: 'timeLimitStart',
+        control: 'a-date-picker',
+        props: {
+          format: 'YYYY-MM-DD',
+          valueFormat: 'YYYY-MM-DD'
+        }
+      },
+      {
+        title: '到期时间',
+        name: 'timeLimitEnd',
+        control: 'a-date-picker',
+        props: {
+          format: 'YYYY-MM-DD',
+          valueFormat: 'YYYY-MM-DD'
+        }
+      },
+      {
+        title: '角色',
+        name: 'roleList',
+        control: 'unione-role-input',
+        value: 'TENANT-ADMIN,FORM-DEV',
+        event: {
+          visible: (val: any, formValue: any) => {
+            return !formValue.id || !!formValue.adminId
+          }
+        }
+      },
+      {
         title: '备注信息',
-        name: 'descs'
+        name: 'descs',
+        control: 'a-textarea'
       }
     ],
     setting: {

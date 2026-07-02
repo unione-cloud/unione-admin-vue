@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import setting from './settings'
 import { utils, axios, useDialog, useSession } from 'unione-base-vue'
+import constant from './constant'
 import { defineStore } from 'pinia'
 
 /**
@@ -12,6 +13,8 @@ export const useConfigStore = defineStore('unione-config', () => {
 
   if (session.getStorage('unione-config')) {
     config.value = JSON.parse(session.getStorage('unione-config'))
+  } else {
+    loadConfig('personal')
   }
 
   /**
@@ -19,8 +22,26 @@ export const useConfigStore = defineStore('unione-config', () => {
    * @param options
    * @returns
    */
-  async function loadConfig(name: String) {
+  async function loadConfig(name: string) {
     const conf: any = {}
+    const token = session.getStorage(constant.ACCESS_TOKEN)
+    if (!token) {
+      return conf
+    }
+
+    if (name != 'personal') {
+      const configJson = session.getStorage('unione-config')
+      if (configJson) {
+        config.value = JSON.parse(configJson)
+        const confValue = utils.obj.getValue(config.value, name)
+        if (confValue) {
+          const tmp: any = {}
+          tmp[name] = confValue
+          return tmp
+        }
+      }
+    }
+
     const res = await axios
       .admin({
         method: 'POST',
@@ -29,7 +50,9 @@ export const useConfigStore = defineStore('unione-config', () => {
       .then()
     if (res.body) {
       res.body.forEach((row: any) => {
-        utils.obj.setValue(config.value, row.sn, row.valueUsed || row.valueDefault)
+        if (row.valueUsed || row.valueDefault) {
+          utils.obj.setValue(config.value, row.sn, row.valueUsed || row.valueDefault)
+        }
         conf[row.sn] = row
         session.setStorage('unione-config', JSON.stringify(config.value))
       })

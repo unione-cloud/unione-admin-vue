@@ -3,13 +3,13 @@
     <div class="login-box">
       <div class="box-body">
         <div class="ads-box">
-          <img class="ad-pic" :src="ImageAd" />
+          <img class="ad-pic" :src="systemLogo" />
         </div>
         <div class="login-form" v-if="formType === 'login'">
           <div class="box-head">
             <div class="app-info">
-              <div class="app-title">{{ view.login.appTitle }}</div>
-              <div class="sub-title">{{ view.login.subTitle }}</div>
+              <div class="app-title">{{ systemTitle }}</div>
+              <div class="sub-title">{{ welcome }}</div>
             </div>
             <div class="app-qr"><img :src="ImageQr" /></div>
           </div>
@@ -23,7 +23,7 @@
                 <a-form-item label="用户密码" name="password">
                   <a-input-password v-model:value="formData.password" />
                 </a-form-item>
-                <a-form-item label="验证码" name="captcha" required>
+                <a-form-item label="验证码" name="captcha" required v-if="captchaEnabled">
                   <div class="captcha-box">
                     <img class="img" :src="imageCaptcha.src" @click="imageCaptcha.refresh()" />
                     <a-input v-model:value="formData.captcha" @keyup.enter="toLogin" />
@@ -105,6 +105,27 @@
             </a-form-item>
           </a-form>
         </div>
+        <div class="lic-form" v-if="formType == 'licInstall'">
+          <div class="title">
+            License安装
+          </div>
+          <a-form-item label="MAC" help="复制mac给销售人员，申请License，然后点击下方按钮导入License完成安装。">{{ licInstaller.macVar
+          }}</a-form-item>
+          <a-form-item label="OS" :wrapperCol="{ span: 18 }">{{ licInstaller.osVar }}</a-form-item>
+          <a-form-item label="Disk">{{ licInstaller.diskVar }}</a-form-item>
+          <a-form-item label="Location">{{ licInstaller.locationVar }}</a-form-item>
+          <div class="btns">
+            <a-upload accept=".lic" :before-upload="licInstaller.doInstall">
+              <a-button>
+                <upload-outlined></upload-outlined>
+                导入License
+              </a-button>
+            </a-upload>
+            <a-button type="link" class="btn-login" @click="formType = 'login'">返回登录</a-button>
+          </div>
+        </div>
+        <div class="lic-expire" v-if="!licVerifyVar && formType != 'licInstall'">License未安装或已过期<a class="link"
+            @click="licInstaller.toInstall">点击安装</a></div>
       </div>
     </div>
   </div>
@@ -124,6 +145,10 @@ import ImageQr from '@/assets/login/qr.png'
 import { Modal } from 'ant-design-vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useConfigStore } from '@/config'
+import { setDocumentTitle } from '@/utils/domUtil'
+import { licVerify } from 'unione-base-vue'
+import FormVar from './flow/props/formVar.vue'
+
 
 defineOptions({
   name: 'UinoneLogin'
@@ -134,14 +159,90 @@ const route = useRoute()
 const config: any = useConfigStore().config
 const dialog = useDialog()
 
+const session = useSession()
+const formType = ref<'login' | 'forget' | 'register' | 'licInstall'>('login')
+const licVerifyVar = computed(() => licVerify.value)
+const licInstaller = ref<any>({
+  macVar: '',
+  osVar: '',
+  diskVar: '',
+  locationVar: '',
+  loading: false,
+  toInstall: () => {
+    formType.value = 'licInstall'
+    axios.admin({
+      url: '/api/lic/mac',
+      method: 'get'
+    }).then((res: any) => {
+      licInstaller.value.macVar = res.body.mac
+      licInstaller.value.osVar = res.body.os
+      licInstaller.value.diskVar = res.body.disk
+      licInstaller.value.locationVar = res.body.location
+    })
+  },
+  doInstall: (file: any) => {
+    if (!file || file.size < 100) {
+      dialog.error('请选择License文件')
+      return false
+    }
+    licInstaller.value.loading = true
+    const data = new FormData()
+    data.append('file', file)
+    axios.admin({
+      url: '/api/lic/install',
+      method: 'post',
+      data
+    }).then((res: any) => {
+      if (res.success) {
+        dialog.success('License安装成功')
+        formType.value = 'login'
+      } else {
+        dialog.error(res.message)
+      }
+    }).finally(() => {
+      licInstaller.value.loading = false
+    })
+    return false
+  }
+})
+
 // Admin对象
 const admin = useAdminStore()
 const view: any = computed(() => {
   return admin.view
 })
+const system = computed(() => {
+  return admin.system
+})
+const systemTitle = computed(() => {
+  const title = system.value?.name || view.value.title;
+  setDocumentTitle(title);
+  return title;
+})
+const systemLogo = computed(() => {
+  if (system.value?.configs?.login?.adImage) {
+    return config.axios.admin + '/api/common/store/preview/public/' + system.value.configs.login.adImage
+  }
+  return ImageAd
+})
+const welcome = computed(() => {
+  if (system.value?.configs?.login) {
+    if (Object.keys(system.value.configs.login).includes('welcome')) {
+      return system.value.configs.login.welcome
+    }
+  }
+  return view.value.login.welcome
+})
+const captchaEnabled = computed(() => {
+  if (system.value?.configs?.login) {
+    if (Object.keys(system.value.configs.login).includes('captchaEnabled')) {
+      return system.value.configs.login.captchaEnabled
+    }
+  }
+  return view.value.login.captchaEnabled
+})
 
-const session = useSession()
-const formType = ref<'login' | 'forget' | 'register'>('login')
+
 
 // 登录表单
 const loginType = ref('username')
@@ -196,6 +297,7 @@ const toLogin = () => {
             content: err.message,
             onOk: () => {
               imageCaptcha.value.refresh()
+              formData.value.captcha = ''
             }
           })
         } else {
@@ -315,6 +417,8 @@ onMounted(() => {
     } else {
       router.push('/home')
     }
+  } else {
+    admin.entry()
   }
 })
 
@@ -374,7 +478,8 @@ onMounted(() => {
 
     .box-body {
       display: flex;
-      height: calc(100% - 50px);
+      // height: calc(100% - 50px);
+      position: sticky;
 
       .ads-box {
         width: 55%;
@@ -504,6 +609,43 @@ onMounted(() => {
         }
 
       }
+
+      .lic-form {
+        padding-top: 50px;
+
+        .title {
+          color: #134ce4;
+          font-size: 30px;
+          font-weight: bold;
+          text-align: center;
+          user-select: none;
+          margin-bottom: 30px;
+        }
+
+        :deep(.ant-form-item) {
+          margin-bottom: 5px;
+        }
+
+        .btns {
+          display: flex;
+        }
+      }
+
+      .lic-expire {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        text-align: center;
+        color: red;
+        font-weight: bold;
+
+        .link {
+          color: #4096ff;
+          cursor: pointer;
+          margin-left: 5px;
+        }
+      }
+
     }
   }
 }

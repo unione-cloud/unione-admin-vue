@@ -5,12 +5,13 @@ export default {
   isDebug: false,
   // view setting
   view: {
+    title: 'Unione Cloud Admin',
+    welcome: 'Welcome to Unione Cloud Admin',
     logo: {
       title: {
         text: '',
         side: 'UCA',
         css: {
-          'background-image': 'url(' + (import.meta.env.VITE_APP_CTX || '') + '/logo.png)',
           'background-size': '100% 100%',
           height: '64px',
           width: '200px'
@@ -18,11 +19,10 @@ export default {
       }
     },
     login: {
-      appTitle: 'Unione Cloud Admin',
-      subTitle: '欢迎使用Cloud Admin'
+      welcome: '欢迎使用Cloud Admin',
+      captchaEnabled: true
     },
     primaryColor: '#1890FF', // primary color of ant design
-    navTheme: 'light', // light | dark
     hideFooter: false, //  auto hide footer
     layout: 'topside', // sidemenu | topmenu | topside
     contentWidth: 'fixed', // layout of content: Fluid or Fixed, only works when layout is topmenu
@@ -52,11 +52,32 @@ export default {
   },
   // axios setting
   axios: {
-    admin: '/portal'
+    admin: '/portal',
+    flow: '/flow',
+    job: '/job',
+    cms: '/cms'
   },
   // web setting
   web: {
     ctx: import.meta.env.VITE_APP_CTX || '',
     loginUrl: import.meta.env.VITE_LOGIN_URL || '/login'
-  }
+  },
+  flow: {
+    systemFieldList: [
+      { label: '当前时间', value: 'now', dataType: 'Timestamp' },
+      { label: '用户ID', value: 'userId', dataType: 'Long' },
+      { label: '用户名', value: 'userName', dataType: 'String' },
+      { label: '机构ID', value: 'orgId', dataType: 'Long' },
+      { label: '机构名称', value: 'orgName', dataType: 'String' },
+      { label: '租户ID', value: 'tenantId', dataType: 'Long' },
+      { label: '流程定义ID', value: 'flowDefId', dataType: 'Long' },
+      { label: '流程实例ID', value: 'flowInsId', dataType: 'Long' },
+      { label: '流程节点ID', value: 'flowNodeId', dataType: 'Long' },
+      { label: '流程任务ID', value: 'flowTaskId', dataType: 'Long' }
+    ]
+  },
+  listPageUrl: '/data/page/list',
+  addPageUrl: '/data/page/add',
+  editPageUrl: '/data/page/edit',
+  viewPageUrl: '/data/page/view'
 }

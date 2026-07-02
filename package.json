@@ -1,6 +1,6 @@
 {
   "name": "unione-admin-vue",
-  "version": "0.0.1",
+  "version": "1.0.1",
   "private": false,
   "type": "module",
   "scripts": {
@@ -17,10 +17,11 @@
   },
   "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",
-    "@codemirror/lang-javascript": "^6.2.2",
     "@codemirror/lang-css": "^6.2.2",
     "@codemirror/lang-html": "^6.2.2",
+    "@codemirror/lang-javascript": "^6.2.2",
     "@codemirror/lang-json": "^6.0.2",
+    "@codemirror/lang-sql": "^6.2.2",
     "@rushstack/eslint-patch": "^1.8.0",
     "@tsconfig/node20": "^20.1.4",
     "@types/jsdom": "^21.1.6",
@@ -44,6 +45,7 @@
     "eslint": "^8.57.0",
     "eslint-plugin-cypress": "^2.15.1",
     "eslint-plugin-vue": "^9.23.0",
+    "html2canvas": "^1.4.1",
     "jsdom": "^24.0.0",
     "less": "^4.2.0",
     "lodash-es": "^4.17.21",
@@ -55,8 +57,10 @@
     "sm-crypto": "^0.3.13",
     "start-server-and-test": "^2.0.3",
     "typescript": "~5.4.0",
-    "unione-base-vue": "^0.1.3",
-    "unione-form-vue": "^0.1.6",
+    "unione-ai-vue": "^0.1.0",
+    "unione-base-vue": "^0.1.10",
+    "unione-flow-vue": "^0.1.8",
+    "unione-form-vue": "^0.1.44",
     "uuid": "^10.0.0",
     "vite": "^5.2.8",
     "vite-plugin-vue-devtools": "^7.0.25",
@@ -65,8 +69,12 @@
     "vue-advanced-cropper": "^2.8.9",
     "vue-codemirror": "^6.1.1",
     "vue-i18n": "^9.13.1",
+    "vue-print-next": "^1.1.6",
+    "vue-qrcode": "^2.2.2",
+    "vue-qrcode-reader": "^5.7.3",
     "vue-router": "^4.3.0",
-    "vue-tsc": "^2.0.11"
+    "vue-tsc": "^2.0.11",
+    "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
     "@types/prismjs": "^1.26.5",

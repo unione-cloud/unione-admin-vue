@@ -1,0 +1,788 @@
+<template>
+    <div class="unione-flow-run">
+        <div :class="['flow-content', !rightPanel.open && 'max-width']">
+            <div class="flow-header">
+                <div class="flow-title">
+                    <ArrowLeftOutlined class="btn-back" @click="goback" />
+                    <span class="label">{{ flowInfo?.title || '--' }}{{ flowModel == 'start' ? ('v' + flowVers) : ''
+                    }}</span>
+                    <span class="flow-end" v-if="flowInfo?.status == 5">[已完成]</span>
+                    <span class="flow-end" v-else-if="flowInfo?.status == 6">[已停止]</span>
+                    <span class="curr-task" v-if="currTask">/{{ currTask.title }}</span>
+                    <a-dropdown>
+                        <template #overlay v-if="flowModel == 'start'">
+                            <a-menu>
+                                <a-menu-item key="1" @click="flowPriority = '1'">普通</a-menu-item>
+                                <a-menu-item key="2" @click="flowPriority = '2'">加急</a-menu-item>
+                                <a-menu-item key="3" @click="flowPriority = '3'">特急</a-menu-item>
+                            </a-menu>
+                        </template>
+                        <span :class="['priority', flowPriority == '1' ? 'normal' : '']"
+                            v-if="flowPriority == '1'">•（普通）</span>
+                        <span :class="['priority', flowPriority == '2' ? 'urgent' : '']"
+                            v-else-if="flowPriority == '2'">•（加急）</span>
+                        <span :class="['priority', flowPriority == '3' ? 'emergency' : '']"
+                            v-else-if="flowPriority == '3'">•（特急）</span>
+                    </a-dropdown>
+
+                </div>
+                <div class="flow-info" v-if="flowInfo?.commitUserName">
+                    <div class="item flow-type" v-if="flowInfo.flowChart?.title">流程类型：{{ flowInfo.flowChart.title }}/v{{
+                        flowInfo.vers }}
+                    </div>
+                    <div class="item start-user">发起人：{{ flowInfo.commitUserName }}</div>
+                    <div class="item start-time">发起时间：{{ flowInfo.commitTime }}</div>
+
+                    <div class="opts">
+                        <FullscreenOutlined title="全屏" class="opt" />
+                        <ClusterOutlined title="流程图" :class="['opt', flowChartVisible && 'active']"
+                            @click="flowChartVisible = !flowChartVisible" />
+                        <DoubleRightOutlined title="收起" class="opt" v-if="rightPanel.open"
+                            @click="rightPanel.open = false" />
+                        <DoubleLeftOutlined title="展开" class="opt" v-else @click="rightPanel.open = true" />
+                    </div>
+                </div>
+            </div>
+            <div class="flow-area" ref="flowAreaRef">
+                <div :class="['flow-form', !flowChartVisible && 'visible']"
+                    v-if="flowForm.type == 'form' && flowForm.sn">
+                    <unione-page-form ref="formRef" :psn="flowForm.sn" :btns="false" :params="{ id: busiId }"
+                        v-show="!flowChartVisible" :model="formModel"></unione-page-form>
+
+                    <a-card v-if="flowAuditObj.visible && currTask" class="audit-card" :style="flowAuditObj.style">
+                        <template #title>
+                            <UserOutlined />{{ currTask.title || '审核' }}
+                        </template>
+                        <template #extra>
+                            <DownOutlined @click="flowAuditObj.visible = false" />
+                        </template>
+                        <UnioneFlowAudit ref="flowAuditRef" @success="handleAuditSuccess" show="flow">
+                        </UnioneFlowAudit>
+                    </a-card>
+                </div>
+                <UFEditor v-if="flowChartVisible && flowInfo?.flowChart" model="run" :value="processFlowChart()">
+                </UFEditor>
+            </div>
+            <div class="flow-tools">
+                <a-button class="btn" danger v-if="flowBtns.revoke?.enable && !flowAuditObj.visible">撤回</a-button>
+                <a-button class="btn" v-if="flowBtns.press?.enable && !flowAuditObj.visible">催办</a-button>
+                <a-button class="btn" v-if="flowBtns.addSign?.enable && !flowAuditObj.visible">加签</a-button>
+                <a-button class="btn" danger v-if="flowBtns.waive?.enable && !flowAuditObj.visible">放弃</a-button>
+                <a-button class="btn" v-if="flowBtns.transfer?.enable && !flowAuditObj.visible">转审</a-button>
+                <a-button class="btn" v-if="flowBtns.assist?.enable && !flowAuditObj.visible">协办</a-button>
+                <a-button class="btn" @click="save" v-if="flowBtns.save?.enable && !flowAuditObj.visible">暂存</a-button>
+                <a-button class="btn" type="primary" @click="submit"
+                    v-if="flowBtns.submit?.enable && !flowAuditObj.visible && flowModel == 'start'">提交</a-button>
+                <a-button class="btn" type="primary" @click="handle"
+                    v-if="flowBtns.handel?.enable && !flowAuditObj.visible">办理</a-button>
+                <a-button class="btn" type="primary" @click="audit('submit', true)"
+                    v-if="flowBtns.submit?.enable && flowAuditObj.visible">同意</a-button>
+                <a-button class="btn" @click="audit('submit', false)" dangger
+                    v-if="flowBtns.submit?.enable && flowAuditObj.visible">拒绝</a-button>
+                <a-button class="btn" type="primary" danger @click="audit('reject', false)"
+                    v-if="flowBtns.reject?.enable && flowAuditObj.visible">驳回</a-button>
+                <a-button class="btn" v-if="flowBtns.back?.enable && !flowAuditObj.visible"
+                    @click="goback">返回</a-button>
+                <a-button class="btn" danger type="primary" @click="stop"
+                    v-if="flowBtns.stop?.enable && !flowAuditObj.visible">终止</a-button>
+            </div>
+        </div>
+        <div class="flow-right" v-if="rightPanel.open">
+            <a-tabs v-model:active="rightPanel.active">
+                <a-tab-pane tab="流转" key="task" class="flow-task-tab">
+                    <a-timeline>
+                        <a-timeline-item v-for="item in flowTasks" :key="item.id"
+                            :color="(item.status == 1 || item.status == 4) ? 'blue' : 'green'">
+                            <flow-task :task="item" :node="flowNodes[item.sn]"
+                                :condidates="flowCondidates[item.id]"></flow-task>
+                        </a-timeline-item>
+                    </a-timeline>
+                    <a-empty v-if="!flowTasks?.length"></a-empty>
+                    <div v-if="flowTasks?.length" style="height: 50px;"></div>
+                </a-tab-pane>
+                <a-tab-pane tab="沟通" key="comment" class="flow-comment-tab">
+                    <flow-comment :fid="flowInfo?.id" :tid="currTask?.id" :status="flowInfo?.status"></flow-comment>
+                </a-tab-pane>
+            </a-tabs>
+        </div>
+    </div>
+</template>
+<script setup lang="ts">
+import { axios, useDialog } from 'unione-base-vue';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { loadPreFormSync, processTaskStatus } from './lib/flowUtil';
+import UnioneFlowAudit from './comps/audit.vue'
+import flowTask from './comps/flowTask.vue';
+import flowComment from './comps/flowComment.vue';
+import dayjs from 'dayjs';
+
+defineOptions({
+    name: "UnioneFlowRun",
+})
+
+const props = defineProps({
+    // 流程编码
+    fsn: {
+        type: String,
+    },
+    vers: {
+        type: String,
+    },
+    // 流程实例id
+    fid: {
+        type: String,
+    },
+    // 模式：start:启动，run：运行，view：详情，archive：归档
+    fmd: {
+        type: String,
+    },
+    // 业务id
+    bid: {
+        type: String,
+    },
+
+})
+const route = useRoute()
+const router = useRouter()
+const dialog = useDialog()
+const emit = defineEmits(['refresh'])
+
+const rightPanel = ref({
+    open: true,
+    active: 'task',
+})
+
+const flowChartVisible = ref(false)
+// 流程信息
+const flowInfo = ref<any>()
+const flowNodes = computed<any>(() => {
+    if (flowInfo.value?.flowChart) {
+        const map: any = {}
+        flowInfo.value.flowChart.nodes.forEach((item: any) => {
+            map[item.sn] = item
+        })
+    }
+    return {}
+})
+const currTask = ref<any>()
+const flowTasks = computed(() => {
+    if (!flowInfo.value) {
+        return []
+    }
+    const tasks: any = [...(flowInfo.value.runs || []), ...(flowInfo.value.tasks || [])]
+    return tasks.sort((a: any, b: any) => {
+        return b.id - a.id
+    })
+})
+// 流程候选人：taskId->[]
+const flowCondidates = ref<any>({})
+watch(() => flowTasks.value, () => {
+    const ntids: any = []
+    flowTasks.value.forEach((item: any) => {
+        if (!flowCondidates.value[item.id]) {
+            ntids.push(item.id)
+        }
+    })
+    if (ntids.length) {
+        //加载候选人
+        axios.flow({
+            method: 'POST',
+            url: '/api/engine/condidate',
+            data: {
+                body: {
+                    tids: ntids
+                }
+            }
+        }).then((res: any) => {
+            if (res.success && res.body) {
+                res.body.forEach((item: any) => {
+                    item.tids.forEach((tid: any) => {
+                        let candidates = flowCondidates.value[tid] || []
+                        candidates.push(item)
+                        flowCondidates.value[tid] = candidates
+                    })
+                })
+            }
+        })
+    }
+})
+
+const flowLoading = ref(false)
+const flowAreaRef = ref()
+// 流程编码
+const flowSn = computed(() => {
+    return props.fsn || route.query.fsn;
+})
+// 流程版本
+const flowVers = computed(() => {
+    return flowInfo.value?.vers || props.vers || route.query.vers;
+})
+// 流程实例id
+const flowId = computed(() => {
+    return props.fid || route.query.fid;
+})
+// 业务id
+const busiId = computed(() => {
+    return props.bid || route.query.bid || flowForm.value.bid;
+})
+// 流程模式
+const flowModel = computed<any>(() => {
+    const model: any = props.fmd || route.query.fmd
+    if (currTask.value && ['start', 'run'].includes(model)) {
+        if (currTask.value.status == 1 || currTask.value.status == 2 || currTask.value.status == 4) {
+            return 'run'
+        }
+        return 'view'
+    }
+    return model;
+})
+const formModel = computed(() => {
+    return (flowModel.value == 'run' || flowModel.value == 'start') ? 'run' : 'view'
+})
+const flowPriority = ref<any>('1')
+/**
+ * 流程操作按钮
+ */
+const flowBtns = computed(() => {
+    const btns: any = {
+        handel: {
+            enable: false
+        },
+        save: {
+            enable: false
+        },
+        submit: {
+            enable: false
+        },
+        reject: {
+            enable: false
+        },
+        back: {
+            enable: false
+        },
+        addSign: {
+            enable: false
+        },
+        transfer: {
+            enable: false
+        },
+        assist: {
+            enable: false
+        },
+        press: {
+            enable: false
+        },
+        revoke: {
+            enable: false
+        },
+        waive: {
+            enable: false
+        },
+        stop: {
+            enable: false
+        }
+    }
+
+    const modelMap: any = {
+        start: ['submit', 'back'],
+        run: ['submit', 'reject', 'back', 'save', 'handel', 'waive', 'stop'], //'addSign', 'transfer', 'assist', 'revoke'
+        view: ['back'], //  'revoke', 'press'
+        archive: ['back'],
+    }
+
+    // 过滤按钮
+    const modelBtns = modelMap[flowModel.value] || []
+    modelBtns.forEach((item: any) => {
+        btns[item].enable = true
+    })
+
+    if (currTask.value?.opts) {
+        const opts = JSON.parse(currTask.value.opts)
+        Object.keys(btns).forEach((name: any) => {
+            const btn: any = btns[name]
+            if (!opts.includes(name)) {
+                btn.enable = false
+            }
+        })
+    }
+
+    if (flowModel.value == 'view' && currTask.value?.status == 3) {
+        btns.press.enable = false
+    }
+
+    return btns;
+})
+
+// 流程审核
+const flowAuditRef = ref()
+const flowAuditObj = ref<any>({
+    visible: false,
+    style: {}
+})
+
+// 流程表单
+const flowForm = ref<any>({
+    type: 'form',   //form,custom
+    url: '',
+    sn: null,
+    define: null,
+    bid: null,
+})
+const formRef = ref()
+
+/**
+ * 暂存表单数据
+ */
+function save() {
+    if (formRef.value) {
+        formRef.value.save().then((data: any) => {
+            if (data.body) {
+                flowForm.value.bid = data.body.id
+            }
+        })
+    }
+}
+
+/**
+ * 提交流程
+ */
+function submit() {
+    if (flowModel.value != 'start' && (currTask.value?.types != 'start')) {
+        return
+    }
+    if (currTask.value?.types == 'start') {
+        // 流程驳回，重新提交
+        formRef.value.getData().then((data: any) => {
+            flowAuditRef.value.commit(true, data)
+        })
+        return
+    }
+
+    // 启动新流程
+    dialog.confirm({
+        content: '确定提交当前流程吗？',
+        onOk: () => {
+            // 提交流程
+            formRef.value.getData().then((data: any) => {
+                console.log('form data', data)
+                if (data) {
+                    flowLoading.value = true
+                    axios.flow({
+                        method: 'POST',
+                        url: '/api/engine/instance/run',
+                        data: {
+                            sn: flowSn.value,
+                            vers: flowVers.value,
+                            form: data,
+                            priority: flowPriority.value
+                        }
+                    }).then((res: any) => {
+                        flowLoading.value = false
+                        console.log('submit res', res)
+                        if (res.success && res.body) {
+                            dialog.success('提交成功')
+                            flowInfo.value = res.body
+                            if (res.body.runs?.[0]) {
+                                currTask.value = res.body.runs[0]
+                            } else {
+                                // 查看模式
+                                if (flowInfo.value.tasks) {
+                                    currTask.value = flowInfo.value.tasks[flowInfo.value.tasks.length - 1]
+                                }
+                            }
+                        } else {
+                            dialog.error(res.message)
+                        }
+                    })
+                } else {
+                    dialog.error('表单数据获取失败')
+                }
+
+            })
+        }
+    })
+}
+
+/**
+ * 停止流程
+ */
+function stop() {
+    dialog.confirm({
+        content: '确定要终止当前流程么？',
+        onOk: () => {
+            // 终止流程
+            axios.flow({
+                method: 'POST',
+                url: '/api/engine/instance/stop?insId=' + flowInfo.value.id,
+            }).then((res: any) => {
+                flowLoading.value = false
+                console.log('stop res', res)
+                if (res.success) {
+                    dialog.success('终止成功')
+                    goback()
+                } else {
+                    dialog.error(res.message)
+                }
+            })
+        }
+    })
+}
+
+/**
+ * 办理
+ */
+function handle() {
+    if (!currTask.value) {
+        return
+    }
+
+    const show = () => {
+        flowAuditObj.value.visible = true
+        flowAuditObj.value.style.width = flowAreaRef.value.clientWidth + 'px'
+        nextTick(() => {
+            const node = flowInfo.value.flowChart.nodes.find((item: any) => item.sn == currTask.value.sn)
+            flowAuditRef.value.init(currTask.value.id, {
+                fsn: flowSn.value,
+                nsn: currTask.value.sn,
+                node: node
+            })
+        })
+    }
+
+    console.log('currTask.value', currTask.value)
+    if (!currTask.value.signTime) {
+        dialog.confirm({
+            content: '确定办理当前流程吗？',
+            onOk: () => {
+                // 办理流程
+                flowLoading.value = true
+                axios.flow({
+                    method: 'POST',
+                    url: '/api/engine/task/sign',
+                    data: {
+                        taskId: currTask.value.id
+                    }
+                }).then((res: any) => {
+                    flowLoading.value = false
+                    currTask.value.signTime = dayjs().format('YYYY-MM-DD HH:mm:ss')
+                    if (res.success) {
+                        show()
+                    } else {
+                        dialog.error(res.message)
+                    }
+                })
+            }
+        })
+    } else {
+        show()
+    }
+}
+
+function audit(action: string, result: boolean) {
+    if (!currTask.value) {
+        return
+    }
+    if (!flowAuditObj.value.visible) {
+        return;
+    }
+    // 提交流程
+    flowAuditRef.value.commit(action, result)
+}
+function handleAuditSuccess({ task, result, action }: any) {
+    currTask.value.status = result ? 3 : 4
+    if (action == 'reject') {
+        currTask.value.status = 3
+    }
+    currTask.value.handleResult = result ? 1 : 2
+    flowInfo.value.tasks = [...(flowInfo.value.tasks || []), { ...currTask.value }]
+    if (task) {
+        flowInfo.value.runs = [task]
+        currTask.value = task
+    }
+    flowAuditObj.value.visible = false
+    flowInfo.value = { ...flowInfo.value }
+}
+
+/**
+ * 返回
+ */
+function goback() {
+    router.back()
+}
+
+function loadFlowForm() {
+    if (!flowInfo.value?.flowChart) {
+        return;
+    }
+
+    if (flowModel.value == 'run' || currTask.value) {
+        // 获取当前活动任务节点表单
+        //@ts-ignore
+        const result = loadPreFormSync(flowInfo.value.flowChart, flowInfo.value.flowChart.nodes.find((node: any) => node.sn == currTask.value?.sn))
+        if (result) {
+            flowForm.value.type = 'form'
+            flowForm.value.sn = result + ':form'
+        }
+    } else {
+        // 获取开始节点表单
+        const startNode = flowInfo.value?.flowChart.nodes.find((node: any) => node.types == 'start')
+        if (startNode) {
+            if (startNode.data?.formType == 1) {
+                //动态表单
+                if (!startNode.data?.formSn) {
+                    dialog.error('流程配置异常，开始节点未配置表单')
+                    return
+                }
+                flowForm.value.type = 'form'
+                flowForm.value.sn = startNode.data.formSn + ':form'
+            } else if (startNode.data?.formType == 2) {
+                // 外部表单
+            }
+        }
+    }
+}
+
+
+// 加载流程信息
+function loadFlowInfo() {
+    if (flowModel.value == 'start') {
+        if (!flowSn.value) {
+            dialog.error('参数fsn不能为空')
+            return;
+        }
+    } else {
+        if (!flowId.value) {
+            dialog.error('参数fid不能为空')
+            return;
+        }
+    }
+
+    let url = '/api/engine/instance/view/' + flowId.value
+    if (flowModel.value == 'start') {
+        // 加载流程模版
+        url = '/api/engine/profile/' + flowSn.value
+        if (flowVers.value) {
+            url += '/' + flowVers.value
+        }
+    } else if (flowModel.value == 'archive' || flowModel.value == 'view') {
+        // 加载流程历史信息
+        url = '/api/engine/instance/detail/' + flowId.value
+    }
+
+    // 加载流程信息
+    axios.flow({
+        url,
+        method: 'post',
+    }).then((res: any) => {
+        if (res.success && res.body) {
+            flowInfo.value = res.body
+            flowForm.value.bid = res.body.busiKey || busiId.value
+            flowPriority.value = res.body.priority || '1'
+            if (flowInfo.value?.runs?.[0]) {
+                currTask.value = flowInfo.value.runs[0]
+                console.log('currTask.value1', currTask.value)
+            }
+            loadFlowForm()
+        } else {
+            dialog.error(res.message)
+        }
+    })
+
+}
+
+function processFlowChart() {
+    const flowChart = JSON.parse(JSON.stringify(flowInfo.value.flowChart))
+    // 处理任务状态
+    processTaskStatus(flowChart, [...(flowInfo.value.tasks || []), ...(flowInfo.value.runs || [])])
+    return flowChart
+}
+
+onMounted(() => {
+    loadFlowInfo()
+})
+
+</script>
+<style lang="less" scoped>
+.unione-flow-run {
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    background-color: #f5f5f5;
+    justify-content: space-between;
+
+    .flow-content {
+        width: calc(100% - 360px);
+        background-color: #fff;
+        border-radius: 5px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+
+        &.max-width {
+            width: 100%;
+        }
+
+        .flow-header {
+            height: 45px;
+            border-bottom: 1px solid rgba(5, 5, 5, 0.06);
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+
+            .flow-title {
+                height: 100%;
+                font-size: 18px;
+                font-weight: 500;
+                color: #333;
+                display: flex;
+                align-items: center;
+
+                .btn-back {
+                    cursor: pointer;
+                    margin: 0 10px;
+                }
+
+                .priority {
+                    color: #1677ff;
+                    margin-left: 5px;
+                    font-size: 14px;
+
+                    &.normal {
+                        color: #1677ff;
+                    }
+
+                    &.urgent {
+                        color: #ff9900;
+                    }
+
+                    &.emergency {
+                        color: #ff3300;
+                    }
+                }
+            }
+
+            .flow-info {
+                height: 100%;
+                color: #333;
+                display: flex;
+                align-items: center;
+
+                .item {
+                    margin-right: 20px;
+                    color: #999;
+                }
+
+                .opts {
+                    font-size: 18px;
+                    font-weight: 500;
+
+                    .opt {
+                        margin-right: 10px;
+                        cursor: pointer;
+
+                        &.active {
+                            color: #1677ff;
+                        }
+                    }
+                }
+            }
+        }
+
+        .flow-area {
+            width: 100%;
+            height: calc(100% - 110px);
+            overflow: auto;
+
+            .flow-form {
+
+                &.visible {
+                    padding: 10px 20px;
+                }
+
+                :deep(.unione-page-form) {
+                    padding: 0;
+                }
+            }
+
+            .audit-card {
+                position: absolute;
+                bottom: 70px;
+                width: 100%;
+                min-height: 500px;
+                margin-left: -20px;
+
+                :deep(.ant-card-head) {
+                    background-color: #f5f5f5;
+                    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+                }
+
+                :deep(.ant-card-body) {
+                    max-height: 600px;
+                    overflow-y: auto;
+                }
+
+            }
+        }
+
+        .flow-tools {
+            text-align: right;
+            height: 70px;
+            padding-top: 5px;
+            border-top: 1px solid rgba(5, 5, 5, 0.06);
+            background-color: #FFFFFF;
+
+            .btn {
+                margin-right: 10px;
+            }
+        }
+
+    }
+
+    .flow-right {
+        width: 350px;
+        background-color: #fff;
+        border-radius: 5px;
+
+        :deep(.ant-tabs) {
+            height: 100%;
+
+            .ant-tabs-tab {
+                padding: 12px 20px;
+            }
+
+            .ant-tabs .ant-tabs-tab+.ant-tabs-tab {
+                margin-left: 10px;
+            }
+
+            .ant-tabs-content-holder {
+                height: 100%;
+                overflow-y: auto;
+
+                .ant-tabs-content {
+                    height: 100%;
+                }
+            }
+        }
+
+
+        .flow-task-tab {
+            padding: 5px 15px;
+
+            :deep(.ant-timeline-item-head-green) {
+                background-color: #52c41a;
+            }
+
+            :deep(.ant-timeline-item-head-blue) {
+                background-color: #ee9208;
+                border-color: #ee9208;
+            }
+        }
+
+        .flow-comment-tab {
+            height: 100%;
+        }
+
+    }
+}
+</style>

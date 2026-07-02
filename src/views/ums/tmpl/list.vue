@@ -141,6 +141,8 @@ function setStatus(id: string, status: number) {
           url: '/api/ums/tmpl/status',
           method: 'post',
           data: { id, status }
+        }, {
+          useMessage: true
         })
         .then((res: any) => {
           page.value.reload()

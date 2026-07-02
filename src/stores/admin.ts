@@ -2,7 +2,7 @@ import { ref, h, computed, nextTick, watch } from 'vue'
 import { defineStore } from 'pinia'
 import type { MenuItem, ViewSetting, Personal } from './typing'
 import { useConfigStore } from '@/config'
-import { axios, useDialog, useSession } from 'unione-base-vue'
+import { axios, useDialog, useSession, utils } from 'unione-base-vue'
 import { useRouter } from 'vue-router'
 import * as Icons from '@ant-design/icons-vue/lib/icons'
 
@@ -10,7 +10,11 @@ import * as Icons from '@ant-design/icons-vue/lib/icons'
  * Admin Store
  */
 export const useAdminStore = defineStore('unione-admin', () => {
+  const system = ref<any>({
+    ctx: window.location.pathname.split('/')[1] || 'portal'
+  })
   const configObj = useConfigStore()
+  const loading = ref<any>({})
   // 菜单数据集合
   const menuData = ref<Array<MenuItem>>([])
   const menuMap = ref<any>({})
@@ -28,7 +32,12 @@ export const useAdminStore = defineStore('unione-admin', () => {
   // view配置
   const view = ref<ViewSetting>(configObj.config.view)
   // personal配置
-  const personal = ref<Personal>(configObj.config.personal)
+  const personal = ref<Personal>(
+    configObj.config.personal || {
+      layout: 'topside',
+      theme: 'light'
+    }
+  )
   // const view = computed(() => config.view)
   const router = useRouter()
   const dialog = useDialog()
@@ -42,14 +51,16 @@ export const useAdminStore = defineStore('unione-admin', () => {
       items.forEach((item) => {
         const route: any = {
           name: item.id,
-          title: item.title,
           path: item.path,
           meta: {
             ...(item.meta || {}),
-            url: item.url
+            url: item.url,
+            title: item.title
           },
-          props: item.props || {},
-          component: item.component
+          props: item.props || {}
+        }
+        if (item.component) {
+          route.component = item.component
         }
         if (item.children && item.children.length) {
           route.children = buildRoute(item.children)
@@ -69,7 +80,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
           appId: item.appId,
           key: item.id,
           label: item.title,
-          icon: item.meta?.icon || 'UnorderedListOutlined',
+          icon: item.meta?.icon,
           path: item.path,
           parent: parent?.key || ''
         }
@@ -194,7 +205,17 @@ export const useAdminStore = defineStore('unione-admin', () => {
                   let mlist: Array<MenuItem> = []
                   if (menus && menus.length) {
                     mlist = menus.map((m: any) => {
-                      return {
+                      if (m.configs) {
+                        try {
+                          const configs = JSON.parse(m.configs)
+                          if (configs.meta) {
+                            m.meta = configs.meta
+                          }
+                        } catch (e) {
+                          //
+                        }
+                      }
+                      const menu = {
                         id: m.id,
                         appId: app.id,
                         title: m.title,
@@ -202,13 +223,24 @@ export const useAdminStore = defineStore('unione-admin', () => {
                         url: m.url,
                         hidden: m.isHide == 1,
                         meta: {
-                          icon: m.icon || 'UnorderedListOutlined',
+                          icon: m.icon,
                           isExternal: m.isExternal,
                           isHide: m.isHide,
-                          isIframe: m.isIframe
+                          isIframe: m.isIframe,
+                          ...(m.meta || {})
                         },
                         children: processMenu(app, m.children)
                       }
+                      if (!menu.meta.psn && !menu.meta.icon) {
+                        menu.meta.icon = 'UnorderedListOutlined'
+                      }
+                      if (
+                        app.url?.toLowerCase().startsWith('http://') ||
+                        menu.url?.toLowerCase().startsWith('https://')
+                      ) {
+                        menu.url = app.url + menu.url
+                      }
+                      return menu
                     })
                   }
                   return mlist
@@ -289,7 +321,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
   }
 
   watch(
-    () => personal.value.layout,
+    () => personal.value?.layout,
     (newVal) => {
       rebuildMenu()
     }
@@ -303,6 +335,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
           menuData.value = menuList
           reject(true)
         })
+        configObj.loadConfig('personal')
       } else {
         resolve(true)
       }
@@ -319,7 +352,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
     if (!menu) {
       return
     }
-    if (personal.value.layout == 'topside') {
+    if (personal.value?.layout == 'topside') {
       sideMenu.value.selectedKeys = []
       sideMenu.value.openKeys = []
       sideMenu.value.list = menu.children
@@ -398,6 +431,61 @@ export const useAdminStore = defineStore('unione-admin', () => {
     return session.isLogin()
   }
 
+  function logout() {
+    session.doLogout().then(() => {
+      menuData.value = []
+      menuMap.value = {}
+      topMenu.value = {
+        selectedKeys: [],
+        openKeys: [],
+        list: []
+      }
+      sideMenu.value = {
+        collapsed: false,
+        selectedKeys: [],
+        openKeys: [],
+        list: []
+      }
+      session.delStorage('menuList')
+      router.push({ path: '/login' })
+    })
+  }
+
+  function entry() {
+    return new Promise((resolve, reject) => {
+      if (system.value && system.value.id) {
+        const pathname = location.pathname.split('/')[1]
+        if (pathname == system.value.ctx) {
+          return resolve(system.value)
+        }
+      }
+      if (loading.value.system) {
+        return reject('system loading')
+      }
+
+      loading.value.system = true
+      axios
+        .admin({
+          url: '/api/entry',
+          method: 'get'
+        })
+        .then((res: any) => {
+          if (res.success) {
+            system.value = res.body
+            sessionStorage.setItem('systemTitle', system.value?.name || view.value.title)
+            session.setStorage('system', JSON.stringify(system.value))
+            resolve(system.value)
+          } else {
+            dialog.error(res.message)
+            reject(res.message)
+          }
+        })
+        .finally(() => {
+          loading.value.system = false
+        })
+    })
+  }
+
   return {
     menuData,
     sideMenu,
@@ -406,8 +494,11 @@ export const useAdminStore = defineStore('unione-admin', () => {
     topMenuClick,
     sideMenuClick,
     view,
+    logout,
     isLogin,
     rebuildMenu,
-    loadBreadcrumbList
+    loadBreadcrumbList,
+    system,
+    entry
   }
 })

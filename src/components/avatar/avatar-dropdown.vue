@@ -1,12 +1,9 @@
 <template>
-  <a-dropdown
-    v-if="principal && principal.id"
-    class="unione-avatar-dropdown"
-    placement="bottomRight"
-    overlayClassName="avatar-dropdown-container"
-  >
+  <a-dropdown v-if="principal && principal.id" class="unione-avatar-dropdown" placement="bottomRight"
+    overlayClassName="avatar-dropdown-container">
     <span>
-      <a-avatar size="small" :src="principal.avatar || '/avatar.png'" class="unione-avatar" />
+      <a-avatar size="small" :src="avatarUrl" class="unione-avatar">
+      </a-avatar>
       <span class="unione-avatar-name anticon">{{
         principal.aliasName || principal.realName
       }}</span>
@@ -15,8 +12,8 @@
       <a-menu class="unione-dropdown-menu" :selected-keys="[]">
         <!-- <a-menu-item v-if="menu" key="center" @click="handleToCenter">
           <template #icon><user-outlined /></template>
-          个人中心
-        </a-menu-item> -->
+个人中心
+</a-menu-item> -->
         <a-menu-item v-if="menu" key="settings" @click="handleToSettings">
           <template #icon><setting-outlined /></template>
           个人设置
@@ -34,50 +31,40 @@
   </span>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
-import { UserOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons-vue'
+<script lang="ts" setup>
+import { useConfigStore } from '@/config'
+import { LogoutOutlined, SettingOutlined } from '@ant-design/icons-vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { useI18n } from 'vue-i18n'
-import { useSession } from 'unione-base-vue'
+import { useAdminStore } from '@/stores/admin'
 
-export default defineComponent({
-  name: 'AvatarDropdown',
-  props: {
-    principal: {
-      type: Object,
-      default: () => null
-    },
-    menu: {
-      type: Boolean,
-      default: true
-    }
+const config = useConfigStore().config
+
+const props = defineProps({
+  principal: {
+    type: Object,
+    default: () => null
   },
-  setup() {
-    const router = useRouter()
-    const session = useSession()
-    // const store = useStore();
-    const { t } = useI18n()
-    const handleToCenter = () => {
-      router.push({ path: '/account/center' })
-    }
-    const handleToSettings = () => {
-      router.push({ path: '/ucenter' })
-    }
-    const handleLogout = () => {
-      session.doLogout().then(() => {
-        router.push({ path: '/login' })
-      })
-    }
-
-    return {
-      t,
-      handleToCenter,
-      handleToSettings,
-      handleLogout
-    }
+  menu: {
+    type: Boolean,
+    default: true
   }
 })
+
+const router = useRouter()
+const admin = useAdminStore()
+const handleToSettings = () => {
+  router.push({ path: '/ucenter' })
+}
+const handleLogout = () => {
+  admin.logout()
+}
+
+const avatarUrl = computed(() => {
+  return props.principal?.avatar && (config.axios.admin + '/api/common/store/preview/public/' + props.principal.avatar) ||
+    '/avatar.png'
+})
+
 </script>
 
 <style scoped lang="less">

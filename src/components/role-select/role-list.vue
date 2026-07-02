@@ -1,27 +1,12 @@
 <template>
   <a-row class="role-select-warp">
     <a-col :span="13" class="type-list">
-      <a-input
-        v-model:value="treeKeywords"
-        :placeholder="'搜索角色(回车)...'"
-        class="type-search"
-        allowClear
-        @change="searchTreeData()"
-      ></a-input>
+      <a-input v-model:value="treeKeywords" :placeholder="'搜索角色(回车)...'" class="type-search" allowClear
+        @change="searchTreeData()"></a-input>
 
-      <a-tree
-        :showLine="{ showLeafIcon: false }"
-        showIcon
-        checkable
-        blockNode
-        defaultExpandAll
-        :tree-data="treeData"
-        :fieldNames="{ key: 'id' }"
-        v-if="treeData?.length > 0"
-        v-model:selectedKeys="selectedKeys"
-        v-model:checkedKeys="checkedKeys"
-        @check="onCheck"
-      >
+      <a-tree :showLine="{ showLeafIcon: false }" showIcon checkable blockNode defaultExpandAll :tree-data="treeData"
+        :fieldNames="{ key: 'id' }" v-if="treeData?.length > 0" v-model:selectedKeys="selectedKeys"
+        v-model:checkedKeys="checkedKeys" @check="onCheck">
         <template #icon="{ dataRef }">
           <component :is="dataRef.rtype == 0 ? 'FilterOutlined' : 'IdcardOutlined'"></component>
         </template>
@@ -35,13 +20,8 @@
               <template #title>
                 <a-badge class="num" :count="index + 1" size="small" />
                 <a-tooltip placement="top" title="是否可传递" v-if="targetType == 'permis'">
-                  <a-switch
-                    size="small"
-                    v-model:checked="item.enDilivery"
-                    class="isDlv"
-                    checkedChildren="是"
-                    unCheckedChildren="否"
-                  ></a-switch>
+                  <a-switch size="small" v-model:checked="item.enDilivery" class="isDlv" checkedChildren="是"
+                    unCheckedChildren="否"></a-switch>
                 </a-tooltip>
                 <div>名称：{{ item.title }}</div>
                 <div>编码：{{ item.sn || '--' }}</div>
@@ -117,7 +97,13 @@ function loadTreeData() {
         treeNode.value[item.id] = item
         item.isLeaf = true
         item.enDilivery = item.enDilivery == 1 ? true : false
-        if (item.checked || props.selected?.includes(item.id)) {
+        const sltIds = props.selected?.map((r: any) => {
+          if (typeof r === 'string') {
+            return r
+          }
+          return r.id
+        }) || []
+        if (item.checked || sltIds.includes(item.id)) {
           checkedKeys.value.push(item.id)
           selectedTarget.value.push(item)
         }
@@ -232,12 +218,14 @@ defineExpose({ loadTreeData, getSelected, getSelectedList, getSelectedIds })
       align-self: stretch;
     }
   }
+
   .selected-list {
     height: 100%;
     padding: 5px;
 
     :deep(.ant-list-item) {
       padding: 5px;
+
       .btn {
         display: none;
         float: right;
@@ -245,12 +233,15 @@ defineExpose({ loadTreeData, getSelected, getSelectedList, getSelectedIds })
         color: rgba(0, 0, 0, 0.88);
         color: red;
       }
+
       .isDlv {
         float: right;
         margin-right: 5px;
       }
+
       .num {
         float: right;
+
         .ant-badge-count {
           background-color: #fff;
           color: #7d7c7c;
@@ -258,8 +249,10 @@ defineExpose({ loadTreeData, getSelected, getSelectedList, getSelectedIds })
         }
       }
     }
+
     :deep(.ant-list-item:hover) {
       background-color: #eeeeee;
+
       .btn {
         display: block;
       }

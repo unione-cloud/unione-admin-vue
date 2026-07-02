@@ -3,13 +3,8 @@
   <div class="unione-page unione-page-list unione-system-role">
     <unione-page-list ref="page" v-bind="define" @btnClick="btnClick"></unione-page-list>
 
-    <a-drawer
-      :title="drawer.title"
-      :width="550"
-      v-model:visible="drawer.visible"
-      :placement="drawer.placement"
-      class="drawer-form"
-    >
+    <a-drawer :title="drawer.title" :width="550" v-model:visible="drawer.visible" :placement="drawer.placement"
+      class="drawer-form">
       <unione-form :form="drawer.form" ref="form"></unione-form>
 
       <div class="btns">
@@ -21,8 +16,12 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref } from 'vue'
+import { useSession } from 'unione-base-vue'
+import { computed, nextTick, ref } from 'vue'
 import { useRouter, type Router } from 'vue-router'
+
+const session = useSession()
+const principal = computed(() => session.getPrincipal())
 
 const router: Router = useRouter()
 const page = ref()
@@ -135,10 +134,19 @@ const drawer = ref({
         title: '角色类型',
         name: 'types',
         control: 'unione-select-box',
-        value: 9,
+        value: 3,
         convert: {
           types: 'dict',
-          dictName: 'ROLETYPE'
+          dictName: 'ROLETYPE',
+          filter: (options: any) => {
+            const userRoles = principal.value?.userRoles || []
+            if (userRoles.includes('SUPPER-ADMIN')) {
+              return options
+            } else if (userRoles.includes('TENANT-ADMIN')) {
+              return options.filter((item: any) => item.value != 1)
+            }
+            return options.filter((item: any) => item.value == 3)
+          }
         }
       },
       {
