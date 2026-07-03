@@ -299,7 +299,7 @@ const drawer = ref<any>({
             }, {
               title: '认证密码',
               name: 'dataJson.password',
-              control: 'unione-pwd-box',
+              control: 'a-input-password',
               required: true,
               props: {
                 placeholder: '请输入认证密码'
@@ -312,7 +312,7 @@ const drawer = ref<any>({
             }, {
               title: '认证令牌',
               name: 'dataJson.token',
-              control: 'unione-pwd-box',
+              control: 'a-input-password',
               required: true,
               event: {
                 visible: (val: any, formValue: any) => {
@@ -337,7 +337,7 @@ const drawer = ref<any>({
             {
               title: 'ApiSecret',
               name: 'dataJson.apiSecret',
-              control: 'unione-pwd-box',
+              control: 'a-input-password',
               required: true,
               props: {
                 placeholder: '请输入ApiSecret'
@@ -379,7 +379,7 @@ const drawer = ref<any>({
             {
               title: 'AppSecret',
               name: 'dataJson.appSecret',
-              control: 'unione-pwd-box',
+              control: 'a-input-password',
               required: true,
               props: {
                 placeholder: '请输入AppSecret'
@@ -407,7 +407,7 @@ const drawer = ref<any>({
             {
               title: 'ClientSecret',
               name: 'dataJson.clientSecret',
-              control: 'unione-pwd-box',
+              control: 'a-input-password',
               required: true,
               props: {
                 placeholder: '请输入ClientSecret'
