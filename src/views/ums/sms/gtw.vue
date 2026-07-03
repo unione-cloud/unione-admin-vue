@@ -225,7 +225,12 @@ const drawer = ref<any>({
               name: 'authScript',
               control: 'unione-code-editor',
               props: {
-                language: 'javascript'
+                language: 'javascript',
+                help: '常用工具包： var DateUtil=Java.type("cn.hutool.core.date.DateUtil");' +
+                  'var MD5=Java.type("cn.hutool.crypto.digest.MD5");' +
+                  'var HttpUtil = Java.type("cn.hutool.http.HttpUtil");' +
+                  'var JsonUtil = Java.type("com.unione.cloud.core.util.JsonUtil");' +
+                  'var Map = Java.type("java.util.Map");'
               },
             },]
           },
@@ -243,7 +248,12 @@ const drawer = ref<any>({
               name: 'sendScript',
               control: 'unione-code-editor',
               props: {
-                language: 'javascript'
+                language: 'javascript',
+                help: '常用工具包： var DateUtil=Java.type("cn.hutool.core.date.DateUtil");' +
+                  'var MD5=Java.type("cn.hutool.crypto.digest.MD5");' +
+                  'var HttpUtil = Java.type("cn.hutool.http.HttpUtil");' +
+                  'var JsonUtil = Java.type("com.unione.cloud.core.util.JsonUtil");' +
+                  'var Map = Java.type("java.util.Map");'
               },
             },]
           },
@@ -261,7 +271,12 @@ const drawer = ref<any>({
               name: 'receiveScript',
               control: 'unione-code-editor',
               props: {
-                language: 'javascript'
+                language: 'javascript',
+                help: '常用工具包： var DateUtil=Java.type("cn.hutool.core.date.DateUtil");' +
+                  'var MD5=Java.type("cn.hutool.crypto.digest.MD5");' +
+                  'var HttpUtil = Java.type("cn.hutool.http.HttpUtil");' +
+                  'var JsonUtil = Java.type("com.unione.cloud.core.util.JsonUtil");' +
+                  'var Map = Java.type("java.util.Map");'
               },
             },
             {
@@ -283,7 +298,12 @@ const drawer = ref<any>({
               name: 'receiptScript',
               control: 'unione-code-editor',
               props: {
-                language: 'javascript'
+                language: 'javascript',
+                help: '常用工具包： var DateUtil=Java.type("cn.hutool.core.date.DateUtil");' +
+                  'var MD5=Java.type("cn.hutool.crypto.digest.MD5");' +
+                  'var HttpUtil = Java.type("cn.hutool.http.HttpUtil");' +
+                  'var JsonUtil = Java.type("com.unione.cloud.core.util.JsonUtil");' +
+                  'var Map = Java.type("java.util.Map");'
               },
             },
             {
