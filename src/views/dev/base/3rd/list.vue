@@ -105,18 +105,24 @@ async function btnClick({ btn, event, row, keys }: any) {
     drawer.value.visible = true
     drawer.value.title = '新增3rd认证'
     drawer.value.placement = 'left'
-    drawer.value.row = {}
+    drawer.value.row = {
+      dataJson: {
+        data: {}
+      }
+    }
     nextTick(() => {
       form.value.reset()
+      form.value.setValue(drawer.value.row)
     })
   }
   if (btn.name == 'edit') {
     drawer.value.visible = true
     drawer.value.title = '编辑3rd认证'
     drawer.value.placement = 'right'
-    drawer.value.row = row
+    drawer.value.row = { ...row }
+    drawer.value.row.dataJson = JSON.parse(row.dataJson || '{"data":{}}')
     nextTick(() => {
-      form.value.setValue(row)
+      form.value.setValue(drawer.value.row)
     })
   }
   if (btn.name.startsWith('sts-')) {
@@ -140,7 +146,7 @@ async function btnClick({ btn, event, row, keys }: any) {
 }
 
 const form = ref() //form ref obj
-const drawer = ref({
+const drawer = ref<any>({
   title: '新增3rd认证',
   placement: 'left',
   visible: false,
@@ -172,11 +178,6 @@ const drawer = ref({
               {
                 title: '编码',
                 name: 'sn',
-                required: true,
-              },
-              {
-                title: 'URL',
-                name: 'url',
                 required: true,
               },
               {
@@ -251,15 +252,207 @@ const drawer = ref({
           {
             title: '认证信息',
             widgets: [{
-              title: '认证信息',
-              name: 'dataJson',
+              title: '认证类型',
+              name: 'dataJson.type',
+              control: 'unione-select-box',
+              value: 'normal',
+              convert: {
+                types: 'option',
+                options: [
+                  {
+                    label: '普通认证',
+                    value: 'normal'
+                  },
+                  {
+                    label: '令牌认证',
+                    value: 'token'
+                  },
+                  {
+                    label: 'Api认证',
+                    value: 'api'
+                  },
+                  {
+                    label: 'App认证',
+                    value: 'app'
+                  }, {
+                    label: 'Oauth2认证',
+                    value: 'oauth2'
+                  }
+                ]
+              }
+            }, {
+              title: '认证URL',
+              name: 'url',
+              required: true,
+            }, {
+              title: '认证帐号',
+              name: 'dataJson.account',
+              required: true,
+              props: {
+                placeholder: '请输入认证帐号'
+              },
+              event: {
+                visible: (val: any, formValue: any) => {
+                  return formValue.dataJson.type == 'normal'
+                }
+              }
+            }, {
+              title: '认证密码',
+              name: 'dataJson.password',
+              control: 'unione-pwd-box',
+              required: true,
+              props: {
+                placeholder: '请输入认证密码'
+              },
+              event: {
+                visible: (val: any, formValue: any) => {
+                  return formValue.dataJson.type == 'normal'
+                }
+              }
+            }, {
+              title: '认证令牌',
+              name: 'dataJson.token',
+              control: 'unione-pwd-box',
+              required: true,
+              event: {
+                visible: (val: any, formValue: any) => {
+                  return formValue.dataJson.type == 'token'
+                }
+              }
+            },
+            {
+              title: 'ApiKey',
+              name: 'dataJson.apiKey',
+              control: 'a-input',
+              required: true,
+              props: {
+                placeholder: '请输入ApiKey'
+              },
+              event: {
+                visible: (val: any, formValue: any) => {
+                  return formValue.dataJson.type == 'api'
+                }
+              }
+            },
+            {
+              title: 'ApiSecret',
+              name: 'dataJson.apiSecret',
+              control: 'unione-pwd-box',
+              required: true,
+              props: {
+                placeholder: '请输入ApiSecret'
+              },
+              event: {
+                visible: (val: any, formValue: any) => {
+                  return formValue.dataJson.type == 'api'
+                }
+              }
+            },
+            {
+              title: 'AppId',
+              name: 'dataJson.appId',
+              control: 'a-input',
+              required: true,
+              props: {
+                placeholder: '请输入AppId'
+              },
+              event: {
+                visible: (val: any, formValue: any) => {
+                  return formValue.dataJson.type == 'app'
+                }
+              }
+            },
+            {
+              title: 'AppKey',
+              name: 'dataJson.appKey',
+              control: 'a-input',
+              required: true,
+              props: {
+                placeholder: '请输入AppKey'
+              },
+              event: {
+                visible: (val: any, formValue: any) => {
+                  return formValue.dataJson.type == 'app'
+                }
+              }
+            },
+            {
+              title: 'AppSecret',
+              name: 'dataJson.appSecret',
+              control: 'unione-pwd-box',
+              required: true,
+              props: {
+                placeholder: '请输入AppSecret'
+              },
+              event: {
+                visible: (val: any, formValue: any) => {
+                  return formValue.dataJson.type == 'app'
+                }
+              }
+            },
+            {
+              title: 'ClientId',
+              name: 'dataJson.clientId',
+              control: 'a-input',
+              required: true,
+              props: {
+                placeholder: '请输入ClientId'
+              },
+              event: {
+                visible: (val: any, formValue: any) => {
+                  return formValue.dataJson.type == 'oauth2'
+                }
+              }
+            },
+            {
+              title: 'ClientSecret',
+              name: 'dataJson.clientSecret',
+              control: 'unione-pwd-box',
+              required: true,
+              props: {
+                placeholder: '请输入ClientSecret'
+              },
+              event: {
+                visible: (val: any, formValue: any) => {
+                  return formValue.dataJson.type == 'oauth2'
+                }
+              }
+            },
+            {
+              title: 'RedirectUri',
+              name: 'dataJson.redirectUri',
+              control: 'a-input',
+              required: true,
+              props: {
+                placeholder: '请输入RedirectUri'
+              },
+              event: {
+                visible: (val: any, formValue: any) => {
+                  return formValue.dataJson.type == 'oauth2'
+                }
+              }
+            },
+            {
+              title: 'GrantType',
+              name: 'dataJson.grantType',
+              required: true,
+              props: {
+                placeholder: '请输入GrantType'
+              },
+              event: {
+                visible: (val: any, formValue: any) => {
+                  return formValue.dataJson.type == 'oauth2'
+                }
+              }
+            },
+            {
+              title: '认证参数',
+              name: 'dataJson.data',
               control: 'unione-code-editor',
               props: {
-                language: 'json'
+                language: 'json',
+                valueType: 'object'
               },
-              view: {
-                hideLabel: 0
-              }
             },
             ]
           },
@@ -271,6 +464,11 @@ const drawer = ref({
               control: 'unione-code-editor',
               props: {
                 language: 'javascript',
+                help: '常用工具包： var DateUtil=Java.type("cn.hutool.core.date.DateUtil");' +
+                  'var MD5=Java.type("cn.hutool.crypto.digest.MD5");' +
+                  'var HttpUtil = Java.type("cn.hutool.http.HttpUtil");' +
+                  'var JsonUtil = Java.type("com.unione.cloud.core.util.JsonUtil");' +
+                  'var Map = Java.type("java.util.Map");'
               },
               view: {
                 hideLabel: 0
@@ -292,6 +490,7 @@ const drawer = ref({
         ...data,
         registeWay: 2
       }
+      data.dataJson = JSON.stringify(data.dataJson)
       page.value
         .storage()
         .save({ data })
