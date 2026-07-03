@@ -185,7 +185,7 @@ const drawer = ref({
                 control: 'unione-icon-select'
               },
               {
-                title: '图片图标(小)',
+                title: '图片图标',
                 name: 'picMix',
                 control: 'unione-upload-box',
                 props: {
@@ -196,40 +196,33 @@ const drawer = ref({
                   bucket: 'system'
                 }
               },
-              {
-                title: '图片图标(中)',
-                name: 'picMid',
-                control: 'unione-upload-box',
-                props: {
-                  accept: 'image/*',
-                  listType: 'picture-card',
-                  limit: 1,
-                  valueType: 'string',
-                  bucket: 'system'
-                }
-              },
-              {
-                title: '图片图标(大)',
-                name: 'picMax',
-                control: 'unione-upload-box',
-                props: {
-                  accept: 'image/*',
-                  listType: 'picture-card',
-                  limit: 1,
-                  valueType: 'string',
-                  bucket: 'system'
-                }
-              },
+              // {
+              //   title: '图片图标(中)',
+              //   name: 'picMid',
+              //   control: 'unione-upload-box',
+              //   props: {
+              //     accept: 'image/*',
+              //     listType: 'picture-card',
+              //     limit: 1,
+              //     valueType: 'string',
+              //     bucket: 'system'
+              //   }
+              // },
+              // {
+              //   title: '图片图标(大)',
+              //   name: 'picMax',
+              //   control: 'unione-upload-box',
+              //   props: {
+              //     accept: 'image/*',
+              //     listType: 'picture-card',
+              //     limit: 1,
+              //     valueType: 'string',
+              //     bucket: 'system'
+              //   }
+              // },
               {
                 title: '技术文档',
                 name: 'docLink',
-              },
-              {
-                title: '租户配置',
-                widget: 'unione-section',
-                props: {
-                  type: 'line'
-                }
               },
               {
                 title: '状态',
