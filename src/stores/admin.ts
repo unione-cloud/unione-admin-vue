@@ -82,7 +82,8 @@ export const useAdminStore = defineStore('unione-admin', () => {
           label: item.title,
           icon: item.meta?.icon,
           path: item.path,
-          parent: parent?.key || ''
+          parent: parent?.key || '',
+          meta: item.meta || {}
         }
         if (menu.icon && typeof menu.icon === 'string') {
           // console.log('menu name:' + item.id + ',icon:' + menu.icon)
@@ -246,7 +247,8 @@ export const useAdminStore = defineStore('unione-admin', () => {
                   return mlist
                 }
                 menuList = res.body.map((app: any) => {
-                  return {
+                  const children: any = processMenu(app, app.menus)
+                  const menu: any = {
                     id: app.id,
                     appId: app.id,
                     title: app.name,
@@ -258,8 +260,16 @@ export const useAdminStore = defineStore('unione-admin', () => {
                       versNo: app.versNo,
                       welcome: app.welcome
                     },
-                    children: processMenu(app, app.menus)
+                    children
                   }
+                  if (children.length == 1 && children[0].meta?.isHide == 1) {
+                    menu.meta.redirect = {
+                      path: children[0].path,
+                      url: children[0].url,
+                      isExternal: children[0].meta.isExternal
+                    }
+                  }
+                  return menu
                 })
                 session.setStorage('menuList', JSON.stringify(menuList))
                 process(menuList)
@@ -357,8 +367,24 @@ export const useAdminStore = defineStore('unione-admin', () => {
       sideMenu.value.openKeys = []
       sideMenu.value.list = menu.children
       if (!menu.children || !menu.children.length) {
-        router.push(menu.path)
         visitEntry(menu)
+        if (menu.meta?.redirect) {
+          if (menu.meta.redirect.url) {
+            if (menu.meta.redirect.isExternal == 1) {
+              nextTick(() => {
+                topMenu.value.selectedKeys = []
+                topMenu.value.openKeys = []
+              })
+              window.open(menu.meta.redirect.url, '_blank')
+              return
+            }
+          }
+          if (menu.meta.redirect.path) {
+            router.push(menu.meta.redirect.path)
+            return
+          }
+        }
+        router.push(menu.path)
       } else {
         const openSubMenu = (m: any) => {
           if (!m.children || !m.children.length) {
