@@ -363,6 +363,9 @@ export const useAdminStore = defineStore('unione-admin', () => {
       return
     }
     if (personal.value?.layout == 'topside') {
+      const topSelectedKeys = [...topMenu.value.selectedKeys]
+      const topOpenKeys = [...topMenu.value.openKeys]
+      const sideMenuList = [...sideMenu.value.list]
       sideMenu.value.selectedKeys = []
       sideMenu.value.openKeys = []
       sideMenu.value.list = menu.children
@@ -372,8 +375,9 @@ export const useAdminStore = defineStore('unione-admin', () => {
           if (menu.meta.redirect.url) {
             if (menu.meta.redirect.isExternal == 1) {
               nextTick(() => {
-                topMenu.value.selectedKeys = []
-                topMenu.value.openKeys = []
+                topMenu.value.selectedKeys = topSelectedKeys
+                topMenu.value.openKeys = topOpenKeys
+                sideMenu.value.list = sideMenuList
               })
               window.open(menu.meta.redirect.url, '_blank')
               return
