@@ -10,7 +10,7 @@
       <div class="head" @mousedown="mousedown">
         <div class="title" :style="{ color: isActive && '#000' }" :title="formData.name">{{ formData.title }} 属性</div>
         <div class="close" @click="onClose">
-          <a-icon type="close" />
+          <close-outlined></close-outlined>
         </div>
       </div>
       <div class="content">
@@ -27,7 +27,7 @@
             <div class="control">
               <div class="label">标题：</div>
               <div class="value">
-                <a-input v-model:value="formData.updateName" v-if="docQueryType == 1" />
+                <a-input v-model:value="formData.updateName" v-if="docQueryType == 1 && !readOnly" />
                 <span v-else>
                   {{ formData.updateName }}
                 </span>
@@ -63,11 +63,11 @@
           </div>
 
           <div class="auth" v-show="currentTab.key == 'auth'">
-            <auth-box v-model:value="formData" :isPublic="isPublic || indeterminate" />
+            <auth-box v-model:value="formData" :isPublic="isPublic || indeterminate" :readOnly="readOnly" />
           </div>
         </div>
       </div>
-      <div class="footer">
+      <div class="footer" v-if="!readOnly">
         <div class="btn" v-if="docQueryType == 1" :class="[isActive && 'active']" @click="toConfirm">
           确定
         </div>
@@ -89,6 +89,7 @@ import {
 } from '../../docApi'
 import AuthBox from './auth.vue'
 import { message } from 'ant-design-vue';
+import { CloseOutlined } from '@ant-design/icons-vue';
 
 export default {
   components: { AuthBox },
@@ -104,6 +105,11 @@ export default {
     isActive: {
       type: Boolean,
       default: true,
+    },
+    /** 是否只读 */
+    readOnly: {
+      type: Boolean,
+      default: () => false,
     },
   },
   data() {

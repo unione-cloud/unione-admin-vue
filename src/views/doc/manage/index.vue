@@ -1,24 +1,37 @@
 <template>
   <div class="doc-manage">
-    <a-tabs v-model:activeKey="activeKey" tab-position="left">
+    <a-tabs v-model:activeKey="activeKey" tab-position="left" v-if="!hideTypeTab">
       <a-tab-pane :tab="item.tab" v-for="item in tabList" :key="item.key">
         <unione-query @query="handleQuery" @reset="handleReset"></unione-query>
         <div class="doc-list">
           <div class="manage-box doc-tab-bar">
             <!-- 操作栏 -->
-            <TabBar :PublicType="queryType != 1" @onNewFolder="onNewFolder" :ProadMap="roadMap" @onTitleNav="onTitleNav"
-              :PMapIndex="MapIndex" @onShowtype="onShowtype" @onTabBarEvent="onTabBarEvent" @onDeleteBtn="onDeleteBtn"
-              :PInArray="in_array" @onUpload="onUpload" />
+            <TabBar :PublicType="queryType != 1 || viewOnly" @onNewFolder="onNewFolder" :ProadMap="roadMap"
+              @onTitleNav="onTitleNav" :PMapIndex="MapIndex" @onShowtype="onShowtype" @onTabBarEvent="onTabBarEvent"
+              @onDeleteBtn="onDeleteBtn" :PInArray="in_array" @onUpload="onUpload" />
           </div>
 
-          <FileBox @scroll="loadMore" class="doc-file-box" :PublicType="queryType != 1" :spinning="spinning"
+          <FileBox @scroll="loadMore" class="doc-file-box" :PublicType="queryType != 1 || viewOnly" :spinning="spinning"
             :listdata="listData" @onSend="onSend" :showType="showType" @returnCheckedArray="onChecked"
             @onMenuCMD="onMenuCMD" @onDeleteBtn="onDeleteBtn" />
-
-
         </div>
       </a-tab-pane>
     </a-tabs>
+    <template v-else>
+      <unione-query @query="handleQuery" @reset="handleReset"></unione-query>
+      <div class="doc-list">
+        <div class="manage-box doc-tab-bar">
+          <!-- 操作栏 -->
+          <TabBar :PublicType="queryType != 1 || viewOnly" @onNewFolder="onNewFolder" :ProadMap="roadMap"
+            @onTitleNav="onTitleNav" :PMapIndex="MapIndex" @onShowtype="onShowtype" @onTabBarEvent="onTabBarEvent"
+            @onDeleteBtn="onDeleteBtn" :PInArray="in_array" @onUpload="onUpload" />
+        </div>
+
+        <FileBox @scroll="loadMore" class="doc-file-box" :PublicType="queryType != 1 || viewOnly" :spinning="spinning"
+          :listdata="listData" @onSend="onSend" :showType="showType" @returnCheckedArray="onChecked"
+          @onMenuCMD="onMenuCMD" @onDeleteBtn="onDeleteBtn" />
+      </div>
+    </template>
 
     <!-- 在线查看 -->
     <LinePreview v-if="currentFile.suffix" @onHide="Hide" :Pdata="currentFile" />
@@ -68,7 +81,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { nextTick, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
 //@ts-ignore
@@ -198,6 +211,13 @@ const isUpdatePublic = ref(false),
   queryType = ref<any>(null),
   // 所属ID 场景管理使用
   ownerId = ref<any>(undefined)
+
+const hideTypeTab = computed(() => {
+  return route.query.htt == '1'
+})
+const viewOnly = computed<boolean>(() => {
+  return route.query.vo == '1'
+})
 
 watch(() => MapIndex.value, (newVal, oldVal) => {
   if (newVal !== oldVal) {

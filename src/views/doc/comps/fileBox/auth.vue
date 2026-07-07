@@ -9,7 +9,7 @@
     </div>
     <div class="content">
       <div class="auth">
-        <div class="title">
+        <div class="title" v-if="!readOnly">
           <!-- {{ currentTab.label }} -->
           <div class="btn pirmaryBtn" v-if="!currentTab.isSelect" @click="add(currentTab)">添加</div>
           <div class="btn pirmaryBtn" v-if="currentTab.isSelect" @click="rem(currentTab)">移除</div>
@@ -65,6 +65,11 @@ export default {
     },
     permis: {
       type: Array,
+    },
+    /** 是否只读 */
+    readOnly: {
+      type: Boolean,
+      default: () => false,
     },
   },
   data() {

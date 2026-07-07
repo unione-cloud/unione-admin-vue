@@ -116,7 +116,7 @@
     </div>
     <template v-for="(item, index) in attriFileList" :key="item.id">
       <attr-box :isActive="activeWindow == item.id" :fileData="item" :elIndex="index" @close="onClose"
-        @active="onActive" @apiSuccess="apiSuccess" />
+        @active="onActive" @apiSuccess="apiSuccess" :readOnly="PublicType || viewOnly" />
     </template>
   </a-spin>
 </template>
