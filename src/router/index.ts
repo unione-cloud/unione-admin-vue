@@ -86,6 +86,10 @@ export const router = createRouter({
       ]
     },
     {
+      path: '/sass/doc',
+      component: () => import('@/views/doc/manage/index.vue')
+    },
+    {
       path: '/login',
       name: 'login',
       component: () => import('@/views/login.vue')
