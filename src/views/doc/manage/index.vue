@@ -300,6 +300,7 @@ function getApiFiles() {
       title: queryData.value.name,
       ownerId: ownerId.value,
       fileType: activeKey.value,
+      appCode: route.meta?.appCode,
     },
     sorts: [{ name: 'lastUpdated', asc: false }],
     page: queryData.value.page,
