@@ -177,7 +177,13 @@ export const useAdminStore = defineStore('unione-admin', () => {
               }
             }
           }
-          router.push({ path: to.path, query: to.query, params: to.params })
+          const query: any = { ...to.query }
+          delete query['accessToken']
+          router.push({
+            path: to.path,
+            query: query,
+            params: to.params
+          })
           if (menuMap.value[to.key]) {
             visitEntry(menuMap.value[to.key])
           }
@@ -461,6 +467,10 @@ export const useAdminStore = defineStore('unione-admin', () => {
     return session.isLogin()
   }
 
+  function thirdLogin() {
+    return session.thirdAuth()
+  }
+
   function logout() {
     session.doLogout().then(() => {
       menuData.value = []
@@ -526,6 +536,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
     view,
     logout,
     isLogin,
+    thirdLogin,
     rebuildMenu,
     loadBreadcrumbList,
     system,

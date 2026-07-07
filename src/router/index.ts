@@ -121,7 +121,14 @@ router.beforeEach((to: any, from: any, next) => {
 
   admin.entry()
   if (!admin.isLogin()) {
-    next({ path: '/login' })
+    admin
+      .thirdLogin()
+      .then(() => {
+        admin.initRoute(to)
+      })
+      .catch(() => {
+        next({ path: '/login' })
+      })
   } else {
     admin.initRoute(to).then(() => {
       next()
