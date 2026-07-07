@@ -277,6 +277,9 @@ onMounted(() => {
 
   /** 获取本地缓存中的查看模式 */
   showType.value = session.getStorage('doc:showType') || 0
+  if (route.query.st == '1') {
+    showType.value = 1
+  }
 
   getConfig()
 
