@@ -57,42 +57,37 @@
           </span>
         </div>
       </div>
-      <div v-if="showType == 1" style="background: white" class="common-table scrollBar" ref="fileTable">
+      <div v-if="showType == 1" style="background: white;margin-top: 5px;" class="common-table scrollBar"
+        ref="fileTable">
         <a-table :columns="columns" :rowKey="(record, index) => record.id" :rowSelection="rowSelection"
-          :dataSource="sort_data" :pagination="false" bordered>
-          <template v-slot:name="text, record">
-            <div class="tablename" @click="onSend(record)" :title="record.name">
-              <!-- :title="record.status==1?record.name:record.status==2?'未审核':'审核不通过'" -->
-              <div class="tableimg">
-                <span class="fileicon-large-review" :class="[
-                  record.fileType === 'dir'
-                    ? 'dir-large'
-                    : ['jpg', 'jpeg'].includes(record.suffix)
-                      ? 'fileicon-large-jpg'
-                      : ['png'].includes(record.suffix)
-                        ? 'fileicon-large-png'
-                        : ['gif'].includes(record.suffix)
-                          ? 'fileicon-large-gif'
-                          : ['xls'].includes(record.suffix)
-                            ? 'fileicon-large-xls'
-                            : ['xlsx'].includes(record.suffix)
-                              ? 'fileicon-large-xlsx'
-                              : record.suffix == 'mp4'
-                                ? 'fileicon-large-mp4'
-                                : ['pdf'].includes(record.suffix)
-                                  ? 'fileicon-large-pdf'
-                                  : ['doc', 'docx'].includes(record.suffix)
-                                    ? 'fileicon-large-doc'
-                                    : 'fileicon-large-unknow',
-                ]"></span>
+          :dataSource="sort_data" bordered size="small">
+
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.dataIndex == 'name'">
+              <div class="tablename" @click="onSend(record)" :title="record.name">
+                <!-- :title="record.status==1?record.name:record.status==2?'未审核':'审核不通过'" -->
+                <div class="tableimg">
+                  <a-image v-if="IMAGE_SUFFIX.includes(record.suffix) && !record.error" @error="record.error = 1"
+                    :src="config.axios.admin + `/api/common/store/preview/${record.id}`" @click.stop />
+                  <span v-else class="fileicon-large-review" :class="[
+                    record.fileType === 'dir'
+                      ? 'dir-large'
+                      : ['xls'].includes(record.suffix)
+                        ? 'fileicon-large-xls'
+                        : ['xlsx'].includes(record.suffix)
+                          ? 'fileicon-large-xlsx'
+                          : record.suffix == 'mp4'
+                            ? 'fileicon-large-mp4'
+                            : ['pdf'].includes(record.suffix)
+                              ? 'fileicon-large-pdf'
+                              : ['doc', 'docx'].includes(record.suffix)
+                                ? 'fileicon-large-doc'
+                                : 'fileicon-large-unknow',
+                  ]"></span>
+                </div>
+                <span>{{ record.title }}</span>
               </div>
-              <span>{{ record.title }}</span>
-            </div>
-          </template>
-          <template v-slot:isPublic="text">
-            <div>
-              {{ text == 1 ? '是' : '否' }}
-            </div>
+            </template>
           </template>
         </a-table>
       </div>
@@ -168,21 +163,37 @@ export default {
         {
           title: '文件名称',
           dataIndex: 'name',
-          scopedSlots: { customRender: 'name' },
+        },
+        {
+          title: '文件大小',
+          dataIndex: 'size',
           align: 'center',
+          width: 100,
+          customRender: ({ text }) => {
+            return (text / 1024 / 1024).toFixed(2) + 'MB'
+          },
         },
         {
           title: '后缀',
           dataIndex: 'suffix',
-          scopedSlots: { customRender: 'suffix' },
           align: 'center',
+          width: 100,
         },
         {
           title: '是否已公开',
           dataIndex: 'isPublic',
-          scopedSlots: { customRender: 'isPublic' },
+          width: 100,
+          customRender: ({ text }) => {
+            return text == 1 ? '是' : '否'
+          },
           align: 'center',
         },
+        {
+          title: '上传时间',
+          dataIndex: 'created',
+          align: 'center',
+          width: 180,
+        }
       ],
       in_array: [], // 选中的数据
       /** 当前选择附件信息 */
@@ -279,6 +290,9 @@ export default {
      * @param {Object} record 本条数据的信息
      */
     onSend(record) {
+      if (IMAGE_SUFFIX.includes(record.suffix)) {
+        return
+      }
       this.$emit('onSend', record)
       return false
     },

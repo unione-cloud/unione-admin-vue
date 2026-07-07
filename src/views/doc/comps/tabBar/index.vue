@@ -3,7 +3,7 @@
   <div class="TabBarBox">
     <div class="TabBar">
       <div class="btn" @click="showUpload" v-if="!PublicType">
-        <a-icon type="upload" />
+        <UploadOutlined />
         <span>上传</span>
       </div>
       <div class="loading" v-if="loading">
@@ -18,7 +18,7 @@
               PInArray.filter((e) => e.permisKeys && e.permisKeys.includes('download')).length <= 0),
         },
       ]">
-        <a-icon type="download" />
+        <DownloadOutlined />
         <span>下载</span>
       </div>
       <!-- <div
@@ -30,15 +30,16 @@
         <span>公开</span>
       </div> -->
       <div v-if="!PublicType" class="btn" :class="[{ isdisabled: PInArray.length < 1 }]" @click="deleteBtn">
-        <a-icon type="delete" />
+        <DeleteOutlined />
         <span>删除</span>
       </div>
       <div class="btn" @click="onNewFolder" v-if="!PublicType">
-        <a-icon type="folder-add" />
+        <FolderOutlined />
         <span>新建文件夹</span>
       </div>
-      <div class="btn" @click="changeShowtype" onselectstart="return false">
-        <a-icon :type="showType ? 'unordered-list' : 'appstore'" />
+      <div class="btn" @click="changeShowtype" onselectstart="return false" title="切换视图">
+        <UnorderedListOutlined v-if="showType == 1" />
+        <AppstoreOutlined v-else />
       </div>
     </div>
     <div class="FileOn">
