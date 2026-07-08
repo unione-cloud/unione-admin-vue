@@ -13,8 +13,8 @@
 
     <!-- PDF文件预览 -->
     <div v-if="pdfUrl" class="Pdf_box">
-      <span class="close-bgmask" @click="Hide"></span>
-      <iframe :src="config.axios.admin + `/pdf/web/viewer.html?file=${pdfUrl}&permisKeys=${Pdata.permisKeys}`"></iframe>
+      <!-- <iframe :src="config.axios.admin + `/pdf/web/viewer.html?file=${pdfUrl}&permisKeys=${Pdata.permisKeys}`"></iframe> -->
+      <unione-pdf-view :url="pdfUrl" :title="Pdata.title" @close="Hide"></unione-pdf-view>
     </div>
 
     <!-- 文本文件预览 -->
@@ -30,9 +30,13 @@ import { VIDEO_SUFFIX, PDF_SUFFIX, TXT_SUFFIX } from '../../config'
 import { getFile } from '../../docApi'
 import { useConfigStore } from '@/config';
 import { message } from 'ant-design-vue';
+import UnionePdfView from '../../pdf.vue'
 
 export default {
   name: 'LinePreview',
+  components: {
+    UnionePdfView
+  },
   props: {
     Pdata: {
       type: Object,
