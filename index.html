@@ -9,5 +9,10 @@
   <body>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
+    <script>
+      if (window.location.search.indexOf('isIframe=1') > -1) {
+        document.body.classList.add('isIframe')
+      }
+    </script>
   </body>
 </html>
