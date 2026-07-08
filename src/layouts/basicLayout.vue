@@ -290,7 +290,7 @@ const isIframe = computed(() => {
 
     .unione-iframe-content {
       width: 100%;
-      height: 100%;
+      height: calc(100% - 20px);
       border: none;
     }
 
