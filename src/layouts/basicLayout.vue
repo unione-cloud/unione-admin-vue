@@ -171,10 +171,16 @@ const viewComponent = computed(() => {
 
 const iframeUrl = computed<string>(() => {
   if (route.meta.isIframe == 1 && route.meta.url) {
-    if (route.meta.url.toString().indexOf('?') == -1) {
-      return route.meta.url.toString() + '?isIframe=1'
+    let url = route.meta.url.toString()
+    if (url.indexOf('?') == -1) {
+      url += '?isIframe=1'
+    } else {
+      url += '&isIframe=1'
     }
-    return route.meta.url.toString() + '&isIframe=1'
+    if (url.indexOf('{accessToken}') != -1) {
+      url = url.replace('{accessToken}', session.getToken())
+    }
+    return url
   }
   return ''
 })
