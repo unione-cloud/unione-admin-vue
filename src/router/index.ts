@@ -87,7 +87,13 @@ export const router = createRouter({
     },
     {
       path: '/sass/doc',
+      name: 'doc',
       component: () => import('@/views/doc/manage/index.vue')
+    },
+    {
+      path: '/sass/pdf',
+      name: 'pdf',
+      component: () => import('@/views/doc/pdf.vue')
     },
     {
       path: '/login',
