@@ -5,7 +5,7 @@ import { locales } from 'unione-base-vue'
 import { useAdminStore } from './stores/admin'
 
 const helper = ref({
-  baseURL: '/openai/v1',
+  baseURL: 'http://192.168.56.1:4000/v1',
   apiKey: 'sk--EmgF4LwGb7gM-bkFp9gEA',
   model: 'deepseek-v4-pro-online',
   voice: {
