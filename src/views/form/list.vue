@@ -128,7 +128,16 @@ const define = ref({
       name: 'lastUpdated'
     }
   ],
-  rightBtns: ['downTmpl'],
+  rightBtns: ['downTmpl',
+    {
+      name: 'impData',
+      action: {
+        params: [
+          { name: 'accept', title: '文件类型', value: '.json' },
+        ]
+      }
+    }
+  ],
   operation: {
     title: '操作',
     width: 250,
