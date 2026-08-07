@@ -30,15 +30,16 @@
     </a-tabs>
 
     <!-- 机构选择组件 -->
-    <UnioneOrganSelect v-model:visible="organSelect.visible" :selected="dataIds" position="left" @ok="organSelect.ok">
+    <UnioneOrganSelect v-model:visible="organSelect.visible" :selected="dataIds" :position="position"
+      @ok="organSelect.ok">
     </UnioneOrganSelect>
 
     <!-- 用户选择组件 -->
-    <UnioneUserSelect v-model:visible="userSelect.visible" :selected="dataIds" position="left" @ok="userSelect.ok">
+    <UnioneUserSelect v-model:visible="userSelect.visible" :selected="dataIds" :position="position" @ok="userSelect.ok">
     </UnioneUserSelect>
 
     <!-- 角色选择组件 -->
-    <UnioneRoleSelect v-model:visible="roleSelect.visible" :selected="dataIds" mode="disabled" position="left"
+    <UnioneRoleSelect v-model:visible="roleSelect.visible" :selected="dataIds" mode="disabled" :position="position"
       @ok="roleSelect.ok"></UnioneRoleSelect>
   </div>
 </template>
@@ -93,7 +94,8 @@ const props = defineProps({
   //目标显示字段：默认显示目标名称
   showField: { type: Array<ShowField>, required: false },
   //目标显示方式：tag标签，card卡片，list列表，table表格
-  showType: { type: String, default: 'tag' }
+  showType: { type: String, default: 'tag' },
+  position: { type: String, default: 'left' }
 })
 
 const activeKey = ref(0)
@@ -134,7 +136,7 @@ const organSelect = ref({
       e.list.forEach((item: any) => {
         if (!dataIds.value.includes(item.id)) {
           dataIds.value.push(item.id)
-          valueList.push({ targetType: '3', targetId: item.id, targetName: item.title })
+          valueList.push({ targetType: '3', targetId: item.id, targetName: item.title, targetSn: item.sn, targetTitle: item.title })
         }
       })
       modelValue.value = valueList
@@ -151,7 +153,7 @@ const roleSelect = ref({
       e.list.forEach((item: any) => {
         if (!dataIds.value.includes(item.id)) {
           dataIds.value.push(item.id)
-          valueList.push({ targetType: '5', targetId: item.id, targetName: item.title })
+          valueList.push({ targetType: '5', targetId: item.id, targetName: item.title, targetSn: item.sn, targetTitle: item.title })
         }
       })
       modelValue.value = valueList
@@ -168,7 +170,7 @@ const userSelect = ref({
       e.list.forEach((item: any) => {
         if (!dataIds.value.includes(item.id)) {
           dataIds.value.push(item.id)
-          valueList.push({ targetType: '4', targetId: item.id, targetName: item.title })
+          valueList.push({ targetType: '4', targetId: item.id, targetName: item.title, targetTitle: item.title })
         }
       })
       modelValue.value = valueList
