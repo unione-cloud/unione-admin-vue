@@ -3,13 +3,8 @@
   <div class="unione-page unione-page-list unione-system-user">
     <unione-page-list ref="page" v-bind="define" @btnClick="btnClick"></unione-page-list>
 
-    <a-drawer
-      :title="drawer.title"
-      :width="550"
-      v-model:visible="drawer.visible"
-      :placement="drawer.placement"
-      class="drawer-form"
-    >
+    <a-drawer :title="drawer.title" :width="550" v-model:visible="drawer.visible" :placement="drawer.placement"
+      class="drawer-form">
       <unione-form :form="drawer.form" ref="form"></unione-form>
 
       <div class="btns">
@@ -58,7 +53,6 @@ const define = ref({
         types: 'dict',
         dictName: 'SEX'
       },
-      control: 'unione-select-box',
       isQuery: true
     },
     {

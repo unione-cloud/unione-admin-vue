@@ -35,7 +35,6 @@ const define = ref({
     {
       title: '角色类型',
       name: 'types',
-      control: 'unione-select-box',
       value: 0,
       convert: {
         types: 'dict',
@@ -46,7 +45,6 @@ const define = ref({
     {
       title: '角色状态',
       name: 'status',
-      control: 'unione-switch-box',
       value: 1,
       convert: {
         types: 'dict',

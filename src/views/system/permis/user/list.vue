@@ -3,21 +3,11 @@
   <div class="unione-page unione-page-list unione-system-user-permis">
     <unione-page-list ref="page" v-bind="define" @btnClick="btnClick"></unione-page-list>
 
-    <UnioneRoleSelect
-      v-model:visible="roleSelectVisible"
-      targetType="assign"
-      :targetValue="targetObj?.id"
-      position="right"
-      @ok="handelUserOk"
-    ></UnioneRoleSelect>
+    <UnioneRoleSelect v-model:visible="roleSelectVisible" targetType="assign" :targetValue="targetObj?.id"
+      position="right" @ok="handelUserOk"></UnioneRoleSelect>
 
-    <UnioneResSelect
-      v-model:visible="resSelectVisible"
-      targetType="user"
-      :targetValue="targetObj?.id"
-      position="right"
-      @ok="handelResOk"
-    ></UnioneResSelect>
+    <UnioneResSelect v-model:visible="resSelectVisible" targetType="user" :targetValue="targetObj?.id" position="right"
+      @ok="handelResOk"></UnioneResSelect>
   </div>
 </template>
 
@@ -42,7 +32,6 @@ const define = ref({
       title: '性别',
       name: 'sex',
       convert: { types: 'dict', dictName: 'SEX' },
-      control: 'unione-select-box',
       isQuery: true
     },
     {
