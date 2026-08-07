@@ -15,14 +15,26 @@
       </template>
     </a-drawer>
 
+    <a-drawer :title="dataAuth.title" :width="800" v-model:visible="dataAuth.visible" placement="right"
+      class="drawer-form">
+
+      <unione-page-list v-if="dataAuth.visible" ref="authPage" v-bind="dataAuth.define" @btnClick="authBtnClick"
+        :params="{ permisId: dataAuth.row.id, defineId }"></unione-page-list>
+
+    </a-drawer>
+
+    <unione-target-select v-model:visible="targetSelect.visible" @ok="targetSelect.handleOk"></unione-target-select>
+
   </div>
 </template>
 
 <script setup lang="ts">
+import { axios, useDialog } from 'unione-base-vue'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route: any = useRoute()
+const dialog = useDialog()
 const defineId = computed(() => {
   return route.params.did || route.query.did
 })
@@ -121,11 +133,8 @@ function btnClick({ btn, event, row, keys }: any) {
     })
   }
   if (btn.name == 'auth') {
-    drawer.value.visible = true
-    drawer.value.title = '版本管理'
-    drawer.value.placement = 'right'
-    drawer.value.define = row
-    drawer.value.loadHistorys(row)
+    dataAuth.value.visible = true
+    dataAuth.value.row = row
   }
 }
 
@@ -139,6 +148,95 @@ watch(isSensitive, (newVal) => {
     expressHelper.value = '数据权限过滤SQL'
   }
 }, { immediate: true })
+
+
+const dataAuth = ref<any>({
+  title: '权限管理',
+  visible: false,
+  row: {},
+  define: {
+    storage: {
+      controller: '/api/data/auth',
+    },
+    fields: [
+      {
+        title: '目标类型',
+        name: 'targetType',
+        convert: {
+          types: 'dict',
+          dictName: 'DATAAUTHTYPE'
+        },
+      },
+      {
+        title: '目标ID',
+        name: 'targetId',
+      },
+      {
+        title: '目标编码',
+        name: 'targetSn',
+      },
+      {
+        title: '目标标题',
+        name: 'targetTitle',
+      },
+      {
+        title: '状态',
+        name: 'status',
+        convert: {
+          types: 'dict',
+          dictName: 'USEORNOT'
+        },
+        isQuery: true
+      },
+    ],
+    operation: {
+      title: '操作',
+      width: 90,
+      btns: [
+        'view',
+        'edit'
+      ],
+      count: 3,
+    }
+  }
+})
+
+const authPage = ref<any>(null)
+const targetSelect = ref<any>({
+  visible: false,
+  handleOk: (targets: any) => {
+    const map: any = {
+      3: 'organ',
+      4: 'user',
+      5: 'role',
+    }
+    targets.forEach((t: any) => {
+      t.targetType = map[t.targetType]
+    })
+    axios.admin({
+      url: '/api/data/auth/saves',
+      method: 'post',
+      data: {
+        permisId: dataAuth.value.row.id,
+        targets: targets
+      }
+    }).then((res: any) => {
+      if (res.success) {
+        dataAuth.value.visible = false
+        authPage.value.reload()
+      } else {
+        dialog.error(res.message)
+      }
+    })
+  }
+})
+function authBtnClick({ btn, event, row, keys }: any) {
+  console.log('auth btn click', btn, event, row)
+  if (btn.name == 'add') {
+    targetSelect.value.visible = true
+  }
+}
+
 
 const drawer = ref<any>({
   title: '添加权限',
