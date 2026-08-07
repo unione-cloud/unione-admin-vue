@@ -222,7 +222,7 @@ const targetSelect = ref<any>({
       }
     }).then((res: any) => {
       if (res.success) {
-        dataAuth.value.visible = false
+        targetSelect.value.visible = false
         authPage.value.reload()
       } else {
         dialog.error(res.message)
