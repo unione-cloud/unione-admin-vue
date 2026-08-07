@@ -170,7 +170,7 @@ const userSelect = ref({
       e.list.forEach((item: any) => {
         if (!dataIds.value.includes(item.id)) {
           dataIds.value.push(item.id)
-          valueList.push({ targetType: '4', targetId: item.id, targetName: item.title, targetTitle: item.title })
+          valueList.push({ targetType: '4', targetId: item.id, targetName: item.title, targetSn: item.username, targetTitle: item.title })
         }
       })
       modelValue.value = valueList
