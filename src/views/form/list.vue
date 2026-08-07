@@ -214,6 +214,14 @@ function btnClick({ btn, event, row, keys }: any) {
       }
     })
   }
+  if (btn.name == 'permis') {
+    router.push({
+      path: '/dev/data/permis',
+      query: {
+        did: row.id
+      }
+    })
+  }
   if (btn.name == 'menu') {
     drawerRes.value.targetType = 'form'
     drawerRes.value.targetId = row.id
