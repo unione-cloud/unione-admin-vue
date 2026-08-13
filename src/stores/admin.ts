@@ -371,7 +371,7 @@ export const useAdminStore = defineStore('unione-admin', () => {
     if (personal.value?.layout == 'topside') {
       const topSelectedKeys = [...topMenu.value.selectedKeys]
       const topOpenKeys = [...topMenu.value.openKeys]
-      const sideMenuList = [...sideMenu.value.list]
+      const sideMenuList = [...(sideMenu.value.list || [])]
       sideMenu.value.selectedKeys = []
       sideMenu.value.openKeys = []
       sideMenu.value.list = menu.children
